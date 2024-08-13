@@ -1,0 +1,6 @@
+<h1>Expenses</h1>
+<ul>
+    {% for expense in expenses %}
+    <li>{{ expense.amount }} - {{ expense.category }} on {{ expense.start_date }}</li>
+    {% endfor %}
+</ul>

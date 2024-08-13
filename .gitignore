@@ -1,0 +1,8 @@
+env/
+venv/
+*.pyc
+/.env
+db.sqlite3
+local_settings.py
+.vscode/
+Thumbs.db
