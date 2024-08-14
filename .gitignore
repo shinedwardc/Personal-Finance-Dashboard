@@ -1,7 +1,7 @@
 env/
 venv/
 *.pyc
-/.env
+.env
 db.sqlite3
 local_settings.py
 .vscode/
