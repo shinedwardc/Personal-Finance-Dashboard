@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import Sidebar from './components/sidebar';
 import Breakdown from './components/breakdown';
 import List from './components/list';
-import PrivateRoute from './components/PrivateRoute';
+import PrivateRoute from './components/privateRoute';
 import Login from './components/Login';
 import Logout from './components/Logout';
 

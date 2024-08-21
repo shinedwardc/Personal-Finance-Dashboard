@@ -51,7 +51,7 @@ const Login: React.FC<LoginProps> = ({ setIsLoggedIn }) => {
         />
       </div>
       {error && <p style={{ color: 'red' }}>{error}</p>}
-      <button type="submit">Login</button>
+      <button className="ml-14 mt-1 p-2 text-white border-red-500 bg-red-500 rounded-lg" type="submit">Login</button>
     </form>
   );
 };

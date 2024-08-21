@@ -90,10 +90,13 @@ const Breakdown = () => {
     };
 
     return (
+        <>
+        <h1 className="font-semibold font-ubuntu">Welcome!</h1>
         <div className="mt-6">
             <h2 className="text-center mt-3 font-ubuntu">Expense summary</h2>
             <Pie data={data} options={options}/>
         </div>
+        </>
     )
 }
 export default Breakdown;
