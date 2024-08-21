@@ -4,10 +4,16 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        sans: ['ui-sans-serif', 'system-ui', 'sans-serif', "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"],
+        roboto: ['Roboto', 'sans-serif'],
+        ubuntu: ['Ubuntu', 'sans-serif'],
       }
     },
   },
+  purge: [
+    './src/**/*.html',
+    './src/**/*.js',
+    './src/**/*.tsx',    
+  ],
   plugins: [],
 }
 

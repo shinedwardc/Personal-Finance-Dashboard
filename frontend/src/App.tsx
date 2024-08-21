@@ -1,23 +1,50 @@
-import { useState, useEffect } from 'react'
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom'
-import axios from 'axios';
 import './App.css'
+import { useState, useEffect } from 'react';
 import Sidebar from './components/sidebar';
 import Breakdown from './components/breakdown';
 import List from './components/list';
-
-
-
+import PrivateRoute from './components/PrivateRoute';
+import Login from './components/Login';
+import Logout from './components/Logout';
 
 function App() {
+  
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (localStorage.getItem('accessToken') && localStorage.getItem('refreshToken')){
+      setIsLoggedIn(true);
+    }
+  },[]);
+
   return (
     <Router>
       <div className="flex">
-        <Sidebar />
-        <div>
+        <Sidebar isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn}/>
+        <div className="flex-grow flex flex-col items-center justify-center mt-10">
           <Routes>
-            <Route path="/" element={<Breakdown/>}/>
-            <Route path="/expenses" element={<List/>}/>
+            {/* Public routes */}
+            <Route path="/login" element={<Login setIsLoggedIn={setIsLoggedIn}/>} />
+            <Route path="/logout" element={<Logout />} />
+
+            {/* Protected routes */}
+            <Route
+              path="/"
+              element={
+                <PrivateRoute>
+                  <Breakdown />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/expenses"
+              element={
+                <PrivateRoute>
+                  <List />
+                </PrivateRoute>
+              }
+            />
           </Routes>
         </div>
       </div>

@@ -90,7 +90,8 @@ const Breakdown = () => {
     };
 
     return (
-        <div className="ml-60 mt-50">
+        <div className="mt-6">
+            <h2 className="text-center mt-3 font-ubuntu">Expense summary</h2>
             <Pie data={data} options={options}/>
         </div>
     )
