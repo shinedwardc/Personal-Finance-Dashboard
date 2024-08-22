@@ -2,13 +2,14 @@ import { useEffect, useState } from "react";
 import { getCategories } from "../api/api";
 import axios from "axios";
 
-const Form = ({ submitted }) => {
+const Form = ({ onFormSubmit }) => {
 
     const [categoryNames, setCategoryNames] = useState<string[]>([]);
     const [selectedCategory, setSelectedCategory] = useState<string>('');
     const [customCategory, setCustomCategory] = useState<string>('');
     const [amount, setAmount] = useState<string>('');
     const [description, setDescription] = useState<string>('');
+    
 
     useEffect(() => {
         const fetchCategories = async () => {
@@ -50,6 +51,8 @@ const Form = ({ submitted }) => {
             } else {
                 console.log('Error message:', error.message);
             }
+        } finally {
+            onFormSubmit();
         }
     }
 

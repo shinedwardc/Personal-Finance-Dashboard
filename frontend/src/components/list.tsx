@@ -11,20 +11,26 @@ const List = () => {
     const [data,setData] = useState<ExpenseInterface[]>([]);
     const [isLoading, setIsLoading] = useState(true);
 
+    const fetchExpenses = async () => {
+        try {
+            const list = await getExpense();
+            setData(list);
+        } catch (error) {
+            console.error(error);
+        } finally {
+            setIsLoading(false);
+        }
+    };    
+
     useEffect(() => {
-        const fetchExpenses = async () => {
-            try {
-                const list = await getExpense();
-                setData(list);
-            } catch (error) {
-                console.error(error);
-            } finally {
-                setIsLoading(false);
-            }
-        };
         setIsLoading(true);
         fetchExpenses();
     }, []);
+
+    const refreshList = () => {
+        setIsLoading(true);
+        fetchExpenses();
+    }
 
     return (
         <>
@@ -58,7 +64,7 @@ const List = () => {
             </div>           
         }
         <div>
-            <Form/>
+            <Form onFormSubmit={refreshList}/>
         </div>
         </>
     )
