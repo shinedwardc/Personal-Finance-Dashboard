@@ -2,21 +2,27 @@ from django.shortcuts import render
 from .models import Expense, Category
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
+from rest_framework import status
 from expenseTracker.serializers import ExpenseSerializer, CategorySerializer
 #Create your views here
-@api_view(['GET'])
+@api_view(['GET','POST'])
 def expense_list(request):
-    expenses = Expense.objects.all()
-    serializer = ExpenseSerializer(expenses, many=True)
-    return Response({'expenses': serializer.data})
-
+    if request.method == 'GET':
+        expenses = Expense.objects.all()
+        serializer = ExpenseSerializer(expenses, many=True)
+        return Response({'expenses': serializer.data})
+    elif request.method == 'POST':
+        serializer = ExpenseSerializer(data=request.data, context={'request': request})
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET'])
 def category_list(request):
     categories = Category.objects.all()
     serializer = CategorySerializer(categories, many=True)
     return Response({'categories': serializer.data})
-
 
 #from django.http import HttpResponse
 #from django.template import loader

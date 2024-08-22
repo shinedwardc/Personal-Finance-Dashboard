@@ -3,6 +3,7 @@ import Expense from './expense';
 // import Form from './Form';
 import { ExpenseInterface } from '../interfaces/interface';
 import { getExpense } from '../api/api';
+import Form from './Form';
 
 //https://flowbite.com/docs/components/spinner/#progress-spinner
 
@@ -30,7 +31,7 @@ const List = () => {
         {/*<div>
             <Form/>
         </div>*/}
-        {!isLoading ? <div className = "table mt-12 border-cyan-500">
+        {!isLoading ? <div className = "table mb-12 border-cyan-500">
             <table className="table-auto border-collapse border border-slate-400 text-sm">
             <thead>
                 <tr>
@@ -56,6 +57,9 @@ const List = () => {
                 </div>
             </div>           
         }
+        <div>
+            <Form/>
+        </div>
         </>
     )
 }
