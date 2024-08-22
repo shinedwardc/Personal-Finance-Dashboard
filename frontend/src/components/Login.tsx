@@ -1,31 +1,31 @@
-import { useState } from 'react';
-import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import { useState } from "react";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 interface LoginProps {
-    setIsLoggedIn: React.Dispatch<React.SetStateAction<boolean>>;
+  setIsLoggedIn: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 const Login: React.FC<LoginProps> = ({ setIsLoggedIn }) => {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
   const navigate = useNavigate();
 
-  const handleLogin = async (e : React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const response = await axios.post('http://localhost:8000/api/token/', {
+      const response = await axios.post("http://localhost:8000/api/token/", {
         username,
         password,
       });
       const { access, refresh } = response.data; // Assuming JWT tokens
-      localStorage.setItem('accessToken', access);
-      localStorage.setItem('refreshToken', refresh);
+      localStorage.setItem("accessToken", access);
+      localStorage.setItem("refreshToken", refresh);
       setIsLoggedIn(true);
-      navigate('/');  // Redirect to homepage after login
+      navigate("/"); // Redirect to homepage after login
     } catch (error) {
-      setError('Invalid username or password');
+      setError("Invalid username or password");
       console.error(error);
     }
   };
@@ -33,7 +33,9 @@ const Login: React.FC<LoginProps> = ({ setIsLoggedIn }) => {
   return (
     <form onSubmit={handleLogin}>
       <div>
-        <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Username:</label>
+        <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+          Username:
+        </label>
         <input
           type="text"
           value={username}
@@ -42,7 +44,9 @@ const Login: React.FC<LoginProps> = ({ setIsLoggedIn }) => {
         />
       </div>
       <div>
-        <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Password:</label>
+        <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+          Password:
+        </label>
         <input
           type="password"
           value={password}
@@ -50,8 +54,13 @@ const Login: React.FC<LoginProps> = ({ setIsLoggedIn }) => {
           onChange={(e) => setPassword(e.target.value)}
         />
       </div>
-      {error && <p style={{ color: 'red' }}>{error}</p>}
-      <button className="ml-14 mt-1 p-2 text-white border-red-500 bg-red-500 rounded-lg" type="submit">Login</button>
+      {error && <p style={{ color: "red" }}>{error}</p>}
+      <button
+        className="ml-14 mt-1 p-2 text-white border-red-500 bg-red-500 rounded-lg"
+        type="submit"
+      >
+        Login
+      </button>
     </form>
   );
 };
