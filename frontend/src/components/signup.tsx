@@ -12,7 +12,7 @@ const Signup = () => {
     const [password, setPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
 
-    const handleFormSubmit = async (e) => {
+    const handleFormSubmit = async (e : React.FormEvent) => {
         e.preventDefault();
         if (password !== confirmPassword){
             alert('Passwords do not match.');
@@ -76,7 +76,7 @@ const Signup = () => {
                         Email:
                     </label>
                     <input
-                    type="text"
+                    type="email"
                     value={email}
                     className="bg-gary-50 border border-gray-300"
                     onChange={(e) => setEmail(e.target.value)}
@@ -89,6 +89,9 @@ const Signup = () => {
                 </label>
                 <input
                   type="password"
+                  minLength={2}
+                  maxLength={16}
+                  required={true}
                   value={password}
                   className="bg-gary-50 border border-gray-300"
                   onChange={(e) => setPassword(e.target.value)}
@@ -100,6 +103,9 @@ const Signup = () => {
                 </label>
                 <input
                     type="password"
+                    minLength={2}
+                    maxLength={16}
+                    required={true}
                     value={confirmPassword}
                     className="bg-gary-50 border border-gray-300"
                     onChange={(e) => setConfirmPassword(e.target.value)}

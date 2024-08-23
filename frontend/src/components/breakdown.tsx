@@ -121,10 +121,16 @@ const Breakdown = () => {
       {!loading ? (
         <>
           <h1 className="font-semibold font-ubuntu">Welcome, {username}!</h1>
-          <div className="mt-6">
-            <h2 className="text-center mt-3 font-ubuntu">Expense summary</h2>
-            <Pie data={data} options={options} />
-          </div>
+          {expenses.length > 0 ? (
+            <div className="mt-6">
+              <h2 className="text-center mt-3 font-ubuntu">Expense summary</h2>
+              <Pie data={data} options={options} />
+            </div>
+          ) : (
+            <div className="mt-6">
+              <h2>No expenses registered! Consider adding expenses in the expense page</h2>
+            </div>
+          )}
         </>
       ) : (
         <div className="text-center mt-8">
