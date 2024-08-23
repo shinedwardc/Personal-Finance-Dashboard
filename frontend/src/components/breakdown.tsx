@@ -1,11 +1,11 @@
-import { Pie } from "react-chartjs-2";
-import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
+import { Pie, Bar } from "react-chartjs-2";
+import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, ArcElement, Tooltip, Legend } from "chart.js";
 import { useEffect, useState } from "react";
 import { getExpense } from "../api/api";
 import { ExpenseInterface } from "../interfaces/interface";
 import axios from "axios";
 
-ChartJS.register(ArcElement, Tooltip, Legend);
+ChartJS.register(CategoryScale, LinearScale, BarElement, ArcElement, Tooltip, Legend);
 
 const Breakdown = () => {
   const [expenses, setExpenses] = useState<ExpenseInterface[]>([]);
@@ -127,6 +127,8 @@ const Breakdown = () => {
     switch (graphType) {
       case "pie":
         return <Pie className="mt-6" data={data} options={options} />
+      case "bar":
+        return <Bar className="mt-6" data={data} options={options}/>
       default:
         return null;
     }
@@ -144,6 +146,7 @@ const Breakdown = () => {
               <select id="graph-select" value={graphType} onChange={handleGraphSelect}>
                 <option value="">==Select an option==</option>
                 <option value="pie">Pie graph</option>
+                <option value="bar">Bar graph</option>
               </select>
               
               {graphType.length > 0 && generateGraph()}
