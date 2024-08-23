@@ -13,7 +13,7 @@ const Sidebar = ({ isLoggedIn, setIsLoggedIn }) => {
   };
 
   return (
-    <div className="relative h-screen">
+    <div className="absolute h-screen">
       <div className="left-0 h-screen w-48 bg-gray-800 text-white">
         <ul className="list-none">
           <li className="font-sans p-4 hover:bg-gray-700 text-center">

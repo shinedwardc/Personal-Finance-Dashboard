@@ -4,6 +4,8 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
 from expenseTracker.serializers import ExpenseSerializer, CategorySerializer
+from django.contrib.auth.models import User
+from django.contrib.auth.hashers import make_password
 #Create your views here
 @api_view(['GET','POST'])
 def expense_list(request):
@@ -24,6 +26,19 @@ def category_list(request):
     serializer = CategorySerializer(categories, many=True)
     return Response({'categories': serializer.data})
 
+@api_view(['POST'])
+def user_post(request):
+    username = request.data.get('username')
+    password = request.data.get('password')
+    email = request.data.get('email')
+    first_name = request.data.get('fName')
+    last_name = request.data.get('lName')
+    if User.objects.filter(username=username).exists():
+        return Response({'error': 'Username already exists.'}, status=status.HTTP_400_BAD_REQUEST)
+    user = User(username=username, password=make_password(password), email=email, first_name=first_name, last_name=last_name)
+    user.save()
+
+    return Response({'message': 'User created successfully.'}, status=status.HTTP_201_CREATED)
 #from django.http import HttpResponse
 #from django.template import loader
 
