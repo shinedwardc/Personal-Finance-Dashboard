@@ -3,7 +3,11 @@ import { ExpenseInterface, Category } from "../interfaces/interface";
 
 export const getExpense = async (): Promise<ExpenseInterface[]> => {
   try {
-    const response = await axios.get("http://localhost:8000/expenses");
+    const response = await axios.get("http://localhost:8000/expenses", {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem('accessToken')}`
+      }
+    });
     return response.data.expenses;
   } catch (error) {
     console.error(error);

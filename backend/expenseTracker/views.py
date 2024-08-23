@@ -3,14 +3,16 @@ from .models import Expense, Category
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
-from expenseTracker.serializers import ExpenseSerializer, CategorySerializer
+from expenseTracker.serializers import ExpenseSerializer, CategorySerializer, UserSerializer
 from django.contrib.auth.models import User
 from django.contrib.auth.hashers import make_password
 #Create your views here
 @api_view(['GET','POST'])
 def expense_list(request):
+    if not request.user.is_authenticated:
+        return Response({'error': 'Authentication required'}, status=401)
     if request.method == 'GET':
-        expenses = Expense.objects.all()
+        expenses = Expense.objects.filter(user=request.user)
         serializer = ExpenseSerializer(expenses, many=True)
         return Response({'expenses': serializer.data})
     elif request.method == 'POST':
@@ -25,6 +27,12 @@ def category_list(request):
     categories = Category.objects.all()
     serializer = CategorySerializer(categories, many=True)
     return Response({'categories': serializer.data})
+
+@api_view(['GET'])
+def get_user(request):
+    user = request.user
+    serializer = UserSerializer(user)
+    return Response(serializer.data)
 
 @api_view(['POST'])
 def user_post(request):

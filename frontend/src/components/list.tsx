@@ -57,7 +57,7 @@ const List = () => {
           </table>
         </div>
       ) : (
-        <div className="text-center">
+        <div className="text-center mt-2">
           <div role="status">
             <svg
               aria-hidden="true"
