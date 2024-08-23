@@ -13,6 +13,7 @@ const Breakdown = () => {
     {},
   );
   const [username, setUsername] = useState<string>("");
+  const [graphType, setGraphType] = useState<string>("");
   const [loading, finishLoading] = useState(true);
 
   const getUserName = async () => {
@@ -116,6 +117,21 @@ const Breakdown = () => {
     },
   };
 
+  const handleGraphSelect = (e : React.FormEvent) => {
+    const element = e.target as HTMLInputElement;
+    setGraphType(element.value);
+  }
+  
+  const generateGraph = () => {
+    console.log(graphType);
+    switch (graphType) {
+      case "pie":
+        return <Pie className="mt-6" data={data} options={options} />
+      default:
+        return null;
+    }
+  };
+
   return (
     <>
       {!loading ? (
@@ -124,7 +140,13 @@ const Breakdown = () => {
           {expenses.length > 0 ? (
             <div className="mt-6">
               <h2 className="text-center mt-3 font-ubuntu">Expense summary</h2>
-              <Pie data={data} options={options} />
+              <label htmlFor="graph-select">Choose a graph: </label>
+              <select id="graph-select" value={graphType} onChange={handleGraphSelect}>
+                <option value="">==Select an option==</option>
+                <option value="pie">Pie graph</option>
+              </select>
+              
+              {graphType.length > 0 && generateGraph()}
             </div>
           ) : (
             <div className="mt-6">
