@@ -14,6 +14,9 @@ export default {
     './src/**/*.js',
     './src/**/*.tsx',    
   ],
-  plugins: [],
+  plugins: [require('daisyui')],
+  daisyui: {
+    themes: ["light","dark","forest","lemonade","aqua"]
+  },
 }
 

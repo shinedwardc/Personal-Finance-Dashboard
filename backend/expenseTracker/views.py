@@ -21,6 +21,16 @@ def expense_list(request):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+@api_view(['DELETE'])
+def delete_expense(request,id):
+    try:
+        print(id)
+        expense = Expense.objects.get(pk=id, user=request.user)
+        expense.delete()
+        return Response({'Successfully deleted expense'},status=status.HTTP_204_NO_CONTENT)
+    except Expense.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
 
 @api_view(['GET'])
 def category_list(request):

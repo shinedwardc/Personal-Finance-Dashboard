@@ -4,6 +4,7 @@ import Expense from "./expense";
 import { ExpenseInterface } from "../interfaces/interface";
 import { getExpense } from "../api/api";
 import Form from "./Form";
+import axios from "axios";
 
 //https://flowbite.com/docs/components/spinner/#progress-spinner
 
@@ -32,14 +33,28 @@ const List = () => {
     fetchExpenses();
   };
 
+  const handleDeleteTask = async (expenseId : number) => {
+    const response = await axios.delete(`http://localhost:8000/delete-expense/${expenseId}`, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+      },
+    });
+    if (response.status === 204){
+      console.log("Expense deleted successfully");
+      setData((prevExpenses) => prevExpenses.filter(expense => expense.id !== expenseId))
+    } else {
+      console.error("Failed to delete expense");
+    }
+  }
+
   return (
     <>
       {/*<div>
             <Form/>
         </div>*/}
       {!isLoading ? (
-        <div className="table mb-12 border-cyan-500">
-          <table className="table-auto border-collapse border border-slate-400 text-sm">
+        <div className="mb-6 border-cyan-500 overflow-x-auto">
+          <table className="table table-auto border-collapse border border-slate-400 text-sm text-center">
             <thead>
               <tr>
                 <th className="border border-slate-300 px-4 py-2">Category</th>
@@ -50,8 +65,8 @@ const List = () => {
               </tr>
             </thead>
             <tbody>
-              {data.map((expense, key) => (
-                <Expense key={key} data={expense} />
+              {data.map((expense,index) => (
+                <Expense key={index} data={expense} deleteTask={() => handleDeleteTask(expense.id)}/>
               ))}
             </tbody>
           </table>

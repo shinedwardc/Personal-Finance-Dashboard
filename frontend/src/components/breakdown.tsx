@@ -1,10 +1,8 @@
 import { Pie, Bar } from "react-chartjs-2";
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, ArcElement, Tooltip, Legend } from "chart.js";
 import { useEffect, useState } from "react";
-import { getExpense } from "../api/api";
+import { getExpense, getUserName } from "../api/api";
 import { ExpenseInterface } from "../interfaces/interface";
-import axios from "axios";
-
 ChartJS.register(CategoryScale, LinearScale, BarElement, ArcElement, Tooltip, Legend);
 
 const Breakdown = () => {
@@ -13,23 +11,8 @@ const Breakdown = () => {
     {},
   );
   const [username, setUsername] = useState<string>("");
-  const [graphType, setGraphType] = useState<string>("");
+  const [graphType, setGraphType] = useState<string>("pie");
   const [loading, finishLoading] = useState(true);
-
-  const getUserName = async () => {
-    try {
-      const response = await axios.get("http://localhost:8000/get-user/", {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-        },
-      });
-      const username = response.data.username;
-      return username;
-    } catch (error) {
-      console.error(error);
-      throw error;
-    }
-  };
 
   useEffect(() => {
     const fetchExpenses = async () => {
@@ -142,13 +125,11 @@ const Breakdown = () => {
           {expenses.length > 0 ? (
             <div className="mt-6">
               <h2 className="text-center mt-3 font-ubuntu">Expense summary</h2>
-              <label htmlFor="graph-select">Choose a graph: </label>
+              <label className="ml-12" htmlFor="graph-select">Choose a graph: </label>
               <select id="graph-select" value={graphType} onChange={handleGraphSelect}>
-                <option value="">==Select an option==</option>
                 <option value="pie">Pie graph</option>
                 <option value="bar">Bar graph</option>
               </select>
-              
               {graphType.length > 0 && generateGraph()}
             </div>
           ) : (

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { getCategories } from "../api/api";
 import axios from "axios";
 
+
 interface formProps {
   onFormSubmit: () => void;
 }
@@ -122,7 +123,7 @@ const Form = ({ onFormSubmit }: formProps) => {
           className="p-2 border border-gray-300 rounded"
         />
       </div>
-      <button type="submit" className="bg-blue-500 text-white p-2 rounded mt-3">
+      <button type="submit" className="btn btn-accent rounded mt-3">
         Add Expense
       </button>
     </form>
