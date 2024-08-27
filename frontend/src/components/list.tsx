@@ -33,19 +33,24 @@ const List = () => {
     fetchExpenses();
   };
 
-  const handleDeleteTask = async (expenseId : number) => {
-    const response = await axios.delete(`http://localhost:8000/delete-expense/${expenseId}`, {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+  const handleDeleteTask = async (expenseId: number) => {
+    const response = await axios.delete(
+      `http://localhost:8000/delete-expense/${expenseId}`,
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+        },
       },
-    });
-    if (response.status === 204){
+    );
+    if (response.status === 204) {
       console.log("Expense deleted successfully");
-      setData((prevExpenses) => prevExpenses.filter(expense => expense.id !== expenseId))
+      setData((prevExpenses) =>
+        prevExpenses.filter((expense) => expense.id !== expenseId),
+      );
     } else {
       console.error("Failed to delete expense");
     }
-  }
+  };
 
   return (
     <>
@@ -53,24 +58,37 @@ const List = () => {
             <Form/>
         </div>*/}
       {!isLoading ? (
-        <div className="mb-6 border-cyan-500 overflow-x-auto">
-          <table className="table table-auto border-collapse border border-slate-400 text-sm text-center">
-            <thead>
-              <tr>
-                <th className="border border-slate-300 px-4 py-2">Category</th>
-                <th className="border border-slate-300 px-4 py-2">Amount</th>
-                <th className="border border-slate-300 px-4 py-2">
-                  Description
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {data.map((expense,index) => (
-                <Expense key={index} data={expense} deleteTask={() => handleDeleteTask(expense.id)}/>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        data.length > 0 ? (
+          <div className="mb-6 border-cyan-500 overflow-x-auto">
+            <table className="table table-auto border-collapse border border-slate-400 text-sm text-center">
+              <thead>
+                <tr>
+                  <th className="border border-slate-300 px-4 py-2">
+                    Category
+                  </th>
+                  <th className="border border-slate-300 px-4 py-2">Amount</th>
+                  <th className="border border-slate-300 px-4 py-2">
+                    Description
+                  </th>
+                  <th>Delete</th>
+                </tr>
+              </thead>
+              <tbody>
+                {data.map((expense, index) => (
+                  <Expense
+                    key={index}
+                    data={expense}
+                    deleteTask={() => handleDeleteTask(expense.id)}
+                  />
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <div className="mb-6">
+            <p>No expenses listed yet! Add an expense below</p>
+          </div>
+        )
       ) : (
         <div className="text-center mt-2">
           <div role="status">

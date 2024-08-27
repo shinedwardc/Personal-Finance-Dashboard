@@ -6,6 +6,11 @@ from rest_framework import status
 from expenseTracker.serializers import ExpenseSerializer, CategorySerializer, UserSerializer
 from django.contrib.auth.models import User
 from django.contrib.auth.hashers import make_password
+import environ
+env = environ.Env()
+environ.Env.read_env()
+import requests
+from django.http import JsonResponse
 #Create your views here
 @api_view(['GET','POST'])
 def expense_list(request):
@@ -57,6 +62,25 @@ def user_post(request):
     user.save()
 
     return Response({'message': 'User created successfully.'}, status=status.HTTP_201_CREATED)
+
+@api_view(['GET'])
+def get_currency_exchange(request,from_currency, to_currency):
+    key = env('EXCHANGE_RATE_API_KEY')
+    print(key)
+    print(from_currency.upper())
+    url = f'https://v6.exchangerate-api.com/v6/{key}/latest/{from_currency.upper()}'
+    print(url)
+    response = requests.get(url)
+    if response.status_code == 200:
+        return JsonResponse({'rate': response.json()['conversion_rates'][to_currency.upper()]}, status=200)
+    return JsonResponse({'error': 'Currency not found'}, status=400)
+    #rates = data['conversion_rates'].get(to_currency,None)
+    #print(rates)
+#    if rates:
+#        return Response({'rate': rates}, status=200)
+#    else:
+#        return Response({'error': 'Invalid currency code'}, status=400)
+
 #from django.http import HttpResponse
 #from django.template import loader
 

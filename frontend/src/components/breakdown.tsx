@@ -121,12 +121,12 @@ const Breakdown = () => {
     <>
       {!loading ? (
         <>
-          <h1 className="font-semibold font-ubuntu">Welcome, {username}!</h1>
+          <h1 className="text-3xl font-ubuntu">Welcome, {username}!</h1>
           {expenses.length > 0 ? (
             <div className="mt-6">
-              <h2 className="text-center mt-3 font-ubuntu">Expense summary</h2>
-              <label className="ml-12" htmlFor="graph-select">Choose a graph: </label>
-              <select id="graph-select" value={graphType} onChange={handleGraphSelect}>
+              <h2 className="text-center mt-3 mb-3 font-ubuntu text-2xl">Expense summary</h2>
+              <label className="ml-12" htmlFor="graph-select">Choose a graph style: </label>
+              <select className="select select-bordered select-sm" id="graph-select" value={graphType} onChange={handleGraphSelect}>
                 <option value="pie">Pie graph</option>
                 <option value="bar">Bar graph</option>
               </select>

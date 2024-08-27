@@ -75,7 +75,7 @@ const Form = ({ onFormSubmit }: formProps) => {
             id="category"
             value={selectedCategory}
             onChange={(e) => setSelectedCategory(e.target.value)}
-            className="p-2 border border-gray-300 rounded"
+            className="select select-bordered p-2 w-full rounded"
           >
             <option value="">Select a category</option>
             {categoryNames.map((category, index) => (
@@ -92,7 +92,7 @@ const Form = ({ onFormSubmit }: formProps) => {
               placeholder="New custom category"
               value={customCategory}
               onChange={(e) => setCustomCategory(e.target.value)}
-              className="p-2 border border-gray-300 rounded"
+              className="input input-bordered p-2 rounded"
             />
           </div>
         )}
@@ -106,7 +106,7 @@ const Form = ({ onFormSubmit }: formProps) => {
           id="amount"
           value={amount}
           onChange={(e) => setAmount(e.target.value)}
-          className="p-2 border border-gray-300 rounded"
+          className="input input-bordered p-2 rounded"
           required
         />
       </div>
@@ -120,7 +120,7 @@ const Form = ({ onFormSubmit }: formProps) => {
           id="description"
           value={description}
           onChange={(e) => setDescription(e.target.value)}
-          className="p-2 border border-gray-300 rounded"
+          className="input input-bordered p-2 rounded"
         />
       </div>
       <button type="submit" className="btn btn-accent rounded mt-3">
