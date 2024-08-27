@@ -12,6 +12,7 @@ export interface Category {
 export interface ExpenseInterface {
   id: number;
   amount: number;
+  currency: string;
   description: string;
   start_date: Date;
   end_date: Date;

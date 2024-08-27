@@ -12,6 +12,17 @@ class Expense(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True, blank=True)
     amount = models.DecimalField(max_digits=10, decimal_places=2)
+    CURRENCIES = {
+        "usd": "US Dollar $",
+        "eur": "Euro €",
+        "gbp": "Great Britain Pound £",
+        "jpy": "Japan Yen ¥",
+        "aud": "Australian Dollar $",
+        "cad": "Canadian Dollar $",
+        "krw": "Korean Won ₩",
+        "inr": "Indian Rupee ₹"
+    }
+    currency = models.CharField(max_length=3, choices=CURRENCIES, default="usd")
     description = models.TextField(null=True,blank=True)
     start_date = models.DateField()
     end_date = models.DateField()

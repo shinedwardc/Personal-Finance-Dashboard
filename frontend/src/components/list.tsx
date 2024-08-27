@@ -35,7 +35,7 @@ const List = () => {
 
   const handleDeleteTask = async (expenseId: number) => {
     const response = await axios.delete(
-      `http://localhost:8000/delete-expense/${expenseId}`,
+      `http://localhost:8000/expenses/${expenseId}/`,
       {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
