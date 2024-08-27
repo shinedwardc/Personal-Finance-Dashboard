@@ -3,6 +3,7 @@ import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, ArcElement, T
 import { useEffect, useState } from "react";
 import { getExpense, getUserName } from "../api/api";
 import { ExpenseInterface } from "../interfaces/interface";
+import axios from "axios";
 ChartJS.register(CategoryScale, LinearScale, BarElement, ArcElement, Tooltip, Legend);
 
 const Breakdown = () => {
@@ -22,40 +23,74 @@ const Breakdown = () => {
           getUserName(),
         ]);
         setExpenses(list);
+        if (list.length <= 0){
+          finishLoading(false);
+        }
         setUsername(username);
       } catch (error) {
         console.error(error);
-      } finally {
-        finishLoading(false);
       }
     };
     fetchExpenses();
   }, []);
 
   useEffect(() => {
-    //console.log(expenses);
+    const fetchTotals = async () => {
+      try {
+        const totals = await calculateTotalByCategory(expenses);
+        setCategoryTotals(totals);
+      } catch (error) {
+        console.error(error);
+      } finally {
+        finishLoading(false);
+      }
+    }
     if (expenses.length > 0) {
-      const totals = calculateTotalByCategory(expenses);
-      setCategoryTotals(totals);
+
+      fetchTotals();
     }
   }, [expenses]);
 
-  const calculateTotalByCategory = (
+  const calculateTotalByCategory = async (
     expenses: ExpenseInterface[],
-  ): Record<string, number> => {
+  ): Promise<Record<string, number>> => {
     const categoryTotals: Record<string, number> = {};
-
-    expenses.forEach((expense) => {
+    const conversionRates: Record<string, number> = {}; // To cache conversion rates and avoid multiple requests
+  
+    const getConversionRate = async (currency: string) => {
+      if (currency === "usd") return 1;
+  
+      if (conversionRates[currency]) return conversionRates[currency];
+  
+      try {
+        const response = await axios.get(`http://localhost:8000/get-currency-exchange/${currency}/usd/`);
+        const rate = parseFloat(response.data.rate);
+        //console.log(response.data);
+        conversionRates[currency] = rate;
+        return rate;
+      } catch (error) {
+        console.error('Error with converting calculation: ', error);
+        return 1; 
+      }
+    };
+  
+    for (const expense of expenses) {
       const categoryName = expense.category.name;
       const amount = parseFloat(expense.amount.toString());
-
+      const currency = expense.currency;
+  
+      const conversionRate = await getConversionRate(currency);
+      console.log('conversion rate: ', conversionRate);
+      const convertedAmount = amount * conversionRate;
+      console.log('converted amount: ', convertedAmount);
+  
       if (categoryTotals[categoryName]) {
-        categoryTotals[categoryName] += amount;
+        categoryTotals[categoryName] += convertedAmount;
       } else {
-        categoryTotals[categoryName] = amount;
+        categoryTotals[categoryName] = convertedAmount;
       }
-    });
-
+    }
+    console.log(Object.values(categoryTotals));
     return categoryTotals;
   };
 
@@ -64,7 +99,7 @@ const Breakdown = () => {
     datasets: [
       {
         label: "Total expense of category",
-        data: Object.values(categoryTotals),
+        data: Object.values(categoryTotals).map(amount => parseFloat(amount.toFixed(2))),
         backgroundColor: Object.keys(categoryTotals).map(
           (_, index) => `rgba(${index * 50}, ${index * 100}, 200, 0.2)`,
         ),
@@ -121,7 +156,8 @@ const Breakdown = () => {
     <>
       {!loading ? (
         <>
-          <h1 className="text-3xl font-ubuntu">Welcome, {username}!</h1>
+          <h1 className="text-5xl mb-10">Expense Tracker</h1>
+          <h2 className="text-3xl font-ubuntu">Welcome, {username}!</h2>
           {expenses.length > 0 ? (
             <div className="mt-6">
               <h2 className="text-center mt-3 mb-3 font-ubuntu text-2xl">Expense summary</h2>
@@ -139,7 +175,7 @@ const Breakdown = () => {
           )}
         </>
       ) : (
-        <div className="text-center mt-8">
+        <div className="text-center mt-80">
           <div role="status">
             <svg
               aria-hidden="true"

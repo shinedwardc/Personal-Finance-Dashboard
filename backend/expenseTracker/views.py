@@ -12,30 +12,34 @@ environ.Env.read_env()
 import requests
 from django.http import JsonResponse
 #Create your views here
-@api_view(['GET','POST'])
-def expense_list(request):
+@api_view(['GET','POST','DELETE'])
+def expense_list(request,id=None):
     if not request.user.is_authenticated:
         return Response({'error': 'Authentication required'}, status=401)
-    if request.method == 'GET':
-        expenses = Expense.objects.filter(user=request.user)
-        serializer = ExpenseSerializer(expenses, many=True)
-        return Response({'expenses': serializer.data})
-    elif request.method == 'POST':
-        serializer = ExpenseSerializer(data=request.data, context={'request': request})
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    if id:
+        if request.method == 'DELETE':
+            try:
+                print('id ',id)
+                expense = Expense.objects.get(pk=id, user=request.user)
+                expense.delete()
+                return Response({'Successfully deleted expense'},status=status.HTTP_204_NO_CONTENT)
+            except Expense.DoesNotExist:
+                return Response(status=status.HTTP_404_NOT_FOUND)
+    else:
+        if request.method == 'GET':
+            expenses = Expense.objects.filter(user=request.user)
+            serializer = ExpenseSerializer(expenses, many=True)
+            return Response({'expenses': serializer.data})
+        elif request.method == 'POST':
+            serializer = ExpenseSerializer(data=request.data, context={'request': request})
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
-@api_view(['DELETE'])
-def delete_expense(request,id):
-    try:
-        print(id)
-        expense = Expense.objects.get(pk=id, user=request.user)
-        expense.delete()
-        return Response({'Successfully deleted expense'},status=status.HTTP_204_NO_CONTENT)
-    except Expense.DoesNotExist:
-        return Response(status=status.HTTP_404_NOT_FOUND)
+#@api_view(['DELETE'])
+#def delete_expense(request,id):
+
 
 @api_view(['GET'])
 def category_list(request):

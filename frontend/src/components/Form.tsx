@@ -12,6 +12,7 @@ const Form = ({ onFormSubmit }: formProps) => {
   const [selectedCategory, setSelectedCategory] = useState<string>("");
   const [customCategory, setCustomCategory] = useState<string>("");
   const [amount, setAmount] = useState<string>("");
+  const [currency, setCurrency] = useState<string>("usd");
   const [description, setDescription] = useState<string>("");
 
   useEffect(() => {
@@ -36,6 +37,7 @@ const Form = ({ onFormSubmit }: formProps) => {
       category: { name: categoryToSubmit },
       description,
       amount,
+      currency,
       start_date: new Date().toISOString().split("T")[0], // Current date in YYYY-MM-DD format
       end_date: new Date().toISOString().split("T")[0], // Current date in YYYY-MM-DD format
       created_at: new Date().toISOString(),
@@ -97,22 +99,35 @@ const Form = ({ onFormSubmit }: formProps) => {
           </div>
         )}
       </div>
-      <div>
-        <label htmlFor="amount" className="block">
-          Amount
-        </label>
+      <div className="mt-2 mb-2">
+        <div className="mb-1">
+          <label htmlFor="amount" className="block">
+            Amount
+            <select className="select select-sm select-bordered w-18 ml-2" value={currency} onChange={(e) => setCurrency(e.target.value)}>
+              <option value="usd">USD $</option>
+              <option value="eur">EUR €</option>
+              <option value="gbp">GBP £</option>
+              <option value="jpy">JPY ¥</option>
+              <option value="aud">AUD $</option>
+              <option value="cad">CAD $</option>
+              <option value="krw">KRW ₩</option>
+              <option value="inr">INR ₹</option>
+            </select>
+          </label>
+        </div>
         <input
           type="text"
           id="amount"
           value={amount}
           onChange={(e) => setAmount(e.target.value)}
-          className="input input-bordered p-2 rounded"
+          className="input input-bordered p-2 w-full rounded"
           required
         />
+
       </div>
 
       <div>
-        <label htmlFor="description" className="block">
+        <label htmlFor="description" className="block w-full">
           Description
         </label>
         <input
