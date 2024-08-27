@@ -14,13 +14,15 @@ import { getUserName } from "./api/api";
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
 
   useEffect(() => {
     const checkAuth = async () => {
       try {
         const username = await getUserName();
+        //console.log(username);
         if (
-          username.id != null && username.username.length > 0
+          username && username.length > 0
         ) {
           setIsLoggedIn(true);
         }
@@ -30,11 +32,23 @@ function App() {
       }
       catch (error) {
         setIsLoggedIn(false);
+      } finally {
+        setIsLoading(false);
       }
     }
-    checkAuth();
-
+    if (localStorage.getItem('accessToken')){
+      checkAuth();
+    } else {
+      setIsLoading(false);
+    }
   }, []);
+
+  if (isLoading) {
+    return (
+      <></>
+      
+    )
+  }
 
   return (
     <Router>
