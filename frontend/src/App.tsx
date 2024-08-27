@@ -10,17 +10,30 @@ import PrivateRoute from "./components/privateRoute";
 import Login from "./components/Login";
 import Logout from "./components/Logout";
 import Signup from './components/signup';
+import { getUserName } from "./api/api";
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
 
   useEffect(() => {
-    if (
-      localStorage.getItem("accessToken") &&
-      localStorage.getItem("refreshToken")
-    ) {
-      setIsLoggedIn(true);
+    const checkAuth = async () => {
+      try {
+        const username = await getUserName();
+        if (
+          username.id != null && username.username.length > 0
+        ) {
+          setIsLoggedIn(true);
+        }
+        else{
+          setIsLoggedIn(false);
+        }
+      }
+      catch (error) {
+        setIsLoggedIn(false);
+      }
     }
+    checkAuth();
+
   }, []);
 
   return (
@@ -42,7 +55,7 @@ function App() {
             <Route
               path="/"
               element={
-                <PrivateRoute>
+                <PrivateRoute isLoggedIn={isLoggedIn}>
                   <Breakdown />
                 </PrivateRoute>
               }
@@ -50,7 +63,7 @@ function App() {
             <Route
               path="/expenses"
               element={
-                <PrivateRoute>
+                <PrivateRoute isLoggedIn={isLoggedIn}>
                   <List />
                 </PrivateRoute>
               }
