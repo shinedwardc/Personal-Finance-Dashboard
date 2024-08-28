@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import { getExpense, getUserName } from "../api/api";
 import { ExpenseInterface } from "../interfaces/interface";
 import axios from "axios";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 ChartJS.register(CategoryScale, LinearScale, BarElement, ArcElement, Tooltip, Legend);
 
 const Breakdown = () => {
@@ -12,6 +14,7 @@ const Breakdown = () => {
     {},
   );
   const [total, setTotal] = useState<number>(0);
+  const [date, setDate] = useState(new Date());
   const [username, setUsername] = useState<string>("");
   const [graphType, setGraphType] = useState<string>("pie");
   const [loading, finishLoading] = useState(true);
@@ -61,6 +64,7 @@ const Breakdown = () => {
 
   const calculateTotalByCategory = async (
     expenses: ExpenseInterface[],
+    date : any = null
   ): Promise<Record<string, number>> => {
     const categoryTotals: Record<string, number> = {};
     const conversionRates: Record<string, number> = {}; // To cache conversion rates and avoid multiple requests
@@ -83,6 +87,9 @@ const Breakdown = () => {
     };
   
     for (const expense of expenses) {
+      if (date && new Date(expense.start_date).toDateString() < new Date(date).toDateString()) {
+        continue; // Skip expenses before the date
+      }
       const categoryName = expense.category.name;
       const amount = parseFloat(expense.amount.toString());
       const currency = expense.currency;
@@ -151,7 +158,7 @@ const Breakdown = () => {
   }
   
   const generateGraph = () => {
-    console.log(graphType);
+    //console.log(graphType);
     switch (graphType) {
       case "pie":
         return <Pie className="mt-6" data={data} options={options} />
@@ -161,6 +168,12 @@ const Breakdown = () => {
         return null;
     }
   };
+
+  const handleDateSelect = async (date) => {
+    setDate(date);
+    const filtered = await calculateTotalByCategory(expenses,date);
+    console.log(filtered);
+  }
 
   return (
     <>
@@ -183,7 +196,7 @@ const Breakdown = () => {
                   </div>
                   <div className="basis-1/2 mt-1">
                     <label>From date: </label>
-                    <input type="date"></input>
+                    <DatePicker selected={date} onSelect={handleDateSelect} />
                   </div>
                 </div>
                 {graphType.length > 0 && generateGraph()}
