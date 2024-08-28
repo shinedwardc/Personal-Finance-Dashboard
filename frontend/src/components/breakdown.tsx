@@ -11,6 +11,7 @@ const Breakdown = () => {
   const [categoryTotals, setCategoryTotals] = useState<Record<string, number>>(
     {},
   );
+  const [total, setTotal] = useState<number>(0);
   const [username, setUsername] = useState<string>("");
   const [graphType, setGraphType] = useState<string>("pie");
   const [loading, finishLoading] = useState(true);
@@ -38,7 +39,14 @@ const Breakdown = () => {
     const fetchTotals = async () => {
       try {
         const totals = await calculateTotalByCategory(expenses);
-        setCategoryTotals(totals);
+          setCategoryTotals(totals);
+          //console.log(totals);
+          //console.log(expenses);
+          let totalCost = 0;
+          for (const cost of Object.values(totals)) {
+            totalCost += cost;
+          }
+          setTotal(totalCost);
       } catch (error) {
         console.error(error);
       } finally {
@@ -80,9 +88,11 @@ const Breakdown = () => {
       const currency = expense.currency;
   
       const conversionRate = await getConversionRate(currency);
-      console.log('conversion rate: ', conversionRate);
+      //console.log('conversion rate: ', conversionRate);
       const convertedAmount = amount * conversionRate;
-      console.log('converted amount: ', convertedAmount);
+      //console.log('converted amount: ', convertedAmount);
+
+      setTotal((total) => total + conversionRate);
   
       if (categoryTotals[categoryName]) {
         categoryTotals[categoryName] += convertedAmount;
@@ -90,7 +100,7 @@ const Breakdown = () => {
         categoryTotals[categoryName] = convertedAmount;
       }
     }
-    console.log(Object.values(categoryTotals));
+    //console.log(Object.values(categoryTotals));
     return categoryTotals;
   };
 
@@ -159,15 +169,29 @@ const Breakdown = () => {
           <h1 className="text-5xl mb-10">Expense Tracker</h1>
           <h2 className="text-3xl font-ubuntu">Welcome, {username}!</h2>
           {expenses.length > 0 ? (
-            <div className="mt-6">
-              <h2 className="text-center mt-3 mb-3 font-ubuntu text-2xl">Expense summary</h2>
-              <label className="ml-12" htmlFor="graph-select">Choose a graph style: </label>
-              <select className="select select-bordered select-sm" id="graph-select" value={graphType} onChange={handleGraphSelect}>
-                <option value="pie">Pie graph</option>
-                <option value="bar">Bar graph</option>
-              </select>
-              {graphType.length > 0 && generateGraph()}
-            </div>
+            <>
+              <div className="mt-6">
+                <h2 className="text-center mt-3 mb-3 font-ubuntu text-2xl">Expense summary</h2>
+                <div className="flex flex-row justify-center text-center">
+                  <div className="basis-1/2">
+                    <label htmlFor="graph-select">Graph style: </label>
+                    <br/>
+                    <select className="select select-bordered select-sm" id="graph-select" value={graphType} onChange={handleGraphSelect}>
+                      <option value="pie">Pie graph</option>
+                      <option value="bar">Bar graph</option>
+                    </select>
+                  </div>
+                  <div className="basis-1/2 mt-1">
+                    <label>From date: </label>
+                    <input type="date"></input>
+                  </div>
+                </div>
+                {graphType.length > 0 && generateGraph()}
+              </div>
+              <div className="mt-1">
+                <h4 className="text-center text-sm">Total spent: {total}$</h4>
+              </div>
+            </>
           ) : (
             <div className="mt-6">
               <h2>No expenses registered! Consider adding expenses in the expense page</h2>

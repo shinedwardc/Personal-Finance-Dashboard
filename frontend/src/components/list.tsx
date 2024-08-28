@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, ReactEventHandler } from "react";
 import Expense from "./expense";
 // import Form from './Form';
 import { ExpenseInterface } from "../interfaces/interface";
@@ -55,7 +55,7 @@ const List = () => {
     }
   };
 
-  const handleSearch = (e) => {
+  const handleSearch = (e : ReactEventHandler) => {
     const query = e.target.value;
     setSearch(query);
     let searchedData = data;
@@ -99,7 +99,12 @@ const List = () => {
                   <th className="border border-slate-300 px-4 py-2">
                     Category
                   </th>
-                  <th className="border border-slate-300 px-4 py-2">Amount</th>
+                  <th className="border border-slate-300 px-4 py-2">
+                    Amount
+                  </th>
+                  <th className="border border-slate-300 px-4 py-2">
+                    Currency
+                  </th>
                   <th className="border border-slate-300 px-4 py-2">
                     Description
                   </th>
