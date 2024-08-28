@@ -1,12 +1,12 @@
-import { Pie, Bar } from "react-chartjs-2";
-import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, ArcElement, Tooltip, Legend } from "chart.js";
+import { Pie, Bar, PolarArea } from "react-chartjs-2";
+import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, ArcElement, Tooltip, Legend, RadialLinearScale } from "chart.js";
 import { useEffect, useState } from "react";
 import { getExpense, getUserName } from "../api/api";
 import { ExpenseInterface } from "../interfaces/interface";
 import axios from "axios";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-ChartJS.register(CategoryScale, LinearScale, BarElement, ArcElement, Tooltip, Legend);
+ChartJS.register(CategoryScale, LinearScale, BarElement, ArcElement, Tooltip, Legend, RadialLinearScale);
 
 const Breakdown = () => {
   const [expenses, setExpenses] = useState<ExpenseInterface[]>([]);
@@ -164,6 +164,8 @@ const Breakdown = () => {
         return <Pie className="mt-6" data={data} options={options} />
       case "bar":
         return <Bar className="mt-6" data={data} options={options}/>
+      case "polar":
+        return <PolarArea className="mt-6" data={data} options={options}/>
       default:
         return null;
     }
@@ -192,6 +194,7 @@ const Breakdown = () => {
                     <select className="select select-bordered select-sm" id="graph-select" value={graphType} onChange={handleGraphSelect}>
                       <option value="pie">Pie graph</option>
                       <option value="bar">Bar graph</option>
+                      <option value="polar">Polar area graph</option>
                     </select>
                   </div>
                   <div className="basis-1/2 mt-1">
