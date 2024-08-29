@@ -22,6 +22,9 @@ const Sidebar = ({ isLoggedIn, setIsLoggedIn }) => {
           <li className="p-4 hover:bg-gray-700 text-center">
             <Link to="/expenses">Expenses</Link>
           </li>
+          <li className="p-4 hover:bg-gray-700 text-center">
+            <Link to="/connect">Connect</Link>
+          </li>
           {isLoggedIn && (
             <li className="p-4 text-center bg-red-500">
               <button onClick={handleLogout}>Logout</button>

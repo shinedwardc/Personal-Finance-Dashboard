@@ -11,7 +11,7 @@ env = environ.Env()
 environ.Env.read_env()
 import requests
 from django.http import JsonResponse
-#Create your views here
+
 @api_view(['GET','POST','DELETE'])
 def expense_list(request,id=None):
     if not request.user.is_authenticated:
@@ -78,18 +78,6 @@ def get_currency_exchange(request,from_currency, to_currency):
     if response.status_code == 200:
         return JsonResponse({'rate': response.json()['conversion_rates'][to_currency.upper()]}, status=200)
     return JsonResponse({'error': 'Currency not found'}, status=400)
-    #rates = data['conversion_rates'].get(to_currency,None)
-    #print(rates)
-#    if rates:
-#        return Response({'rate': rates}, status=200)
-#    else:
-#        return Response({'error': 'Invalid currency code'}, status=400)
-
-#from django.http import HttpResponse
-#from django.template import loader
-
-#from .models import Question
-
 
 #def index(request):
 #    latest_question_list = Question.objects.order_by("-pub_date")[:5]
