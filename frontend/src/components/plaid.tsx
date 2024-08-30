@@ -1,12 +1,12 @@
 import { usePlaidLink } from "react-plaid-link";
 import { useState, useEffect } from "react";
+
 import axios from "axios";
 
 const Plaid = ({ onPlaidConnected }) => {
 
     const [linkToken, setLinkToken] = useState<string>("");
     const [accessToken, setAccessToken] = useState<string>(localStorage.getItem("plaidAccessToken") || "");
-
     useEffect(() => {
         const createLinkToken = async () => {
             try {

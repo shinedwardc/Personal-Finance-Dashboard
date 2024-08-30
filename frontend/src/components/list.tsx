@@ -1,10 +1,9 @@
-import { useState, useEffect, ReactEventHandler } from "react";
+import { useState, useEffect, useCallback, ReactEventHandler } from "react";
 import { useQuery, QueryClientProvider, QueryClient } from "@tanstack/react-query";
 import Expense from "./expense";
 import { ExpenseInterface } from "../interfaces/interface";
 import { getExpense, fetchPlaidTransactions } from "../api/api";
 import Form from "./Form";
-import Plaid from "./plaid";
 import axios from "axios";
 
 //https://flowbite.com/docs/components/spinner/#progress-spinner
@@ -12,46 +11,47 @@ const queryClient = new QueryClient();
 
 const List = () => {
   const [data, setData] = useState<ExpenseInterface[]>([]);
-  const [isPlaidConnected, setIsPlaidConnected] = useState(false);
-  const [search, setSearch] = useState("");
-  const [useFilteredData, setUseFilteredData] = useState(false);
+  const [isPlaidConnected, setIsPlaidConnected] = useState<boolean>(false);
+  const [search, setSearch] = useState<string>("");
+  const [useFilteredData, setUseFilteredData] = useState<boolean>(false);
   const [filteredData, setFilteredData] = useState<ExpenseInterface[]>([]);
 
-  const checkPlaidConnection = () => {
-    const status = localStorage.getItem("plaidConnected") === "true";
-    console.log(status);
-    return status;
-  };
+  const plaidAccessToken = localStorage.getItem("plaidAccessToken");
+  
+  const checkPlaidConnection = useCallback(() => {
+    return plaidAccessToken !== null;
+  }, [plaidAccessToken]);
 
   const {data : expenseData , isLoading : expenseLoading} = useQuery({
-   queryKey: ['expenses'],
-   queryFn: getExpense,
- });
+    queryKey: ['expenses'],
+    queryFn: getExpense,
+  });
+  
+  const {data : plaidData, isLoading : plaidLoading} = useQuery({
+    queryKey: ['plaidData'],
+    queryFn: fetchPlaidTransactions,
+    enabled: checkPlaidConnection(),
+  });
  
- const {data : plaidData, isLoading : plaidLoading} = useQuery({
-   queryKey: ['plaidData'],
-   queryFn: fetchPlaidTransactions,
-   enabled: checkPlaidConnection(),
- });
-
-
   useEffect(() => {
     setIsPlaidConnected(checkPlaidConnection());
-  }, []);
+  }, [plaidAccessToken,checkPlaidConnection]);
 
   useEffect(() => {
-    if (expenseData && plaidData) {
-      const combinedData = [...expenseData, ...plaidData];
-      setData(combinedData);
+    if (expenseData) {
+      setData(expenseData);
     }
-  },[expenseData, plaidData])
+    if (plaidData && isPlaidConnected) {
+      setData(prevData => [...prevData, ...plaidData]);
+    }
+  },[expenseData, plaidData, isPlaidConnected])
+
+
 
   const refreshList = () => {
     queryClient.invalidateQueries({ queryKey: ['expenses'] });
     queryClient.invalidateQueries({ queryKey: ['plaidData'] });
   };
-
-
 
 
   const handleDeleteTask = async (expenseId: number) => {
@@ -73,7 +73,7 @@ const List = () => {
     }
   };
 
-  const handleSearch = (e : ReactEventHandler) => {
+  const handleSearch = (e : React.ChangeEvent<HTMLInputElement>) => {
     const query = e.target.value;
     setSearch(query);
     let searchedData = data;
@@ -88,16 +88,10 @@ const List = () => {
     }
   }
 
-  const handlePlaidConnected = () => {
-    localStorage.setItem('plaidConnected', 'true');
-    setIsPlaidConnected(true);
-    queryClient.invalidateQueries({ queryKey: ['expenses'] });
-    queryClient.invalidateQueries({ queryKey: ['plaidData'] });
-  }
 
   return (
     <QueryClientProvider client={queryClient}>
-      {!expenseLoading && !plaidLoading ? (
+      {(isPlaidConnected ? (!expenseLoading && !plaidLoading) : !expenseLoading) ? (
         data.length > 0 ? (
           <>
           <div className="mb-6 border-cyan-500 overflow-x-auto">
@@ -174,12 +168,6 @@ const List = () => {
       <div>
         <Form onFormSubmit={refreshList} />
       </div>
-      {!isPlaidConnected && (
-        <div className="plaid-prompt">
-          <p>Connect your bank account to automatically import transactions!</p>
-          <Plaid onPlaidConnected={handlePlaidConnected} />
-        </div>
-      )}
     </QueryClientProvider>
   );
 };
