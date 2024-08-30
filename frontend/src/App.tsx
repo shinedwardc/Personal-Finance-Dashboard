@@ -6,7 +6,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import Sidebar from "./components/sidebar";
 import Breakdown from "./components/breakdown";
 import List from "./components/list";
-import Plaid from "./components/plaid";
+import Connections from "./components/Connections";
 import PrivateRoute from "./components/privateRoute";
 import Login from "./components/Login";
 import Logout from "./components/Logout";
@@ -80,6 +80,14 @@ function App() {
               element={
                 <PrivateRoute isLoggedIn={isLoggedIn}>
                   <List />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/connections"
+              element={
+                <PrivateRoute isLoggedIn={isLoggedIn}>
+                  <Connections />
                 </PrivateRoute>
               }
             />

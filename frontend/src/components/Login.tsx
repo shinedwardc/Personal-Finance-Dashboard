@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate, useLocation } from "react-router-dom";
-import { toast, Bounce } from 'react-toastify';
+import { useAuth } from "./Auth";
 
 interface LoginProps {
   setIsLoggedIn: React.Dispatch<React.SetStateAction<boolean>>;
@@ -14,24 +14,13 @@ const Login: React.FC<LoginProps> = ({ setIsLoggedIn }) => {
 
   const navigate = useNavigate();
   const location = useLocation();
-
+  const { isLoggedIn } = useAuth();
+  
   useEffect(() => {
-    if (location?.state?.success) {
-      toast.success('Sign up success!', {
-        toastId: 'signupSuccess',
-        position: "top-center",
-        autoClose: 5000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "light",
-        transition: Bounce,
-        });
-      navigate('/login', {replace: true, state: {}});
+    if (isLoggedIn) {
+      navigate('/');
     }
-  },[location.state, navigate])
+  },[isLoggedIn, location.state, navigate])
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();

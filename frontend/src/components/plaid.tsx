@@ -5,6 +5,7 @@ import axios from "axios";
 const Plaid = ({ onPlaidConnected }) => {
 
     const [linkToken, setLinkToken] = useState<string>("");
+    const accessToken = localStorage.getItem("plaidAccessToken");
 
     useEffect(() => {
         const createLinkToken = async () => {
@@ -18,8 +19,6 @@ const Plaid = ({ onPlaidConnected }) => {
         createLinkToken();
     },[])
 
-    const [accessToken, setAccessToken] = useState<string | null>(null);
-    const [transactions, setTransactions] = useState<any[]>([]);
 
     const { open, ready } = usePlaidLink({
         token: linkToken,
@@ -32,7 +31,6 @@ const Plaid = ({ onPlaidConnected }) => {
                 });
                 const newAccessToken = response.data.access_token;
                 localStorage.setItem("plaidAccessToken", newAccessToken);
-                setAccessToken(newAccessToken);
                 onPlaidConnected(newAccessToken);
             } catch (error) {
                 console.error('Error exchanging public token:', error);
@@ -47,10 +45,21 @@ const Plaid = ({ onPlaidConnected }) => {
 
 
       return (
-        <div>
-            <button className="btn btn-neutral" onClick={() => open()} disabled={!ready}>
-            Connect with plaid
-            </button>
+        <div className="card w-96 bg-base-100 shadow-xl">
+          <div className="card-body">
+            <h2 className="card-title">Plaid Connection</h2>
+            <p>{localStorage.getItem("plaidAccessToken") ? "Your account is connected to Plaid." : "Connect your bank account to track expenses."}</p>
+            <div className="card-actions justify-end">
+              <button 
+                className={`btn btn-primary ${accessToken ? "btn-disabled" : ""}`} 
+                onClick={() => open()} 
+                disabled={!ready || !!accessToken}
+              >
+                {!accessToken ? "Connect with Plaid" : "Connected"}
+              </button>
+              {accessToken && <button onClick={() => localStorage.removeItem("plaidAccessToken")}>Disconnect</button>}
+            </div>
+          </div>
         </div>
       )
 }
