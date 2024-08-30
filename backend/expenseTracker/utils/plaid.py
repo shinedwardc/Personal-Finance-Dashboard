@@ -86,6 +86,7 @@ def get_transactions(request):
             serializable_transaction = {
                 'id': transaction['transaction_id'],
                 'amount': transaction['amount'],
+                'currency': transaction['iso_currency_code'],
                 'date': transaction['date'],
                 'name': transaction['name'],
                 'merchant_name': transaction.get('merchant_name', ''),

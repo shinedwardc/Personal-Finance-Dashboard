@@ -12,11 +12,10 @@ const Expense = ({ data, deleteTask }: any) => {
   return (
     <tr className="hover">
       <td className="text-3xl text-center">
-        {data.category.name}
+        {data.category.length > 0 ? data.category[0] : data.category.name}
       </td>
-      <td className="text-3xl text-center">{data.amount}{currencies[data.currency]}</td>
+      <td className="text-3xl text-center">{data.amount}{currencies[data.currency.toLowerCase()]}</td>
       <td className="text-3xl text-center">{data.currency.toUpperCase()}</td>
-      <td className="text-1xl text-center">{data.description}</td>
       <td><button className="btn btn-error" onClick={deleteTask}>Delete</button></td>
     </tr>
   );

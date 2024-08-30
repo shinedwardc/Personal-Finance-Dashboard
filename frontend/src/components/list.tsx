@@ -4,36 +4,52 @@ import Expense from "./expense";
 import { ExpenseInterface } from "../interfaces/interface";
 import { getExpense } from "../api/api";
 import Form from "./Form";
+import Plaid from "./plaid";
 import axios from "axios";
+import { check } from "prettier";
 
 //https://flowbite.com/docs/components/spinner/#progress-spinner
 
 const List = () => {
   const [data, setData] = useState<ExpenseInterface[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isPlaidConnected, setIsPlaidConnected] = useState(false);
   const [search, setSearch] = useState("");
   const [useFilteredData, setUseFilteredData] = useState(false);
   const [filteredData, setFilteredData] = useState<ExpenseInterface[]>([]);
 
-  const fetchExpenses = async () => {
-    try {
-      const list = await getExpense();
-      setData(list);
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   useEffect(() => {
     setIsLoading(true);
+    setIsPlaidConnected(checkPlaidConnection());
     fetchExpenses();
   }, []);
 
   const refreshList = () => {
     setIsLoading(true);
     fetchExpenses();
+  };
+
+  const fetchExpenses = async () => {
+    try {
+      let plaidData = [];
+      const expenseData = await getExpense();
+      if (checkPlaidConnection()) {
+        plaidData = await fetchPlaidTransactions();
+      }
+      const combinedData = [...expenseData, ...plaidData];
+      console.log(combinedData);
+      setData(combinedData);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setIsLoading(false);
+    }
+  };  
+
+  const checkPlaidConnection = () => {
+    const status = localStorage.getItem("plaidConnected") === "true";
+    console.log(status);
+    return status;
   };
 
   const handleDeleteTask = async (expenseId: number) => {
@@ -70,6 +86,38 @@ const List = () => {
     }
   }
 
+ const fetchPlaidTransactions = async () => {
+  try {
+    const accessToken = localStorage.getItem("plaidAccessToken");
+    console.log(accessToken);
+    const response = await axios.get('http://localhost:8000/get-transactions/', {
+      params: { access_token: accessToken },
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+      },
+    });
+    console.log(response.data);
+    return response.data.transactions.map((transaction:any) => (
+      {
+        category: transaction.category,
+        amount: transaction.amount,
+        currency: transaction.currency,
+        description: transaction.description,
+      }
+    ))
+  }
+  catch (error) {
+    console.error('Error fetching Plaid transactions:', error);
+    return [];
+  }
+ }
+
+  const handlePlaidConnected = () => {
+    localStorage.setItem('plaidConnected', 'true');
+    setIsPlaidConnected(true);
+    fetchExpenses();
+  }
+
   return (
     <>
       {/*<div>
@@ -77,6 +125,7 @@ const List = () => {
         </div>*/}
       {!isLoading ? (
         data.length > 0 ? (
+          <>
           <div className="mb-6 border-cyan-500 overflow-x-auto">
             <div className="mb-4 flex justify-center">
               <label className="input input-bordered flex items-center w-64 gap-2">
@@ -122,6 +171,7 @@ const List = () => {
               </tbody>
             </table>
           </div>
+          </>
         ) : (
           <div className="mb-6">
             <p>No expenses listed yet! Add an expense below</p>
@@ -153,6 +203,12 @@ const List = () => {
       <div>
         <Form onFormSubmit={refreshList} />
       </div>
+      {!isPlaidConnected && (
+        <div className="plaid-prompt">
+          <p>Connect your bank account to automatically import transactions!</p>
+          <Plaid onPlaidConnected={handlePlaidConnected} />
+        </div>
+      )}
     </>
   );
 };

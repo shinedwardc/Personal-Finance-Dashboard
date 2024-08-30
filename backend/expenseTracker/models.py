@@ -23,7 +23,6 @@ class Expense(models.Model):
         "inr": "Indian Rupee ₹"
     }
     currency = models.CharField(max_length=3, choices=CURRENCIES, default="usd")
-    description = models.TextField(null=True,blank=True)
     start_date = models.DateField()
     end_date = models.DateField()
     created_at = models.DateTimeField(auto_now_add=True)

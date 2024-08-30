@@ -83,14 +83,6 @@ function App() {
                 </PrivateRoute>
               }
             />
-            <Route
-              path="/connect"
-              element={
-                <PrivateRoute isLoggedIn={isLoggedIn}>
-                  <Plaid />
-                </PrivateRoute>
-              }
-            />
           </Routes>
         </div>
       </div>

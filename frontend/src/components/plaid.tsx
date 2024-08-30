@@ -2,7 +2,7 @@ import { usePlaidLink } from "react-plaid-link";
 import { useState, useEffect } from "react";
 import axios from "axios";
 
-const Plaid = () => {
+const Plaid = ({ onPlaidConnected }) => {
 
     const [linkToken, setLinkToken] = useState<string>("");
 
@@ -31,10 +31,9 @@ const Plaid = () => {
                   public_token: publicToken
                 });
                 const newAccessToken = response.data.access_token;
+                localStorage.setItem("plaidAccessToken", newAccessToken);
                 setAccessToken(newAccessToken);
-
-                // Fetch transactions using the new access token
-                await fetchTransactions(newAccessToken);
+                onPlaidConnected(newAccessToken);
             } catch (error) {
                 console.error('Error exchanging public token:', error);
             }
@@ -46,17 +45,6 @@ const Plaid = () => {
         },
     });
 
-    const fetchTransactions = async (token: string) => {
-        try {
-            const response = await axios.get('http://localhost:8000/get-transactions/', {
-                params: { access_token: token }
-            });
-            setTransactions(response.data.transactions);
-            console.log('transactions: ', response.data.transactions);
-        } catch (error) {
-            console.error('Error fetching transactions:', error);
-        }
-    };
 
       return (
         <div>
