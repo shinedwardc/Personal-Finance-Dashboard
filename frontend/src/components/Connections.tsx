@@ -1,4 +1,3 @@
-import { useState, useCallback, useEffect } from 'react';
 import Plaid from './plaid';
 
 const Connections = () => {

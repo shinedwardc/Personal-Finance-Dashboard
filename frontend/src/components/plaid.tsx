@@ -5,7 +5,7 @@ import axios from "axios";
 const Plaid = ({ onPlaidConnected }) => {
 
     const [linkToken, setLinkToken] = useState<string>("");
-    const accessToken = localStorage.getItem("plaidAccessToken");
+    const [accessToken, setAccessToken] = useState<string>(localStorage.getItem("plaidAccessToken") || "");
 
     useEffect(() => {
         const createLinkToken = async () => {
@@ -32,6 +32,7 @@ const Plaid = ({ onPlaidConnected }) => {
                 const newAccessToken = response.data.access_token;
                 localStorage.setItem("plaidAccessToken", newAccessToken);
                 onPlaidConnected(newAccessToken);
+                setAccessToken(newAccessToken);
             } catch (error) {
                 console.error('Error exchanging public token:', error);
             }
@@ -43,21 +44,28 @@ const Plaid = ({ onPlaidConnected }) => {
         },
     });
 
+    const plaidDisconnect = () => {
+      localStorage.removeItem("plaidAccessToken");
+      setAccessToken("");
+    }
+
 
       return (
         <div className="card w-96 bg-base-100 shadow-xl">
           <div className="card-body">
             <h2 className="card-title">Plaid Connection</h2>
             <p>{localStorage.getItem("plaidAccessToken") ? "Your account is connected to Plaid." : "Connect your bank account to track expenses."}</p>
-            <div className="card-actions justify-end">
-              <button 
+            <div className="card-actions justify-center">
+              {!accessToken ? (              
+                <button 
                 className={`btn btn-primary ${accessToken ? "btn-disabled" : ""}`} 
                 onClick={() => open()} 
-                disabled={!ready || !!accessToken}
-              >
-                {!accessToken ? "Connect with Plaid" : "Connected"}
-              </button>
-              {accessToken && <button onClick={() => localStorage.removeItem("plaidAccessToken")}>Disconnect</button>}
+                disabled={!ready || !!accessToken}>
+                  Connect
+                </button>
+              ) : (
+                <button className="btn btn-secondary" onClick={plaidDisconnect}>Disconnect</button>
+              )}
             </div>
           </div>
         </div>

@@ -12,6 +12,9 @@ import Login from "./components/Login";
 import Logout from "./components/Logout";
 import Signup from './components/signup';
 import { getUserName } from "./api/api";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+
+const queryClient = new QueryClient();
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
@@ -52,49 +55,51 @@ function App() {
   }
 
   return (
-    <Router>
-      <ToastContainer />
-      <div className="flex flex-col">
-        <Sidebar isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} />
-        <div className="flex-grow flex flex-col items-center justify-center mt-20">
-          <Routes>
-            {/* Public routes */}
-            <Route
-              path="/login"
-              element={<Login setIsLoggedIn={setIsLoggedIn} />}
-            />
-            <Route path="/logout" element={<Logout />} />
-            <Route path="/signup" element={<Signup />} />
+    <QueryClientProvider client={queryClient}>
+      <Router>
+        <ToastContainer />
+        <div className="flex flex-col">
+          <Sidebar isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} />
+          <div className="flex-grow flex flex-col items-center justify-center mt-20">
+            <Routes>
+              {/* Public routes */}
+              <Route
+                path="/login"
+                element={<Login setIsLoggedIn={setIsLoggedIn} />}
+              />
+              <Route path="/logout" element={<Logout />} />
+              <Route path="/signup" element={<Signup />} />
 
-            {/* Protected routes */}
-            <Route
-              path="/"
-              element={
-                <PrivateRoute isLoggedIn={isLoggedIn}>
-                  <Breakdown />
-                </PrivateRoute>
-              }
-            />
-            <Route
-              path="/expenses"
-              element={
-                <PrivateRoute isLoggedIn={isLoggedIn}>
-                  <List />
-                </PrivateRoute>
-              }
-            />
-            <Route
-              path="/connections"
-              element={
-                <PrivateRoute isLoggedIn={isLoggedIn}>
-                  <Connections />
-                </PrivateRoute>
-              }
-            />
-          </Routes>
+              {/* Protected routes */}
+              <Route
+                path="/"
+                element={
+                  <PrivateRoute isLoggedIn={isLoggedIn}>
+                    <Breakdown />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/expenses"
+                element={
+                  <PrivateRoute isLoggedIn={isLoggedIn}>
+                    <List />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/connections"
+                element={
+                  <PrivateRoute isLoggedIn={isLoggedIn}>
+                    <Connections />
+                  </PrivateRoute>
+                }
+              />
+            </Routes>
+          </div>
         </div>
-      </div>
-    </Router>
+      </Router>
+    </QueryClientProvider>
   );
 }
 

@@ -45,3 +45,29 @@ export const getUserName = async () => {
     throw error;
   }
 };
+
+export const fetchPlaidTransactions = async () => {
+  try {
+    const accessToken = localStorage.getItem("plaidAccessToken");
+    console.log(accessToken);
+    const response = await axios.get('http://localhost:8000/get-transactions/', {
+      params: { access_token: accessToken },
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+      },
+    });
+    console.log(response.data);
+    return response.data.transactions.map((transaction:any) => (
+      {
+        category: transaction.category,
+        amount: transaction.amount,
+        currency: transaction.currency,
+        description: transaction.description,
+      }
+    ))
+  }
+  catch (error) {
+    console.error('Error fetching Plaid transactions:', error);
+    return [];
+  }
+ };
