@@ -1,6 +1,6 @@
 import { usePlaidLink } from "react-plaid-link";
 import { useState, useEffect } from "react";
-
+import plaidLogo from '../assets/plaid.png';
 import axios from "axios";
 
 const Plaid = ({ onPlaidConnected }) => {
@@ -51,7 +51,14 @@ const Plaid = ({ onPlaidConnected }) => {
 
 
       return (
-        <div className="card w-96 bg-base-100 shadow-xl">
+        <div className="card w-96 bg-base-100 shadow-2xl">
+          <div className="mt-8">
+            <figure>
+              <img className="w-1/2"
+                src={plaidLogo}
+                alt="Plaid" />
+            </figure>
+          </div>
           <div className="card-body">
             <h2 className="card-title">Plaid Connection</h2>
             <p>{localStorage.getItem("plaidAccessToken") ? "Your account is connected to Plaid." : "Connect your bank account to track expenses."}</p>

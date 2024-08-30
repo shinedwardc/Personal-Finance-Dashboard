@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, ReactEventHandler } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useQuery, QueryClientProvider, QueryClient } from "@tanstack/react-query";
 import Expense from "./expense";
 import { ExpenseInterface } from "../interfaces/interface";
@@ -12,6 +12,7 @@ const queryClient = new QueryClient();
 const List = () => {
   const [data, setData] = useState<ExpenseInterface[]>([]);
   const [isPlaidConnected, setIsPlaidConnected] = useState<boolean>(false);
+  const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
   const [search, setSearch] = useState<string>("");
   const [useFilteredData, setUseFilteredData] = useState<boolean>(false);
   const [filteredData, setFilteredData] = useState<ExpenseInterface[]>([]);
@@ -48,9 +49,19 @@ const List = () => {
 
 
 
-  const refreshList = () => {
-    queryClient.invalidateQueries({ queryKey: ['expenses'] });
-    queryClient.invalidateQueries({ queryKey: ['plaidData'] });
+  const refetchExpenses = async () => {
+    setIsRefreshing(true);
+    try {
+      const newExpenseData = await getExpense();
+      setData(prevData => {
+        // Keep all existing data and add new expense data
+        return [...prevData, ...newExpenseData];
+      });
+    } catch (error) {
+      console.error("Failed to refetch expenses:", error);
+    } finally {
+      setIsRefreshing(false);
+    }
   };
 
 
@@ -91,7 +102,7 @@ const List = () => {
 
   return (
     <QueryClientProvider client={queryClient}>
-      {(isPlaidConnected ? (!expenseLoading && !plaidLoading) : !expenseLoading) ? (
+      {(isPlaidConnected ? (!(expenseLoading && plaidLoading)) : !expenseLoading) && !isRefreshing ? (
         data.length > 0 ? (
           <>
           <div className="mb-6 border-cyan-500 overflow-x-auto">
@@ -166,7 +177,7 @@ const List = () => {
         </div>
       )}
       <div>
-        <Form onFormSubmit={refreshList} />
+        <Form onFormSubmit={refetchExpenses} />
       </div>
     </QueryClientProvider>
   );

@@ -9,29 +9,27 @@ const Sidebar = ({ isLoggedIn, setIsLoggedIn }) => {
     localStorage.removeItem("accessToken");
     localStorage.removeItem("refreshToken");
     setIsLoggedIn(false);
-    navigate("/login"); // Redirect to login page after logout
+    navigate("/login");
   };
 
   return (
-    <div className="absolute h-screen">
-      <div className="left-0 h-screen w-48 bg-gray-800 text-white">
-        <ul className="list-none">
-          <li className="font-sans p-4 hover:bg-gray-700 text-center">
-            <Link to="/">Home</Link>
+    <div className="fixed left-0 top-0 h-screen w-48 bg-gray-800 text-white">
+      <ul className="list-none">
+        <li className="font-sans p-4 hover:bg-gray-700 text-center">
+          <Link to="/">Home</Link>
+        </li>
+        <li className="p-4 hover:bg-gray-700 text-center">
+          <Link to="/expenses">Expenses</Link>
+        </li>
+        <li className="p-4 hover:bg-gray-700 text-center">
+          <Link to="/connections">Connections</Link>
+        </li>
+        {isLoggedIn && (
+          <li className="p-4 text-center bg-red-500">
+            <button onClick={handleLogout}>Logout</button>
           </li>
-          <li className="p-4 hover:bg-gray-700 text-center">
-            <Link to="/expenses">Expenses</Link>
-          </li>
-          <li className="p-4 hover:bg-gray-700 text-center">
-            <Link to="/connections">Connections</Link>
-          </li>
-          {isLoggedIn && (
-            <li className="p-4 text-center bg-red-500">
-              <button onClick={handleLogout}>Logout</button>
-            </li>
-          )}
-        </ul>
-      </div>
+        )}
+      </ul>
     </div>
   );
 };
