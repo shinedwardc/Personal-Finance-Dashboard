@@ -182,9 +182,13 @@ const Breakdown = () => {
       {!loading ? (
         <>
           <h1 className="text-5xl mb-10">Expense Tracker</h1>
-          <h2 className="text-3xl font-ubuntu">Welcome, {username}!</h2>
+          <h2 className="text-2xl font-ubuntu">Welcome, {username}!</h2>
           {expenses.length > 0 ? (
             <>
+              <div className="flex justify-center mt-4 gap-4">
+                <h4 className="text-center font-ubuntu text-base">Total budget: 45$</h4>
+                <h4 className="text-center font-ubuntu text-base">Total spent: {total}$</h4>
+              </div>
               <div className="mt-6">
                 <h2 className="text-center mt-3 mb-3 font-ubuntu text-2xl">Expense summary</h2>
                 <div className="flex flex-row justify-center text-center">
@@ -203,9 +207,6 @@ const Breakdown = () => {
                   </div>
                 </div>
                 {graphType.length > 0 && generateGraph()}
-              </div>
-              <div className="mt-1">
-                <h4 className="text-center text-sm">Total spent: {total}$</h4>
               </div>
             </>
           ) : (

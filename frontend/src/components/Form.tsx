@@ -13,7 +13,7 @@ const Form = ({ onFormSubmit }: formProps) => {
   const [customCategory, setCustomCategory] = useState<string>("");
   const [amount, setAmount] = useState<string>("");
   const [currency, setCurrency] = useState<string>("usd");
-  const [description, setDescription] = useState<string>("");
+  const [name, setName] = useState<string>("");
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -34,12 +34,11 @@ const Form = ({ onFormSubmit }: formProps) => {
       : customCategory;
     console.log(categoryToSubmit);
     const newExpense = {
+      name,
       category: { name: categoryToSubmit },
-      description,
       amount,
       currency,
-      start_date: new Date().toISOString().split("T")[0], // Current date in YYYY-MM-DD format
-      end_date: new Date().toISOString().split("T")[0], // Current date in YYYY-MM-DD format
+      date: new Date().toISOString().split("T")[0], // Current date in YYYY-MM-DD format
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
     };
@@ -62,12 +61,24 @@ const Form = ({ onFormSubmit }: formProps) => {
         console.log("Error message:", error.message);
       }
     } finally {
-      onFormSubmit();
+      onFormSubmit(newExpense);
     }
   };
 
   return (
     <form onSubmit={handleSubmit}>
+      <div>
+        <label htmlFor="name" className="block w-full">
+          Name
+        </label>
+        <input
+          type="text"
+          id="name"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          className="input input-bordered p-2 rounded"
+        />
+      </div>
       <div>
         <label htmlFor="category" className="block">
           Category
@@ -124,19 +135,6 @@ const Form = ({ onFormSubmit }: formProps) => {
           required
         />
 
-      </div>
-
-      <div>
-        <label htmlFor="description" className="block w-full">
-          Description
-        </label>
-        <input
-          type="text"
-          id="description"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          className="input input-bordered p-2 rounded"
-        />
       </div>
       <button type="submit" className="btn btn-accent rounded mt-3">
         Add Expense

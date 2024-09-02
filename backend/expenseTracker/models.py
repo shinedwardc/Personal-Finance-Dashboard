@@ -10,6 +10,7 @@ class Category(models.Model):
 class Expense(models.Model):
     id = models.AutoField(primary_key=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
+    name = models.CharField(max_length=150,default="placeholder")
     category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True, blank=True)
     amount = models.DecimalField(max_digits=10, decimal_places=2)
     CURRENCIES = {
@@ -23,8 +24,7 @@ class Expense(models.Model):
         "inr": "Indian Rupee ₹"
     }
     currency = models.CharField(max_length=3, choices=CURRENCIES, default="usd")
-    start_date = models.DateField()
-    end_date = models.DateField()
+    date = models.DateField()
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

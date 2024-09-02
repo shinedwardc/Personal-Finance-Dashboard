@@ -24,7 +24,7 @@ function App() {
     const checkAuth = async () => {
       try {
         const username = await getUserName();
-        //console.log(username);
+        console.log("username", username);
         if (
           username && username.length > 0
         ) {
@@ -41,18 +41,13 @@ function App() {
       }
     }
     if (localStorage.getItem('accessToken')){
+      console.log("accessToken", localStorage.getItem('accessToken'));
       checkAuth();
     } else {
       setIsLoading(false);
     }
   }, []);
 
-  if (isLoading) {
-    return (
-      <></>
-      
-    )
-  }
 
   return (
     <QueryClientProvider client={queryClient}>
@@ -74,7 +69,7 @@ function App() {
               <Route
                 path="/"
                 element={
-                  <PrivateRoute isLoggedIn={isLoggedIn}>
+                  <PrivateRoute isLoggedIn={isLoggedIn} isLoading={isLoading}>
                     <Breakdown />
                   </PrivateRoute>
                 }
@@ -82,7 +77,7 @@ function App() {
               <Route
                 path="/expenses"
                 element={
-                  <PrivateRoute isLoggedIn={isLoggedIn}>
+                  <PrivateRoute isLoggedIn={isLoggedIn} isLoading={isLoading}>
                     <List />
                   </PrivateRoute>
                 }
@@ -90,7 +85,7 @@ function App() {
               <Route
                 path="/connections"
                 element={
-                  <PrivateRoute isLoggedIn={isLoggedIn}>
+                  <PrivateRoute isLoggedIn={isLoggedIn} isLoading={isLoading}>
                     <Connections />
                   </PrivateRoute>
                 }

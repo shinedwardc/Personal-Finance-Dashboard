@@ -59,10 +59,12 @@ export const fetchPlaidTransactions = async () => {
     console.log(response.data);
     return response.data.transactions.map((transaction:any) => (
       {
+        name: transaction.name,
         category: transaction.category,
         amount: transaction.amount,
         currency: transaction.currency,
         description: transaction.description,
+        date: transaction.date,
       }
     ))
   }
