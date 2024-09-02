@@ -180,33 +180,72 @@ const Breakdown = () => {
   return (
     <>
       {!loading ? (
-        <>
-          <h1 className="text-5xl mb-10">Expense Tracker</h1>
-          <h2 className="text-2xl font-ubuntu">Welcome, {username}!</h2>
+        <div>
           {expenses.length > 0 ? (
             <>
+              <div className="flex flex-col w-full">
+                <div className="flex justify-start">
+                  <h1 className="text-5xl">Expense Tracker</h1>
+                </div>
+                <div className="flex flex-row justify-between w-full">
+                  <div className="flex flex-col mr-8 justify-start w-1/2">
+                    <div>
+                      <h2 className="text-2xl font-ubuntu">Welcome, {username}!</h2>
+                    </div>
+                    <div>
+                      <h2 className="text-center mt-3 mb-3 font-ubuntu text-2xl">Expense summary</h2>
+                      <div className="flex flex-row justify-between text-center">
+                        <div className="flex-1">
+                          <label htmlFor="graph-select">Graph style: </label>
+                          <br/>
+                          <select className="select select-bordered select-sm" id="graph-select" value={graphType} onChange={handleGraphSelect}>
+                            <option value="pie">Pie graph</option>
+                            <option value="bar">Bar graph</option>
+                            <option value="polar">Polar area graph</option>
+                          </select>
+                        </div>
+                        <div className="flex-1 mt-1">
+                          <label>From date: </label>
+                          <DatePicker selected={date} onSelect={handleDateSelect} />
+                        </div>
+                      </div>
+                      {graphType.length > 0 && generateGraph()}
+                    </div>
+                  </div>
+                  <div className="w-1 bg-slate-300"></div>
+                  <div className="overflow-x-auto mt-10 ml-4">
+                    <table className="table">
+                      <thead>
+                        <tr>
+                          <th>Category</th>
+                          <th>Job</th>
+                          <th>Favorite Color</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td>Cy Ganderton</td>
+                          <td>Quality Control Specialist</td>
+                          <td>Blue</td>
+                        </tr>
+                        <tr>
+                          <td>Hart Hagerty</td>
+                          <td>Desktop Support Technician</td>
+                          <td>Purple</td>
+                        </tr>
+                        <tr>
+                          <td>Brice Swyre</td>
+                          <td>Tax Accountant</td>
+                          <td>Red</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
               <div className="flex justify-center mt-4 gap-4">
                 <h4 className="text-center font-ubuntu text-base">Total budget: 45$</h4>
                 <h4 className="text-center font-ubuntu text-base">Total spent: {total}$</h4>
-              </div>
-              <div className="mt-6">
-                <h2 className="text-center mt-3 mb-3 font-ubuntu text-2xl">Expense summary</h2>
-                <div className="flex flex-row justify-center text-center">
-                  <div className="basis-1/2">
-                    <label htmlFor="graph-select">Graph style: </label>
-                    <br/>
-                    <select className="select select-bordered select-sm" id="graph-select" value={graphType} onChange={handleGraphSelect}>
-                      <option value="pie">Pie graph</option>
-                      <option value="bar">Bar graph</option>
-                      <option value="polar">Polar area graph</option>
-                    </select>
-                  </div>
-                  <div className="basis-1/2 mt-1">
-                    <label>From date: </label>
-                    <DatePicker selected={date} onSelect={handleDateSelect} />
-                  </div>
-                </div>
-                {graphType.length > 0 && generateGraph()}
               </div>
             </>
           ) : (
@@ -214,7 +253,7 @@ const Breakdown = () => {
               <h2>No expenses registered! Consider adding expenses in the expense page</h2>
             </div>
           )}
-        </>
+        </div>
       ) : (
         <div className="text-center mt-80">
           <div role="status">
