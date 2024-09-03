@@ -1,15 +1,25 @@
-import { useNavigate } from "react-router-dom";
+import { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 
-const Logout = () => {
+interface AuthState {
+  isLoggedIn: boolean;
+  isLoading: boolean;
+}
+
+interface LogoutProps {
+  setAuthState: React.Dispatch<React.SetStateAction<AuthState>>;
+}
+
+const Logout = ({ setAuthState }: LogoutProps) => {
   const navigate = useNavigate();
 
-  const handleLogout = () => {
-    localStorage.removeItem("accessToken");
-    localStorage.removeItem("refreshToken");
-    navigate("/login"); // Redirect to login page after logout
-  };
+  useEffect(() => {
+    localStorage.removeItem('accessToken');
+    setAuthState({ isLoggedIn: false, isLoading: false });
+    navigate('/login');
+  }, [setAuthState, navigate]);
 
-  return <button onClick={handleLogout}>Logout</button>;
+  return <div>Logging out...</div>;
 };
 
 export default Logout;

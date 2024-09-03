@@ -1,155 +1,59 @@
-import { Pie, Bar, PolarArea } from "react-chartjs-2";
-import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, ArcElement, Tooltip, Legend, RadialLinearScale } from "chart.js";
-import { useEffect, useState } from "react";
-import { getExpense, getUserName } from "../api/api";
+import { Pie, Bar, Line } from "react-chartjs-2";
+import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, PointElement, LineElement, ArcElement, Tooltip, Legend, RadialLinearScale } from "chart.js";
+import { useEffect, useState, useMemo } from "react";
 import { ExpenseInterface } from "../interfaces/interface";
-import axios from "axios";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-ChartJS.register(CategoryScale, LinearScale, BarElement, ArcElement, Tooltip, Legend, RadialLinearScale);
 
-const Breakdown = () => {
-  const [expenses, setExpenses] = useState<ExpenseInterface[]>([]);
+ChartJS.register(CategoryScale, LinearScale, BarElement, PointElement, LineElement,ArcElement, Tooltip, Legend, RadialLinearScale);
+
+const Breakdown = ({data, isDataLoading} : {data: ExpenseInterface[], isDataLoading: boolean}) => {
   const [categoryTotals, setCategoryTotals] = useState<Record<string, number>>(
     {},
   );
   const [total, setTotal] = useState<number>(0);
   const [date, setDate] = useState(new Date());
-  const [username, setUsername] = useState<string>("");
-  const [graphType, setGraphType] = useState<string>("pie");
-  const [loading, finishLoading] = useState(true);
+  const [graphType, setGraphType] = useState<string>("bar");
 
   useEffect(() => {
-    const fetchExpenses = async () => {
+    const calculateTotals = async () => {
       try {
-        const [list, username] = await Promise.all([
-          getExpense(),
-          getUserName(),
-        ]);
-        setExpenses(list);
-        if (list.length <= 0){
-          finishLoading(false);
+        const totals = await calculateTotalByCategory(data);
+        setCategoryTotals(totals);
+        let totalCost = 0;
+        for (const cost of Object.values(totals)) {
+          totalCost += cost;
         }
-        setUsername(username);
+        setTotal(totalCost);
       } catch (error) {
         console.error(error);
       }
-    };
-    fetchExpenses();
-  }, []);
-
-  useEffect(() => {
-    const fetchTotals = async () => {
-      try {
-        const totals = await calculateTotalByCategory(expenses);
-          setCategoryTotals(totals);
-          //console.log(totals);
-          //console.log(expenses);
-          let totalCost = 0;
-          for (const cost of Object.values(totals)) {
-            totalCost += cost;
-          }
-          setTotal(totalCost);
-      } catch (error) {
-        console.error(error);
-      } finally {
-        finishLoading(false);
-      }
     }
-    if (expenses.length > 0) {
+    calculateTotals();
+  }, [data]);
 
-      fetchTotals();
-    }
-  }, [expenses]);
 
   const calculateTotalByCategory = async (
     expenses: ExpenseInterface[],
     date : any = null
   ): Promise<Record<string, number>> => {
-    const categoryTotals: Record<string, number> = {};
-    const conversionRates: Record<string, number> = {}; // To cache conversion rates and avoid multiple requests
-  
-    const getConversionRate = async (currency: string) => {
-      if (currency === "usd") return 1;
-  
-      if (conversionRates[currency]) return conversionRates[currency];
-  
-      try {
-        const response = await axios.get(`http://localhost:8000/get-currency-exchange/${currency}/usd/`);
-        const rate = parseFloat(response.data.rate);
-        //console.log(response.data);
-        conversionRates[currency] = rate;
-        return rate;
-      } catch (error) {
-        console.error('Error with converting calculation: ', error);
-        return 1; 
-      }
-    };
-  
+    const totals: Record<string, number> = {};
+
+    console.log("expenses", expenses);
     for (const expense of expenses) {
       if (date && new Date(expense.start_date).toDateString() < new Date(date).toDateString()) {
         continue; // Skip expenses before the date
       }
-      const categoryName = expense.category.name;
+      const categoryName = Array.isArray(expense.category) ? expense.category[0] : expense.category.name;
       const amount = parseFloat(expense.amount.toString());
-      const currency = expense.currency;
-  
-      const conversionRate = await getConversionRate(currency);
-      //console.log('conversion rate: ', conversionRate);
-      const convertedAmount = amount * conversionRate;
-      //console.log('converted amount: ', convertedAmount);
 
-      setTotal((total) => total + conversionRate);
+      setTotal((total) => total + amount);
   
-      if (categoryTotals[categoryName]) {
-        categoryTotals[categoryName] += convertedAmount;
-      } else {
-        categoryTotals[categoryName] = convertedAmount;
-      }
+      totals[categoryName] = (totals[categoryName] || 0) + amount;
     }
+    //console.log(Object.keys(categoryTotals));
     //console.log(Object.values(categoryTotals));
-    return categoryTotals;
-  };
-
-  const data = {
-    labels: Object.keys(categoryTotals),
-    datasets: [
-      {
-        label: "Total expense of category",
-        data: Object.values(categoryTotals).map(amount => parseFloat(amount.toFixed(2))),
-        backgroundColor: Object.keys(categoryTotals).map(
-          (_, index) => `rgba(${index * 50}, ${index * 100}, 200, 0.2)`,
-        ),
-        borderColor: Object.keys(categoryTotals).map(
-          (_, index) => `rgba(${index * 50}, ${index * 100}, 200, 1)`,
-        ),
-        borderWidth: 1,
-        hoverOffset: 1,
-      },
-    ],
-  };
-
-  const options = {
-    responsive: true,
-    plugins: {
-      title: {
-        display: true,
-        text: "Expenses analysis by category",
-      },
-      legend: {
-        position: "top" as const,
-      },
-      tooltip: {
-        callbacks: {
-          label: (tooltipItem: any) => {
-            const dataset = tooltipItem.dataset;
-            const label = dataset.label || "";
-            const value = dataset.data[tooltipItem.dataIndex];
-            return `${label}: $${value.toFixed(2)}`;
-          },
-        },
-      },
-    },
+    return totals;
   };
 
   const handleGraphSelect = (e : React.FormEvent) => {
@@ -157,126 +61,138 @@ const Breakdown = () => {
     setGraphType(element.value);
   }
   
-  const generateGraph = () => {
+  const graph = useMemo(() => {
+    if (Object.keys(categoryTotals).length === 0) {
+      return null;
+    }
+    const chartData = {
+      labels: Object.keys(categoryTotals),
+      datasets: [
+        {
+          label: "Total expense of category",
+          data: Object.values(categoryTotals).map(amount => parseFloat(amount.toFixed(2))),
+          backgroundColor: Object.keys(categoryTotals).map(
+            (_, index) => `rgba(${index * 50}, ${index * 100}, 200, 0.2)`,
+          ),
+          borderColor: Object.keys(categoryTotals).map(
+            (_, index) => `rgba(${index * 50}, ${index * 100}, 200, 1)`,
+          ),
+          borderWidth: 1,
+          hoverOffset: 1,
+        },
+      ],
+    };
+  
+    const options = {
+      responsive: false,
+      plugins: {
+        title: {
+          display: true,
+          text: "Expenses analysis by category",
+        },
+        legend: {
+          position: "top" as const,
+        },
+        tooltip: {
+          callbacks: {
+            label: (tooltipItem: any) => {
+              const dataset = tooltipItem.dataset;
+              const label = dataset.label || "";
+              const value = dataset.data[tooltipItem.dataIndex];
+              return `${label}: $${value.toFixed(2)}`;
+            },
+          },
+        },
+      },
+    };
     //console.log(graphType);
+    
     switch (graphType) {
-      case "pie":
-        return <Pie className="mt-6" data={data} options={options} />
       case "bar":
-        return <Bar className="mt-6" data={data} options={options}/>
-      case "polar":
-        return <PolarArea className="mt-6" data={data} options={options}/>
+        return <Bar className="mt-6" data={chartData} options={options} />;
+      case "line":
+        return <Line className="mt-6" data={chartData} options={options} />;
       default:
         return null;
     }
-  };
+  }, [categoryTotals, graphType]);
+
 
   const handleDateSelect = async (date) => {
     setDate(date);
-    const filtered = await calculateTotalByCategory(expenses,date);
+    const filtered = await calculateTotalByCategory(data,date);
     console.log(filtered);
   }
 
+
   return (
     <>
-      {!loading ? (
         <div>
-          {expenses.length > 0 ? (
-            <>
-              <div className="flex flex-col w-full">
-                <div className="flex justify-start">
-                  <h1 className="text-5xl">Expense Tracker</h1>
-                </div>
-                <div className="flex flex-row justify-between w-full">
-                  <div className="flex flex-col mr-8 justify-start w-1/2">
-                    <div>
-                      <h2 className="text-2xl font-ubuntu">Welcome, {username}!</h2>
-                    </div>
-                    <div>
-                      <h2 className="text-center mt-3 mb-3 font-ubuntu text-2xl">Expense summary</h2>
-                      <div className="flex flex-row justify-between text-center">
-                        <div className="flex-1">
-                          <label htmlFor="graph-select">Graph style: </label>
-                          <br/>
-                          <select className="select select-bordered select-sm" id="graph-select" value={graphType} onChange={handleGraphSelect}>
-                            <option value="pie">Pie graph</option>
-                            <option value="bar">Bar graph</option>
-                            <option value="polar">Polar area graph</option>
-                          </select>
-                        </div>
-                        <div className="flex-1 mt-1">
-                          <label>From date: </label>
-                          <DatePicker selected={date} onSelect={handleDateSelect} />
-                        </div>
+          {!isDataLoading ? (
+            <div className="flex flex-col w-full">
+              <div className="flex justify-start mb-5">
+                <h1 className="text-5xl font-ubuntu">Expense Tracker</h1>
+              </div>
+              <div className="flex flex-row justify-between w-full">
+                <div className="flex flex-col justify-start w-1/2">
+                  <div className="w-full">
+                    <h2 className="text-center mt-3 mb-3 font-ubuntu text-2xl">Expense summary</h2>
+                    <div className="flex flex-row justify-between text-center">
+                      <div className="flex-1">
+                        <label htmlFor="graph-select">Graph style: </label>
+                        <br/>
+                        <select className="select select-bordered select-sm" id="graph-select" value={graphType} onChange={handleGraphSelect}>
+                          <option value="bar">Bar graph</option>
+                          <option value="line">Line graph</option>
+                        </select>
                       </div>
-                      {graphType.length > 0 && generateGraph()}
+                      <div className="flex-1 mt-1">
+                        <label>From date: </label>
+                        <DatePicker selected={date} onSelect={handleDateSelect} />
+                      </div>
+                    </div>
+                    <div className="flex justify-center items-center">
+                    {graph}
                     </div>
                   </div>
-                  <div className="w-1 bg-slate-300"></div>
-                  <div className="overflow-x-auto mt-10 ml-4">
-                    <table className="table">
-                      <thead>
-                        <tr>
-                          <th>Category</th>
-                          <th>Job</th>
-                          <th>Favorite Color</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        <tr>
-                          <td>Cy Ganderton</td>
-                          <td>Quality Control Specialist</td>
-                          <td>Blue</td>
-                        </tr>
-                        <tr>
-                          <td>Hart Hagerty</td>
-                          <td>Desktop Support Technician</td>
-                          <td>Purple</td>
-                        </tr>
-                        <tr>
-                          <td>Brice Swyre</td>
-                          <td>Tax Accountant</td>
-                          <td>Red</td>
-                        </tr>
-                      </tbody>
-                    </table>
-                  </div>
+                </div>
+                <div className="w-1 bg-slate-300 px-1 mx-2"></div>
+                <div className="overflow-x-auto mt-10 ml-4">
+                  <table className="table">
+                    <thead>
+                      <tr>
+                        <th>Category</th>
+                        <th>Job</th>
+                        <th>Favorite Color</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td>Cy Ganderton</td>
+                        <td>Quality Control Specialist</td>
+                        <td>Blue</td>
+                      </tr>
+                      <tr>
+                        <td>Hart Hagerty</td>
+                        <td>Desktop Support Technician</td>
+                        <td>Purple</td>
+                      </tr>
+                      <tr>
+                        <td>Brice Swyre</td>
+                        <td>Tax Accountant</td>
+                        <td>Red</td>
+                      </tr>
+                    </tbody>
+                  </table>
                 </div>
               </div>
-              <div className="flex justify-center mt-4 gap-4">
-                <h4 className="text-center font-ubuntu text-base">Total budget: 45$</h4>
-                <h4 className="text-center font-ubuntu text-base">Total spent: {total}$</h4>
-              </div>
-            </>
+            </div>
           ) : (
-            <div className="mt-6">
-              <h2>No expenses registered! Consider adding expenses in the expense page</h2>
+            <div className="flex justify-center items-center h-screen">
+              <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-gray-900"></div>
             </div>
           )}
-        </div>
-      ) : (
-        <div className="text-center mt-80">
-          <div role="status">
-            <svg
-              aria-hidden="true"
-              className="inline w-8 h-8 text-gray-200 animate-spin dark:text-gray-600 fill-blue-600"
-              viewBox="0 0 100 101"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z"
-                fill="currentColor"
-              />
-              <path
-                d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z"
-                fill="currentFill"
-              />
-            </svg>
-            <span className="sr-only">Loading...</span>
-          </div>
-        </div>
-      )}
+      </div>
     </>
   );
 };

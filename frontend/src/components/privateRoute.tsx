@@ -1,22 +1,24 @@
-import React from "react";
-import { Navigate } from "react-router-dom";
+import { Navigate } from 'react-router-dom';
 
-interface PrivateRouteProps {
+interface AuthState {
   isLoggedIn: boolean;
   isLoading: boolean;
-  children: React.ReactNode;
 }
 
-const PrivateRoute: React.FC<PrivateRouteProps> = ({ isLoggedIn, isLoading, children }) => {
-  if (isLoading) {
-    return;
+const PrivateRoute = ({ authState, children }: { authState: AuthState, children: React.ReactNode }) => {
+  if (authState.isLoading) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-gray-900"></div>
+      </div>
+    );
   }
-  if (!isLoggedIn) {
-    //console.log(location.pathname);
-    return <Navigate to="/login"/>;
+  
+  if (!authState.isLoggedIn) {
+    return <Navigate to="/login" replace />;
   }
-  //console.log('children', children.type.name);
-  return <>{children}</>
+
+  return <>{children}</>;
 };
 
 export default PrivateRoute;

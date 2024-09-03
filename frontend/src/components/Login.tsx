@@ -3,11 +3,16 @@ import axios from "axios";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "./Auth";
 
+interface AuthState {
+  isLoggedIn: boolean;
+  isLoading: boolean;
+}
+
 interface LoginProps {
   setIsLoggedIn: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-const Login: React.FC<LoginProps> = ({ setIsLoggedIn }) => {
+const Login = ({ setAuthState }: LoginProps) => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -25,7 +30,7 @@ const Login: React.FC<LoginProps> = ({ setIsLoggedIn }) => {
       const { access, refresh } = response.data; // Assuming JWT tokens
       localStorage.setItem("accessToken", access);
       localStorage.setItem("refreshToken", refresh);
-      setIsLoggedIn(true);
+      setAuthState({ isLoggedIn: true, isLoading: false });
       navigate("/"); // Redirect to homepage after login
     } catch (error) {
       setError("Invalid username or password");
