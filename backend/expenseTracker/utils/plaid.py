@@ -4,6 +4,7 @@ from plaid.model.item_public_token_exchange_request import ItemPublicTokenExchan
 from plaid.model.link_token_create_request import LinkTokenCreateRequest
 from plaid.model.transactions_get_request import TransactionsGetRequest
 from plaid.model.transactions_get_request_options import TransactionsGetRequestOptions
+from plaid.model.accounts_balance_get_request import AccountsBalanceGetRequest
 from datetime import datetime, timedelta
 from plaid.model.products import Products
 from plaid.model.country_code import CountryCode
@@ -103,3 +104,39 @@ def get_transactions(request):
         return JsonResponse({'transactions': transactions})
     except plaid.ApiException as e:
         return JsonResponse({'error': str(e)}, status=500)
+
+@api_view(['GET'])
+def get_balance(request):
+    try:
+        access_token = request.GET.get('access_token')
+        if not access_token:
+            return JsonResponse({'error': 'Access token is required'}, status=400)
+
+        request = AccountsBalanceGetRequest(access_token=access_token)
+        response = client.accounts_balance_get(request)
+        print('response: ', response)
+        accounts = response['accounts']
+        # Convert accounts to a serializable format
+        serializable_accounts = []
+        for account in accounts:
+            serializable_account = {
+                'account_id': account['account_id'],
+                'balances': {
+                    'available': account['balances']['available'],
+                    'current': account['balances']['current'],
+                    'iso_currency_code': account['balances']['iso_currency_code'],
+                    'limit': account['balances'].get('limit'),
+                },
+                'mask': account.get('mask'),
+                'name': account['name'],
+                'persistent_account_id': account.get('persistent_account_id'),
+                'official_name': account.get('official_name'),
+                'type': str(account['type']),
+                'subtype': str(account.get('subtype')),
+            }
+            serializable_accounts.append(serializable_account)
+        
+        return JsonResponse({'accounts': serializable_accounts})
+    except plaid.ApiException as e:
+        return JsonResponse({'error': str(e)}, status=500)
+

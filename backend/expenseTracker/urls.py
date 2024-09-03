@@ -13,4 +13,5 @@ urlpatterns = [
     path('create-link-token/', plaid.create_link_token, name='create-link-token'),
     path('exchange-public-token/',plaid.exchange_public_token, name='exchange-public-token'),
     path('get-transactions/',plaid.get_transactions, name='get-transactions'),
+    path('get-balance/',plaid.get_balance,name='get-balance'),
 ]

@@ -2,19 +2,19 @@ import { Link, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import Logout from "./Logout";
 
-const Sidebar = ({ isLoggedIn, setIsLoggedIn }) => {
+const Sidebar = ({ authState, setAuthState }) => {
   const navigate = useNavigate();
 
   const handleLogout = () => {
     localStorage.removeItem("accessToken");
     localStorage.removeItem("refreshToken");
-    setIsLoggedIn(false);
+    setAuthState({ isLoggedIn: false, isLoading: false });
     navigate("/login");
   };
 
   return (
     <>
-      {isLoggedIn ? (
+      {authState.isLoggedIn ? (
         <div className="fixed left-0 top-0 h-screen w-48 bg-gray-800 text-white">
           <ul className="list-none">
             <li className="font-sans p-4 hover:bg-gray-700 text-center">

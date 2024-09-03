@@ -73,3 +73,18 @@ export const fetchPlaidTransactions = async () => {
     return [];
   }
  };
+
+export const fetchPlaidBalance = async () => {
+  try {
+    const accessToken = localStorage.getItem("plaidAccessToken");
+    const response = await axios.get("http://localhost:8000/get-balance/", {
+      params: { access_token: accessToken },
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+      },
+    });
+    return response.data;
+  } catch (error) {
+    console.error(error);
+  }
+}

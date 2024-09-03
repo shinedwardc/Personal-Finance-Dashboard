@@ -1,4 +1,4 @@
-import { Pie, Bar, Line } from "react-chartjs-2";
+import { Bar, Line } from "react-chartjs-2";
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, PointElement, LineElement, ArcElement, Tooltip, Legend, RadialLinearScale } from "chart.js";
 import { useEffect, useState, useMemo } from "react";
 import { ExpenseInterface } from "../interfaces/interface";
@@ -7,30 +7,56 @@ import "react-datepicker/dist/react-datepicker.css";
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, PointElement, LineElement,ArcElement, Tooltip, Legend, RadialLinearScale);
 
-const Breakdown = ({data, isDataLoading} : {data: ExpenseInterface[], isDataLoading: boolean}) => {
+const Breakdown = ({data, isDataLoading, plaidBalance} : {data: ExpenseInterface[], isDataLoading: boolean, plaidBalance: number}) => {
   const [categoryTotals, setCategoryTotals] = useState<Record<string, number>>(
     {},
   );
   const [total, setTotal] = useState<number>(0);
+  const [balance, setBalance] = useState<number>(0);
   const [date, setDate] = useState(new Date());
+  const [categories, setCategories] = useState<string[]>([]);
+  const [categoryLoading, setCategoryLoading] = useState<boolean>(true);
   const [graphType, setGraphType] = useState<string>("bar");
 
   useEffect(() => {
-    const calculateTotals = async () => {
+    const initialize = async () => {
       try {
-        const totals = await calculateTotalByCategory(data);
-        setCategoryTotals(totals);
-        let totalCost = 0;
-        for (const cost of Object.values(totals)) {
-          totalCost += cost;
-        }
-        setTotal(totalCost);
+        await calculateTotals();
+        fetchCategories();
+        setCategoryLoading(false);
       } catch (error) {
-        console.error(error);
+        console.error("Error initializing data:", error);
       }
-    }
-    calculateTotals();
+    };
+    initialize();
   }, [data]);
+
+  useEffect(() => {
+    if (plaidBalance) {
+      console.log("plaidBalance", plaidBalance);
+      setBalance(plaidBalance['accounts'][0]['balances']['available']);
+    }
+  }, [plaidBalance]);
+  
+  const calculateTotals = async () => {
+    try {
+      const totals = await calculateTotalByCategory(data);
+      setCategoryTotals(totals);
+      const totalCost = Object.values(totals).reduce((sum, cost) => sum + cost, 0);
+      setTotal(totalCost);
+    } catch (error) {
+      console.error("Error calculating totals:", error);
+    }
+  }
+  
+  const fetchCategories = () => {
+    const newCategories = new Set<string>();
+    for (const expense of data) {
+      const categoryName = Array.isArray(expense.category) ? expense.category[0] : expense.category.name;
+      newCategories.add(categoryName);
+    }
+    setCategories(Array.from(newCategories));
+  }
 
 
   const calculateTotalByCategory = async (
@@ -45,9 +71,10 @@ const Breakdown = ({data, isDataLoading} : {data: ExpenseInterface[], isDataLoad
         continue; // Skip expenses before the date
       }
       const categoryName = Array.isArray(expense.category) ? expense.category[0] : expense.category.name;
-      const amount = parseFloat(expense.amount.toString());
+      const amount = parseFloat(expense.amount.toString())
+      //console.log("amount", amount);
 
-      setTotal((total) => total + amount);
+      setTotal((prevTotal) => (prevTotal + amount));
   
       totals[categoryName] = (totals[categoryName] || 0) + amount;
     }
@@ -67,6 +94,7 @@ const Breakdown = ({data, isDataLoading} : {data: ExpenseInterface[], isDataLoad
     }
     const chartData = {
       labels: Object.keys(categoryTotals),
+      maintainAspectRatio: false,
       datasets: [
         {
           label: "Total expense of category",
@@ -84,7 +112,8 @@ const Breakdown = ({data, isDataLoading} : {data: ExpenseInterface[], isDataLoad
     };
   
     const options = {
-      responsive: false,
+      responsive: true,
+      maintainAspectRatio: false,
       plugins: {
         title: {
           display: true,
@@ -109,9 +138,9 @@ const Breakdown = ({data, isDataLoading} : {data: ExpenseInterface[], isDataLoad
     
     switch (graphType) {
       case "bar":
-        return <Bar className="mt-6" data={chartData} options={options} />;
+        return <Bar className="mt-6 h-[400px]" data={chartData} options={options} />;
       case "line":
-        return <Line className="mt-6" data={chartData} options={options} />;
+        return <Line className="mt-6 h-[400px]" data={chartData} options={options} />;
       default:
         return null;
     }
@@ -130,11 +159,11 @@ const Breakdown = ({data, isDataLoading} : {data: ExpenseInterface[], isDataLoad
         <div>
           {!isDataLoading ? (
             <div className="flex flex-col w-full">
-              <div className="flex justify-start mb-5">
+              <div className="flex justify-start mb-7">
                 <h1 className="text-5xl font-ubuntu">Expense Tracker</h1>
               </div>
-              <div className="flex flex-row justify-between w-full">
-                <div className="flex flex-col justify-start w-1/2">
+              <div className="flex flex-row justify-between w-full space-x-4">
+                <div className="flex flex-col justify-start w-1/3">
                   <div className="w-full">
                     <h2 className="text-center mt-3 mb-3 font-ubuntu text-2xl">Expense summary</h2>
                     <div className="flex flex-row justify-between text-center">
@@ -146,9 +175,9 @@ const Breakdown = ({data, isDataLoading} : {data: ExpenseInterface[], isDataLoad
                           <option value="line">Line graph</option>
                         </select>
                       </div>
-                      <div className="flex-1 mt-1">
+                      <div className="flex-1">
                         <label>From date: </label>
-                        <DatePicker selected={date} onSelect={handleDateSelect} />
+                        <DatePicker className="w-2/3 mt-1"selected={date} onSelect={handleDateSelect} />
                       </div>
                     </div>
                     <div className="flex justify-center items-center">
@@ -157,38 +186,43 @@ const Breakdown = ({data, isDataLoading} : {data: ExpenseInterface[], isDataLoad
                   </div>
                 </div>
                 <div className="w-1 bg-slate-300 px-1 mx-2"></div>
-                <div className="overflow-x-auto mt-10 ml-4">
+                <div className="overflow-x-auto mt-2 w-1/3">
                   <table className="table">
-                    <thead>
+                    <thead className="text-center">
                       <tr>
-                        <th>Category</th>
-                        <th>Job</th>
-                        <th>Favorite Color</th>
+                        <th className="border-r">Category</th>
+                        <th>Amount sum</th>
                       </tr>
                     </thead>
-                    <tbody>
-                      <tr>
-                        <td>Cy Ganderton</td>
-                        <td>Quality Control Specialist</td>
-                        <td>Blue</td>
-                      </tr>
-                      <tr>
-                        <td>Hart Hagerty</td>
-                        <td>Desktop Support Technician</td>
-                        <td>Purple</td>
-                      </tr>
-                      <tr>
-                        <td>Brice Swyre</td>
-                        <td>Tax Accountant</td>
-                        <td>Red</td>
-                      </tr>
+                    <tbody className="text-center">
+                      {!categoryLoading && categories.length > 0 && categories.map((category) => (
+                        <tr key={category}>
+                          <td className="border-r">{category}</td>
+                          <td>{categoryTotals[category] ? categoryTotals[category].toFixed(2) : 0}</td>
+                        </tr>
+                      ))}
                     </tbody>
                   </table>
+                </div>
+                <div className="w-1 bg-slate-300 px-1 mx-2"></div>
+                <div className="ml-2 w-1/3">
+                  <div className="card glass w-60 mt-4 shadow-md transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
+                      <div className="card-body items-center text-center">
+                        <h5 className="text-sm mb-2">Total Expenses</h5>
+                        <h1 className="text-3xl font-bold">${total}</h1>
+                      </div>
+                    </div>
+                    <div className="card glass w-60 mt-4 shadow-md transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
+                      <div className="card-body items-center text-center">
+                        <h5 className="text-sm mb-2">Current Balance</h5>
+                        <h1 className="text-3xl font-bold">${balance}</h1>
+                      </div>
+                    </div>
                 </div>
               </div>
             </div>
           ) : (
-            <div className="flex justify-center items-center h-screen">
+            <div className="flex justify-center items-center">
               <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-gray-900"></div>
             </div>
           )}

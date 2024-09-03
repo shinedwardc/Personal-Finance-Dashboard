@@ -12,7 +12,7 @@ import Login from "./components/Login";
 import Logout from "./components/Logout";
 import Signup from './components/signup';
 import { ExpenseInterface } from "./interfaces/interface";
-import { getUserName, getExpense, fetchPlaidTransactions } from "./api/api";
+import { getUserName, getExpense, fetchPlaidTransactions, fetchPlaidBalance } from "./api/api";
 import { useQuery } from "@tanstack/react-query";
 
 
@@ -22,13 +22,7 @@ function App() {
     isLoading: true
   });
   const [data, setData] = useState<ExpenseInterface[]>([]);
-  const [isPlaidConnected, setIsPlaidConnected] = useState<boolean>(false);
-
-  const plaidAccessToken = localStorage.getItem("plaidAccessToken");
-  
-  const checkPlaidConnection = useCallback(() => {
-    return plaidAccessToken !== null;
-  }, [plaidAccessToken]);
+  const [plaidBalance, setPlaidBalance] = useState<any>(null);
 
   const {data : expenseData , isLoading : expenseLoading} = useQuery({
     queryKey: ['expenses'],
@@ -39,13 +33,14 @@ function App() {
   const {data : plaidData, isLoading : plaidLoading} = useQuery({
     queryKey: ['plaidData'],
     queryFn: fetchPlaidTransactions,
-    enabled: checkPlaidConnection(),
     refetchOnWindowFocus: false,
   });
- 
-  useEffect(() => {
-    setIsPlaidConnected(checkPlaidConnection());
-  }, [plaidAccessToken,checkPlaidConnection]);
+
+  const {data : plaidBalanceData, isLoading : plaidBalanceLoading} = useQuery({
+    queryKey: ['plaidBalance'],
+    queryFn: fetchPlaidBalance,
+    refetchOnWindowFocus: false,
+  });
 
   useEffect(() => {
     console.log("expenseData", expenseData);
@@ -53,20 +48,28 @@ function App() {
     if (expenseData) {
       setData(expenseData);
     }
-    if (plaidData && isPlaidConnected) {
+    if (plaidData) {
       setData(prevData => {
         const combinedData = [...prevData, ...plaidData];
         return combinedData.sort((a, b) => new Date(a.date) - new Date(b.date));
       });
     }
-  },[expenseData, plaidData, isPlaidConnected])
+  },[expenseData, plaidData])
+
+  useEffect(() => {
+    if (plaidBalanceData) {
+      setPlaidBalance(plaidBalanceData);
+    }
+  }, [plaidBalanceData]);
+
+  const isDataLoading = expenseLoading || plaidLoading || plaidBalanceLoading;
 
   useEffect(() => {
     const checkAuth = async () => {
       try {
         const username = await getUserName();
         setAuthState({
-          isLoggedIn: Boolean(username && username.length > 0),
+          isLoggedIn: Boolean(username),
           isLoading: false
         });
       } catch (error) {
@@ -83,7 +86,7 @@ function App() {
       <Router>
         <ToastContainer />
         <div className="flex flex-col">
-          <Sidebar isLoggedIn={authState.isLoggedIn} setIsLoggedIn={authState.setIsLoggedIn} />
+          <Sidebar authState={authState} setAuthState={setAuthState} />
           <div className="flex-grow flex flex-col items-center justify-center mt-20">
             <Routes>
               {/* Public routes */}
@@ -99,7 +102,7 @@ function App() {
                 path="/"
                 element={
                   <PrivateRoute authState={authState}>
-                    <Breakdown data={data} isDataLoading={expenseLoading || plaidLoading} authState={authState}/>
+                    <Breakdown data={data} isDataLoading={isDataLoading} plaidBalance={plaidBalance}/>
                   </PrivateRoute>
                 }
               />
@@ -107,7 +110,7 @@ function App() {
                 path="/expenses"
                 element={
                   <PrivateRoute authState={authState}>
-                    <List data={data} isLoading={expenseLoading || plaidLoading} setData={setData}/>
+                    <List data={data} isLoading={isDataLoading} setData={setData}/>
                   </PrivateRoute>
                 }
               />

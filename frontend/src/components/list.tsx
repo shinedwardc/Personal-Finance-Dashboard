@@ -61,13 +61,10 @@ const List = ({data, isLoading, setData} : {data: ExpenseInterface[], isLoading:
     }
   }
 
-  if(isLoading) {
-    return <div>Loading...</div>
-  }  
 
   return (
     <>
-       { data.length > 0 ? (
+       { !isLoading && data.length > 0 ? (
           <>
           <div className="mb-6 border-cyan-500 overflow-x-auto">
             {/*<div className="mb-4 flex justify-center">
