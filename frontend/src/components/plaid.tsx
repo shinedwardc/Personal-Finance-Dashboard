@@ -33,6 +33,7 @@ const Plaid = ({ onPlaidConnected }) => {
                 localStorage.setItem("plaidAccessToken", newAccessToken);
                 onPlaidConnected(newAccessToken);
                 setAccessToken(newAccessToken);
+                window.location.reload();
             } catch (error) {
                 console.error('Error exchanging public token:', error);
             }
@@ -47,6 +48,7 @@ const Plaid = ({ onPlaidConnected }) => {
     const plaidDisconnect = () => {
       localStorage.removeItem("plaidAccessToken");
       setAccessToken("");
+      window.location.reload();
     }
 
 

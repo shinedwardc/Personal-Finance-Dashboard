@@ -19,7 +19,7 @@ const Expense = ({ data, deleteTask }: any) => {
       <td className="text-base text-center">{data.amount}{currencies[data.currency.toLowerCase()]}</td>
       <td className="text-base text-center">{data.currency.toUpperCase()}</td>
       <td className="text-base text-center">{data.date}</td>
-      <td>{data.id ? <button className="btn btn-error" onClick={deleteTask}>Delete</button> : null}</td>
+      <td>{data.id ? <button className="btn btn-error btn-tiny" onClick={deleteTask}>Delete</button> : null}</td>
     </tr>
   );
 };

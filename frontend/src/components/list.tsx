@@ -64,7 +64,7 @@ const List = ({data, isLoading, setData} : {data: ExpenseInterface[], isLoading:
 
   return (
     <>
-       { !isLoading && data.length > 0 ? (
+       { !isLoading  ? (
           <>
           <div className="mb-6 border-cyan-500 overflow-x-auto">
             {/*<div className="mb-4 flex justify-center">
@@ -105,8 +105,8 @@ const List = ({data, isLoading, setData} : {data: ExpenseInterface[], isLoading:
           </div>
           </>
         ) : (
-          <div className="mb-6">
-            <p>No expenses listed yet! Add an expense below</p>
+            <div className="flex justify-center items-center">
+              <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-gray-900"></div>
           </div>
         )
       }
