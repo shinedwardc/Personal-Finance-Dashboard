@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import plaidLogo from '../assets/plaid.png';
 import axios from "axios";
 
-const Plaid = ({ onPlaidConnected }) => {
+const Plaid = () => {
 
     const [linkToken, setLinkToken] = useState<string>("");
     const [accessToken, setAccessToken] = useState<string>(localStorage.getItem("plaidAccessToken") || "");
@@ -31,7 +31,6 @@ const Plaid = ({ onPlaidConnected }) => {
                 });
                 const newAccessToken = response.data.access_token;
                 localStorage.setItem("plaidAccessToken", newAccessToken);
-                onPlaidConnected(newAccessToken);
                 setAccessToken(newAccessToken);
                 window.location.reload();
             } catch (error) {

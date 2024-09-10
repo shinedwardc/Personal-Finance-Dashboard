@@ -1,18 +1,13 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import axios from "axios";
-import { useNavigate, useLocation } from "react-router-dom";
-import { useAuth } from "./Auth";
+import { useNavigate } from "react-router-dom";
 
 interface AuthState {
   isLoggedIn: boolean;
   isLoading: boolean;
 }
 
-interface LoginProps {
-  setIsLoggedIn: React.Dispatch<React.SetStateAction<boolean>>;
-}
-
-const Login = ({ setAuthState }: LoginProps) => {
+const Login = ({ setAuthState } : { setAuthState: React.Dispatch<React.SetStateAction<AuthState>> }) => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");

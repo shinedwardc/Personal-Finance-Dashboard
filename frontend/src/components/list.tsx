@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState } from "react";
 import Expense from "./expense";
 import { ExpenseInterface } from "../interfaces/interface";
 import Form from "./Form";
@@ -7,23 +7,19 @@ import axios from "axios";
 //https://flowbite.com/docs/components/spinner/#progress-spinner
 
 const List = ({data, isLoading, setData} : {data: ExpenseInterface[], isLoading: boolean, setData: React.Dispatch<React.SetStateAction<ExpenseInterface[]>>}) => {
-  const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
   const [search, setSearch] = useState<string>("");
   const [useFilteredData, setUseFilteredData] = useState<boolean>(false);
   const [filteredData, setFilteredData] = useState<ExpenseInterface[]>([]);
 
   const refetchExpenses = async (newExpense : ExpenseInterface) => {
-    setIsRefreshing(true);
     try {
       console.log("newExpense", newExpense);
       setData((prevData) => {
         const combinedData = [...prevData, newExpense];
-        return combinedData.sort((a, b) => new Date(a.date) - new Date(b.date));
+        return combinedData.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
       });
     } catch (error) {
       console.error("Failed to refetch expenses:", error);
-    } finally {
-      setIsRefreshing(false);
     }
   };
 
@@ -53,7 +49,7 @@ const List = ({data, isLoading, setData} : {data: ExpenseInterface[], isLoading:
     if (query.length > 0){
       setUseFilteredData(true);
       const lowerCaseQuery = query.toLowerCase();
-      searchedData = searchedData.filter((expense) => expense.category.toLowerCase().includes(lowerCaseQuery) || expense.category.name.toLowerCase().includes(lowerCaseQuery))
+      searchedData = searchedData.filter((expense) => expense.category.name.toLowerCase().includes(lowerCaseQuery) || expense.category.name.toLowerCase().includes(lowerCaseQuery))
       setFilteredData(searchedData);
     }
     else{
@@ -105,8 +101,8 @@ const List = ({data, isLoading, setData} : {data: ExpenseInterface[], isLoading:
           </div>
           </>
         ) : (
-            <div className="flex justify-center items-center">
-              <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-gray-900"></div>
+          <div className="flex justify-center items-center">
+            <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-gray-900"></div>
           </div>
         )
       }

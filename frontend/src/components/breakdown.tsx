@@ -1,13 +1,13 @@
 import { Bar, Line } from "react-chartjs-2";
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, PointElement, LineElement, ArcElement, Tooltip, Legend, RadialLinearScale } from "chart.js";
 import { useEffect, useState, useMemo } from "react";
-import { ExpenseInterface } from "../interfaces/interface";
+import { ExpenseInterface, PlaidResponse } from "../interfaces/interface";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, PointElement, LineElement,ArcElement, Tooltip, Legend, RadialLinearScale);
 
-const Breakdown = ({data, isDataLoading, plaidBalance} : {data: ExpenseInterface[], isDataLoading: boolean, plaidBalance: number}) => {
+const Breakdown = ({data, isDataLoading, plaidBalance} : {data: ExpenseInterface[], isDataLoading: boolean, plaidBalance: PlaidResponse}) => {
   const [categoryTotals, setCategoryTotals] = useState<Record<string, number>>(
     {},
   );
@@ -34,7 +34,7 @@ const Breakdown = ({data, isDataLoading, plaidBalance} : {data: ExpenseInterface
   useEffect(() => {
     if (plaidBalance) {
       console.log("plaidBalance", plaidBalance);
-      setBalance(plaidBalance['accounts'][0]['balances']['available']);
+      setBalance(plaidBalance.accounts[0].balances.available);
     }
   }, [plaidBalance]);
   
@@ -61,7 +61,7 @@ const Breakdown = ({data, isDataLoading, plaidBalance} : {data: ExpenseInterface
 
   const calculateTotalByCategory = async (
     expenses: ExpenseInterface[],
-    date : any = null
+    date : Date | null = null
   ): Promise<Record<string, number>> => {
     const totals: Record<string, number> = {};
 
@@ -163,7 +163,7 @@ const Breakdown = ({data, isDataLoading, plaidBalance} : {data: ExpenseInterface
   }, [categoryTotals, graphType]);
 
 
-  const handleDateSelect = async (date) => {
+  const handleDateSelect = async (date : Date) => {
     setDate(date);
     const filtered = await calculateTotalByCategory(data,date);
     console.log(filtered);
@@ -193,7 +193,15 @@ const Breakdown = ({data, isDataLoading, plaidBalance} : {data: ExpenseInterface
                       </div>
                       <div className="flex-1">
                         <label>From date: </label>
-                        <DatePicker className="w-2/3 mt-1"selected={date} onSelect={handleDateSelect} />
+                        <DatePicker 
+                          className="w-2/3 mt-1"
+                          selected={date} 
+                          onChange={(newDate: Date | null) => {
+                            if (newDate) {
+                              handleDateSelect(newDate);
+                            }
+                          }} 
+                        />
                       </div>
                     </div>
                     <div className="flex justify-center items-center">

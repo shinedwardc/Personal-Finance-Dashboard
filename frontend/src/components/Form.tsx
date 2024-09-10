@@ -4,7 +4,7 @@ import axios from "axios";
 
 
 interface formProps {
-  onFormSubmit: () => void;
+  onFormSubmit: (newExpense: ExpenseInterface) => void;
 }
 
 const Form = ({ onFormSubmit }: formProps) => {

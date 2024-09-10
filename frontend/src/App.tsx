@@ -1,6 +1,6 @@
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import "./App.css";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { ToastContainer } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
 import Sidebar from "./components/sidebar";
@@ -11,8 +11,8 @@ import PrivateRoute from "./components/privateRoute";
 import Login from "./components/Login";
 import Logout from "./components/Logout";
 import Signup from './components/signup';
-import { ExpenseInterface } from "./interfaces/interface";
-import { getUserName, getExpense, fetchPlaidTransactions, fetchPlaidBalance } from "./api/api";
+import { ExpenseInterface, PlaidResponse } from "./interfaces/interface";
+import { getExpense, fetchPlaidTransactions, fetchPlaidBalance } from "./api/api";
 import { useQuery } from "@tanstack/react-query";
 
 
@@ -22,7 +22,7 @@ function App() {
     isLoading: true
   });
   const [data, setData] = useState<ExpenseInterface[]>([]);
-  const [plaidBalance, setPlaidBalance] = useState<any>(null);
+  const [plaidBalance, setPlaidBalance] = useState<PlaidResponse | null>(null);
 
   const {data : expenseData , isLoading : expenseLoading} = useQuery({
     queryKey: ['expenses', authState.isLoggedIn],
@@ -51,7 +51,7 @@ function App() {
     if (plaidData) {
       setData(prevData => {
         const combinedData = [...prevData, ...plaidData];
-        return combinedData.sort((a, b) => new Date(a.date) - new Date(b.date));
+        return combinedData.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
       });
     }
   },[expenseData, plaidData])
@@ -96,7 +96,7 @@ function App() {
                 path="/"
                 element={
                   <PrivateRoute authState={authState}>
-                    <Breakdown data={data} isDataLoading={isDataLoading} plaidBalance={plaidBalance}/>
+                    <Breakdown data={data} isDataLoading={isDataLoading} plaidBalance={plaidBalance as PlaidResponse}/>
                   </PrivateRoute>
                 }
               />
