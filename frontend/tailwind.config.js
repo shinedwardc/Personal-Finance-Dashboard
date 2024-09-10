@@ -16,7 +16,7 @@ export default {
   ],
   plugins: [require('daisyui')],
   daisyui: {
-    themes: ["light","dark","forest","lemonade","aqua"]
+    themes: ["light","dark","forest","lemonade","aqua","synthwave","night"]
   },
 }
 

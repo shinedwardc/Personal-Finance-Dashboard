@@ -100,10 +100,10 @@ const Breakdown = ({data, isDataLoading, plaidBalance} : {data: ExpenseInterface
           label: "Total expense of category",
           data: Object.values(categoryTotals).map(amount => parseFloat(amount.toFixed(2))),
           backgroundColor: Object.keys(categoryTotals).map(
-            (_, index) => `rgba(${index * 50}, ${index * 100}, 200, 0.2)`,
+            (_, index) => `rgba(${200 + index * 20}, ${50 + index * 10}, ${100 + index * 15}, 0.6)`,
           ),
           borderColor: Object.keys(categoryTotals).map(
-            (_, index) => `rgba(${index * 50}, ${index * 100}, 200, 1)`,
+            (_, index) => `rgba(${220 + index * 10}, ${70 + index * 5}, ${120 + index * 10}, 1)`,
           ),
           borderWidth: 1,
           hoverOffset: 1,
@@ -118,9 +118,13 @@ const Breakdown = ({data, isDataLoading, plaidBalance} : {data: ExpenseInterface
         title: {
           display: true,
           text: "Expenses analysis by category",
+          color: '#ff3333'
         },
         legend: {
           position: "top" as const,
+          labels: {
+            color: '#ff3333'
+          }
         },
         tooltip: {
           callbacks: {
@@ -133,14 +137,26 @@ const Breakdown = ({data, isDataLoading, plaidBalance} : {data: ExpenseInterface
           },
         },
       },
+      scales: {
+        y: {
+          ticks: {
+            color: '#ff3333'
+          }
+        },
+        x: {
+          ticks: {
+            color: '#ff3333'
+          }
+        }
+      }
     };
     //console.log(graphType);
     
     switch (graphType) {
       case "bar":
-        return <Bar className="mt-6 h-[400px]" data={chartData} options={options} />;
+        return <Bar className="mt-6 p-1 h-[400px]" data={chartData} options={options} />;
       case "line":
-        return <Line className="mt-6 h-[400px]" data={chartData} options={options} />;
+        return <Line className="mt-6 p-1 h-[400px]" data={chartData} options={options} />;
       default:
         return null;
     }
@@ -160,10 +176,10 @@ const Breakdown = ({data, isDataLoading, plaidBalance} : {data: ExpenseInterface
           {!isDataLoading ? (
             <div className="flex flex-col w-full">
               <div className="flex justify-start mb-7">
-                <h1 className="text-5xl font-ubuntu">Expense Tracker</h1>
+                <h1 className="text-5xl font-ubuntu text-lime-400">Expense Tracker</h1>
               </div>
               <div className="flex flex-row justify-between w-full space-x-4">
-                <div className="flex flex-col justify-start w-1/3">
+                <div className="flex flex-col justify-start w-1/3 bg-green-800 rounded-xl">
                   <div className="w-full">
                     <h2 className="text-center mt-3 mb-3 font-ubuntu text-2xl">Expense summary</h2>
                     <div className="flex flex-row justify-between text-center">
@@ -186,7 +202,7 @@ const Breakdown = ({data, isDataLoading, plaidBalance} : {data: ExpenseInterface
                   </div>
                 </div>
                 <div className="w-1 bg-slate-300 px-1 mx-2"></div>
-                <div className="overflow-x-auto mt-2 w-1/3">
+                <div className="overflow-x-auto w-1/3 bg-emerald-800 rounded-xl">
                   <table className="table">
                     <thead className="text-center">
                       <tr>
@@ -205,14 +221,14 @@ const Breakdown = ({data, isDataLoading, plaidBalance} : {data: ExpenseInterface
                   </table>
                 </div>
                 <div className="w-1 bg-slate-300 px-1 mx-2"></div>
-                <div className="ml-2 w-1/3">
-                  <div className="card glass w-60 mt-4 shadow-md transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
+                <div className="ml-2 w-1/3 bg-teal-800 rounded-xl">
+                  <div className="card glass w-60 mt-4 ml-4 shadow-md transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
                       <div className="card-body items-center text-center">
                         <h5 className="text-sm mb-2">Total Expenses</h5>
                         <h1 className="text-3xl font-bold">${total}</h1>
                       </div>
                     </div>
-                    <div className="card glass w-60 mt-4 shadow-md transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
+                    <div className="card glass w-60 mt-4 ml-4 shadow-md transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
                       <div className="card-body items-center text-center">
                         <h5 className="text-sm mb-2">Current Balance</h5>
                         <h1 className="text-3xl font-bold">${balance}</h1>

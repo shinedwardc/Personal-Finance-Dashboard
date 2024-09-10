@@ -15,7 +15,7 @@ const Sidebar = ({ authState, setAuthState }) => {
   return (
     <>
       {authState.isLoggedIn ? (
-        <div className="fixed left-0 top-0 h-screen w-48 bg-gray-800 text-white">
+        <div className="fixed left-0 top-0 h-screen w-48 bg-green-800 text-white">
           <ul className="list-none">
             <li className="font-sans p-4 hover:bg-gray-700 text-center">
               <Link to="/">Home</Link>
