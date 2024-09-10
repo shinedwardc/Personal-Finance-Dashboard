@@ -25,21 +25,21 @@ function App() {
   const [plaidBalance, setPlaidBalance] = useState<any>(null);
 
   const {data : expenseData , isLoading : expenseLoading} = useQuery({
-    queryKey: ['expenses'],
+    queryKey: ['expenses', authState.isLoggedIn],
     queryFn: getExpense,
-    refetchOnWindowFocus: false,
+    enabled: authState.isLoggedIn
   });
   
   const {data : plaidData, isLoading : plaidLoading} = useQuery({
-    queryKey: ['plaidData'],
+    queryKey: ['plaidData', authState.isLoggedIn],
     queryFn: fetchPlaidTransactions,
-    refetchOnWindowFocus: false,
+    enabled: authState.isLoggedIn
   });
 
   const {data : plaidBalanceData, isLoading : plaidBalanceLoading} = useQuery({
-    queryKey: ['plaidBalance'],
+    queryKey: ['plaidBalance', authState.isLoggedIn],
     queryFn: fetchPlaidBalance,
-    refetchOnWindowFocus: false,
+    enabled: authState.isLoggedIn
   });
 
   useEffect(() => {
@@ -65,22 +65,16 @@ function App() {
   const isDataLoading = expenseLoading || plaidLoading || plaidBalanceLoading;
 
   useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        const username = await getUserName();
-        setAuthState({
-          isLoggedIn: Boolean(username),
-          isLoading: false
-        });
-      } catch (error) {
-        console.error("Error checking authentication:", error);
-        setAuthState({ isLoggedIn: false, isLoading: false });
-      }
+    const checkAuth = () => {
+      const token = localStorage.getItem("accessToken");
+      setAuthState({
+        isLoggedIn: Boolean(token),
+        isLoading: false
+      });
     };
 
     checkAuth();
   }, []);
-
 
   return (
       <Router>

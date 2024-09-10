@@ -1,12 +1,14 @@
 import axios from "axios";
 import { ExpenseInterface, Category } from "../interfaces/interface";
 
+const getAuthHeader = () => ({
+  Authorization: `Bearer ${localStorage.getItem('accessToken')}`
+});
+
 export const getExpense = async (): Promise<ExpenseInterface[]> => {
   try {
     const response = await axios.get("http://localhost:8000/expenses", {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem('accessToken')}`
-      }
+      headers: getAuthHeader()
     });
     console.log(response.data.expenses);
     return response.data.expenses;
@@ -34,9 +36,7 @@ export const getCategories = async (): Promise<string[]> => {
 export const getUserName = async () => {
   try {
     const response = await axios.get("http://localhost:8000/get-user/", {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-      },
+      headers: getAuthHeader(),
     });
     const username = response.data.username;
     return username;
@@ -52,9 +52,7 @@ export const fetchPlaidTransactions = async () => {
     console.log(accessToken);
     const response = await axios.get('http://localhost:8000/get-transactions/', {
       params: { access_token: accessToken },
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-      },
+      headers: getAuthHeader(),
     });
     console.log(response.data);
     return response.data.transactions.map((transaction:any) => (
@@ -72,16 +70,14 @@ export const fetchPlaidTransactions = async () => {
     console.error('Error fetching Plaid transactions:', error);
     return [];
   }
- };
+};
 
 export const fetchPlaidBalance = async () => {
   try {
     const accessToken = localStorage.getItem("plaidAccessToken");
     const response = await axios.get("http://localhost:8000/get-balance/", {
       params: { access_token: accessToken },
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-      },
+      headers: getAuthHeader(),
     });
     return response.data;
   } catch (error) {
