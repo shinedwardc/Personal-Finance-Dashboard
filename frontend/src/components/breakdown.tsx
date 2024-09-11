@@ -34,7 +34,12 @@ const Breakdown = ({data, isDataLoading, plaidBalance} : {data: ExpenseInterface
   useEffect(() => {
     if (plaidBalance) {
       console.log("plaidBalance", plaidBalance);
-      setBalance(plaidBalance.accounts[0].balances.available);
+      let balance = 0;
+      for (const account of plaidBalance.accounts) {
+        balance += account.balances.available;
+      }
+      console.log("balance", balance);
+      setBalance(balance);
     }
   }, [plaidBalance]);
   
@@ -239,7 +244,7 @@ const Breakdown = ({data, isDataLoading, plaidBalance} : {data: ExpenseInterface
                     </div>
                     <div className="card glass w-60 mt-4 ml-4 shadow-md transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
                       <div className="card-body items-center text-center">
-                        <h5 className="text-sm mb-2">Current Balance</h5>
+                        <h5 className="text-sm mb-2">Current total account balance</h5>
                         <h1 className="text-3xl font-bold">${balance}</h1>
                       </div>
                     </div>

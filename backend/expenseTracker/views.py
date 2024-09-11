@@ -7,6 +7,7 @@ from expenseTracker.serializers import ExpenseSerializer, UserSerializer
 from django.contrib.auth.models import User
 from django.contrib.auth.hashers import make_password
 from rest_framework.permissions import IsAuthenticated
+from .decorator import check_authentication
 import environ
 env = environ.Env()
 environ.Env.read_env()
@@ -14,9 +15,8 @@ import requests
 from django.http import JsonResponse
 
 @api_view(['GET','POST','DELETE'])
+@check_authentication
 def expense_list(request,id=None):
-    if not request.user.is_authenticated:
-        return Response({'error': 'Authentication required'}, status=401)
     if id:
         if request.method == 'DELETE':
             try:
@@ -42,13 +42,14 @@ def expense_list(request,id=None):
 #def delete_expense(request,id):
 
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])
+@check_authentication
 def category_list(request):
     categories = Expense.objects.filter(user=request.user).values_list('category', flat=True).distinct()
     print(list(categories))
     return Response({'categories': list(categories)})
 
 @api_view(['GET'])
+@check_authentication
 def get_user(request):
     user = request.user
     serializer = UserSerializer(user)
