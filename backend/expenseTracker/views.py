@@ -1,9 +1,9 @@
 from django.shortcuts import render
-from .models import Expense, Category
+from .models import Expense
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
-from expenseTracker.serializers import ExpenseSerializer, CategorySerializer, UserSerializer
+from expenseTracker.serializers import ExpenseSerializer, UserSerializer
 from django.contrib.auth.models import User
 from django.contrib.auth.hashers import make_password
 import environ
@@ -40,12 +40,11 @@ def expense_list(request,id=None):
 #@api_view(['DELETE'])
 #def delete_expense(request,id):
 
-
 @api_view(['GET'])
 def category_list(request):
-    categories = Category.objects.all()
-    serializer = CategorySerializer(categories, many=True)
-    return Response({'categories': serializer.data})
+    categories = Expense.objects.all().values_list('category', flat=True).distinct()
+    print(list(categories))
+    return Response({'categories': list(categories)})
 
 @api_view(['GET'])
 def get_user(request):

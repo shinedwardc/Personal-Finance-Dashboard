@@ -52,9 +52,10 @@ const Breakdown = ({data, isDataLoading, plaidBalance} : {data: ExpenseInterface
   const fetchCategories = () => {
     const newCategories = new Set<string>();
     for (const expense of data) {
-      const categoryName = Array.isArray(expense.category) ? expense.category[0] : expense.category.name;
+      const categoryName = expense.category;
       newCategories.add(categoryName);
     }
+    console.log('newCategories: ', newCategories)
     setCategories(Array.from(newCategories));
   }
 
@@ -67,10 +68,10 @@ const Breakdown = ({data, isDataLoading, plaidBalance} : {data: ExpenseInterface
 
     console.log("expenses", expenses);
     for (const expense of expenses) {
-      if (date && new Date(expense.start_date).toDateString() < new Date(date).toDateString()) {
+      if (date && new Date(expense.date).toDateString() < new Date(date).toDateString()) {
         continue; // Skip expenses before the date
       }
-      const categoryName = Array.isArray(expense.category) ? expense.category[0] : expense.category.name;
+      const categoryName = expense.category;
       const amount = parseFloat(expense.amount.toString())
       //console.log("amount", amount);
 
@@ -194,7 +195,7 @@ const Breakdown = ({data, isDataLoading, plaidBalance} : {data: ExpenseInterface
                       <div className="flex-1">
                         <label>From date: </label>
                         <DatePicker 
-                          className="w-2/3 mt-1"
+                          className="w-2/3 mt-1 text-center"
                           selected={date} 
                           onChange={(newDate: Date | null) => {
                             if (newDate) {
@@ -233,7 +234,7 @@ const Breakdown = ({data, isDataLoading, plaidBalance} : {data: ExpenseInterface
                   <div className="card glass w-60 mt-4 ml-4 shadow-md transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
                       <div className="card-body items-center text-center">
                         <h5 className="text-sm mb-2">Total Expenses</h5>
-                        <h1 className="text-3xl font-bold">${total}</h1>
+                        <h1 className="text-3xl font-bold">${total.toFixed(2)}</h1>
                       </div>
                     </div>
                     <div className="card glass w-60 mt-4 ml-4 shadow-md transition-all duration-300 hover:shadow-xl hover:-translate-y-1">

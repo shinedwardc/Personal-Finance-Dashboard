@@ -1,24 +1,24 @@
 export interface User {
+  first_name: string;
   id: number;
   username: string;
 }
 
 // Interface for the Category object
 export interface Category {
-  id: number;
+  id?: number;
   name: string;
 }
 
 export interface ExpenseInterface {
-  id: number;
+  id: number | string;
   amount: number;
+  name: string;
+  category: string;
   currency: string;
-  start_date: Date;
-  end_date: Date;
-  created_at: Date;
+  date: string;
   updated_at: Date;
-  user: User;
-  category: Category;
+  user?: User | string;
 }
 
 export interface PlaidResponse {

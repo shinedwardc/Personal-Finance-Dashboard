@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { getCategories } from "../api/api";
 import axios from "axios";
-
+import { ExpenseInterface } from "../interfaces/interface";
 
 interface formProps {
   onFormSubmit: (newExpense: ExpenseInterface) => void;
@@ -19,6 +19,7 @@ const Form = ({ onFormSubmit }: formProps) => {
     const fetchCategories = async () => {
       try {
         const categories = await getCategories();
+        console.log('categories: ', categories)
         setCategoryNames(categories);
       } catch (error) {
         console.error(error);
@@ -36,10 +37,9 @@ const Form = ({ onFormSubmit }: formProps) => {
     const newExpense = {
       name,
       category: { name: categoryToSubmit },
-      amount,
+      amount: parseFloat(amount),
       currency,
       date: new Date().toISOString().split("T")[0], // Current date in YYYY-MM-DD format
-      created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
     };
     try {
@@ -54,14 +54,13 @@ const Form = ({ onFormSubmit }: formProps) => {
         },
       );
       console.log("Expense created:", response.data);
+      onFormSubmit(response.data as ExpenseInterface);
     } catch (error: any) {
       if (error.response) {
         console.log("Error response:", error.response.data);
       } else {
         console.log("Error message:", error.message);
       }
-    } finally {
-      onFormSubmit(newExpense);
     }
   };
 

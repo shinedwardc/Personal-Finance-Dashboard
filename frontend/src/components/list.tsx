@@ -1,4 +1,3 @@
-import { useState } from "react";
 import Expense from "./expense";
 import { ExpenseInterface } from "../interfaces/interface";
 import Form from "./Form";
@@ -7,16 +6,16 @@ import axios from "axios";
 //https://flowbite.com/docs/components/spinner/#progress-spinner
 
 const List = ({data, isLoading, setData} : {data: ExpenseInterface[], isLoading: boolean, setData: React.Dispatch<React.SetStateAction<ExpenseInterface[]>>}) => {
-  const [search, setSearch] = useState<string>("");
-  const [useFilteredData, setUseFilteredData] = useState<boolean>(false);
-  const [filteredData, setFilteredData] = useState<ExpenseInterface[]>([]);
+  //const [search, setSearch] = useState<string>("");
+  //const [useFilteredData, setUseFilteredData] = useState<boolean>(false);
+  //const [filteredData, setFilteredData] = useState<ExpenseInterface[]>([]);
 
   const refetchExpenses = async (newExpense : ExpenseInterface) => {
     try {
       console.log("newExpense", newExpense);
       setData((prevData) => {
         const combinedData = [...prevData, newExpense];
-        return combinedData.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
+        return combinedData.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
       });
     } catch (error) {
       console.error("Failed to refetch expenses:", error);
@@ -42,20 +41,21 @@ const List = ({data, isLoading, setData} : {data: ExpenseInterface[], isLoading:
     }
   };
 
-  const handleSearch = (e : React.ChangeEvent<HTMLInputElement>) => {
+  /*const handleSearch = (e : React.ChangeEvent<HTMLInputElement>) => {
     const query = e.target.value;
     setSearch(query);
     let searchedData = data;
     if (query.length > 0){
       setUseFilteredData(true);
       const lowerCaseQuery = query.toLowerCase();
-      searchedData = searchedData.filter((expense) => expense.category.name.toLowerCase().includes(lowerCaseQuery) || expense.category.name.toLowerCase().includes(lowerCaseQuery))
+      searchedData = searchedData.filter((expense) => !Array.isArray(expense.category) ? 
+                                          expense.name?.toLowerCase().includes(lowerCaseQuery) : expense.category.name.toLowerCase().includes(lowerCaseQuery))
       setFilteredData(searchedData);
     }
     else{
       setUseFilteredData(false);
     }
-  }
+  }*/
 
 
   return (
@@ -78,7 +78,7 @@ const List = ({data, isLoading, setData} : {data: ExpenseInterface[], isLoading:
                 </svg>
               </label>
             </div>*/}
-            <table className="table table-auto border-collapse border border-slate-400 text-sm text-center">
+            <table className="table table-auto bg-green-800 border-collapse border border-slate-400 text-sm text-center">
               <thead>
                 <tr>
                   {["Name", "Category", "Amount", "Currency", "Date", "Delete"].map((header) => (
@@ -89,11 +89,11 @@ const List = ({data, isLoading, setData} : {data: ExpenseInterface[], isLoading:
                 </tr>
               </thead>
               <tbody>
-                {(useFilteredData ? filteredData : data).map((expense, index) => (
+                {(data).map((expense, index) => (
                   <Expense
                     key={index}
-                    data={expense}
-                    deleteTask={() => handleDeleteTask(expense.id)}
+                    data={expense as ExpenseInterface}
+                    deleteTask={() => handleDeleteTask(expense.id as number)}
                   />
                 ))}
               </tbody>

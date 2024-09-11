@@ -1,3 +1,5 @@
+import { ExpenseInterface } from "../interfaces/interface";
+
 interface Currency {
   usd: string;
   eur: string;
@@ -7,20 +9,6 @@ interface Currency {
   cad: string;
   krw: string;
   inr: string;
-}
-
-interface ExpenseData {
-  name: string;
-  category: { name: string } | string[];
-  amount: number;
-  currency: keyof Currency;
-  date: string;
-  id?: string;
-}
-
-interface ExpenseProps {
-  data: ExpenseData;
-  deleteTask: () => void;
 }
 
 const currencies: Currency = {
@@ -34,18 +22,18 @@ const currencies: Currency = {
   inr: "₹"
 };
 
-const Expense = ({ data, deleteTask }: ExpenseProps) => {
+const Expense = ({ data, deleteTask } : {data : ExpenseInterface, deleteTask : () => void}) => {
   //console.log("data", data);
   return (
-    <tr className="hover">
+    <tr className="hover:bg-green-600">
       <td className="text-lg font-ubtunu font-bold text-center">{data.name}</td>
       <td className="text-base text-center">
-        {Array.isArray(data.category) ?  '*' + data.category[0] : data.category.name}
+        {typeof(data.id) === 'number' ? data.category : '*' + data.category}
       </td>
-      <td className="text-base text-center">{data.amount}{currencies[data.currency]}</td>
+      <td className="text-base text-center">{data.amount}{currencies[data.currency as keyof Currency]}</td>
       <td className="text-base text-center">{data.currency.toUpperCase()}</td>
       <td className="text-base text-center">{data.date}</td>
-      <td>{data.id ? <button className="btn btn-error btn-tiny" onClick={deleteTask}>Delete</button> : null}</td>
+      <td><button className={`btn ${typeof data.id === 'number' ? 'btn-error' : 'btn-disabled'} btn-tiny`} onClick={deleteTask}>Delete</button></td>
     </tr>
   );
 };
