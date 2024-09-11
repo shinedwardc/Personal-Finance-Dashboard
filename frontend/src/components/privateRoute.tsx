@@ -1,9 +1,5 @@
 import { Navigate } from 'react-router-dom';
-
-interface AuthState {
-  isLoggedIn: boolean;
-  isLoading: boolean;
-}
+import { AuthState } from '../interfaces/interface';
 
 const PrivateRoute = ({ authState, children }: { authState: AuthState, children: React.ReactNode }) => {
   if (authState.isLoading) {

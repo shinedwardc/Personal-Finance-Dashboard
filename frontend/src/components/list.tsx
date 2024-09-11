@@ -106,7 +106,7 @@ const List = ({data, isLoading, setData} : {data: ExpenseInterface[], isLoading:
           </div>
         )
       }
-      <div>
+      <div className="mb-8">
         <Form onFormSubmit={refetchExpenses} />
       </div>
     </>

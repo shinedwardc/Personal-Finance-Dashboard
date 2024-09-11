@@ -1,12 +1,12 @@
 import { Link, useNavigate } from "react-router-dom";
 
-const Sidebar = ({ authState, setAuthState } : { authState: {isLoggedIn: boolean, isLoading: boolean}, setAuthState: (authState: {isLoggedIn: boolean, isLoading: boolean}) => void }) => {
+const Sidebar = ({ authState, setAuthState } : { authState: {isLoggedIn: boolean, isPlaidConnected: boolean, isLoading: boolean}, setAuthState: (authState: {isLoggedIn: boolean, isPlaidConnected: boolean, isLoading: boolean}) => void }) => {
   const navigate = useNavigate();
 
   const handleLogout = () => {
     localStorage.removeItem("accessToken");
     localStorage.removeItem("refreshToken");
-    setAuthState({ isLoggedIn: false, isLoading: false });
+    setAuthState({ isLoggedIn: false, isPlaidConnected: authState.isPlaidConnected, isLoading: false });
     navigate("/login");
   };
 

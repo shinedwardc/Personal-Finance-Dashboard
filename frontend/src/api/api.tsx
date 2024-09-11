@@ -1,5 +1,5 @@
 import axios from "axios";
-import { ExpenseInterface, Category } from "../interfaces/interface";
+import { ExpenseInterface } from "../interfaces/interface";
 
 const getAuthHeader = () => ({
   Authorization: `Bearer ${localStorage.getItem('accessToken')}`
@@ -21,7 +21,9 @@ export const getExpense = async (): Promise<ExpenseInterface[]> => {
 
 export const getCategories = async (): Promise<string[]> => {
   try {
-    const response = await axios.get("http://localhost:8000/categories/");
+    const response = await axios.get("http://localhost:8000/categories/", {
+      headers: getAuthHeader()
+    });
     console.log('categories: ', response.data.categories)
     return response.data.categories;
   } catch (error) {

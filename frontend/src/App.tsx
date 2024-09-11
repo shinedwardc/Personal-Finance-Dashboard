@@ -11,14 +11,15 @@ import PrivateRoute from "./components/privateRoute";
 import Login from "./components/Login";
 import Logout from "./components/Logout";
 import Signup from './components/signup';
-import { ExpenseInterface, PlaidResponse } from "./interfaces/interface";
+import { ExpenseInterface, PlaidResponse, AuthState } from "./interfaces/interface";
 import { getExpense, fetchPlaidTransactions, fetchPlaidBalance } from "./api/api";
 import { useQuery } from "@tanstack/react-query";
 
 
 function App() {
-  const [authState, setAuthState] = useState<{isLoggedIn: boolean, isLoading: boolean}>({
+  const [authState, setAuthState] = useState<AuthState>({
     isLoggedIn: false,
+    isPlaidConnected: false,
     isLoading: true
   });
   const [data, setData] = useState<ExpenseInterface[]>([]);
@@ -31,15 +32,15 @@ function App() {
   });
   
   const {data : plaidData, isLoading : plaidLoading} = useQuery({
-    queryKey: ['plaidData', authState.isLoggedIn],
+    queryKey: ['plaidData', authState.isLoggedIn, authState.isPlaidConnected],
     queryFn: fetchPlaidTransactions,
-    enabled: authState.isLoggedIn
+    enabled: authState.isLoggedIn && authState.isPlaidConnected
   });
 
   const {data : plaidBalanceData, isLoading : plaidBalanceLoading} = useQuery({
-    queryKey: ['plaidBalance', authState.isLoggedIn],
+    queryKey: ['plaidBalance', authState.isLoggedIn, authState.isPlaidConnected],
     queryFn: fetchPlaidBalance,
-    enabled: authState.isLoggedIn
+    enabled: authState.isLoggedIn && authState.isPlaidConnected
   });
 
   useEffect(() => {
@@ -67,8 +68,10 @@ function App() {
   useEffect(() => {
     const checkAuth = () => {
       const token = localStorage.getItem("accessToken");
+      const plaidToken = localStorage.getItem("plaidAccessToken");
       setAuthState({
         isLoggedIn: Boolean(token),
+        isPlaidConnected: Boolean(plaidToken),
         isLoading: false
       });
     };
@@ -86,9 +89,9 @@ function App() {
               {/* Public routes */}
               <Route
                 path="/login"
-                element={<Login setAuthState={setAuthState} />}
+                element={<Login authState={authState} setAuthState={setAuthState} />}
               />
-              <Route path="/logout" element={<Logout setAuthState={setAuthState}/>} />
+              <Route path="/logout" element={<Logout authState={authState} setAuthState={setAuthState}/>} />
               <Route path="/signup" element={<Signup />} />
 
               {/* Protected routes */}

@@ -1,13 +1,10 @@
 import { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { AuthState } from "../interfaces/interface";
 
-interface AuthState {
-  isLoggedIn: boolean;
-  isLoading: boolean;
-}
+const Login = ({ authState, setAuthState } : { authState: AuthState, setAuthState: React.Dispatch<React.SetStateAction<AuthState>> }) => {
 
-const Login = ({ setAuthState } : { setAuthState: React.Dispatch<React.SetStateAction<AuthState>> }) => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -25,7 +22,7 @@ const Login = ({ setAuthState } : { setAuthState: React.Dispatch<React.SetStateA
       const { access, refresh } = response.data; // Assuming JWT tokens
       localStorage.setItem("accessToken", access);
       localStorage.setItem("refreshToken", refresh);
-      setAuthState({ isLoggedIn: true, isLoading: false });
+      setAuthState({ isLoggedIn: true, isPlaidConnected: authState.isPlaidConnected, isLoading: false });
       navigate("/"); // Redirect to homepage after login
     } catch (error) {
       setError("Invalid username or password");

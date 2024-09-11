@@ -4,10 +4,10 @@ export interface User {
   username: string;
 }
 
-// Interface for the Category object
-export interface Category {
-  id?: number;
-  name: string;
+export interface AuthState {
+  isLoggedIn: boolean;
+  isPlaidConnected: boolean;
+  isLoading: boolean;
 }
 
 export interface ExpenseInterface {
