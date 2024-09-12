@@ -2,12 +2,13 @@ import { Bar, Line } from "react-chartjs-2";
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, PointElement, LineElement, ArcElement, Tooltip, Legend, RadialLinearScale } from "chart.js";
 import { useEffect, useState, useMemo } from "react";
 import { ExpenseInterface, PlaidResponse } from "../interfaces/interface";
+import Form from "./Form";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, PointElement, LineElement,ArcElement, Tooltip, Legend, RadialLinearScale);
 
-const Breakdown = ({data, isDataLoading, plaidBalance} : {data: ExpenseInterface[], isDataLoading: boolean, plaidBalance: PlaidResponse}) => {
+const Breakdown = ({data, setData, isDataLoading, plaidBalance} : {data: ExpenseInterface[], setData: React.Dispatch<React.SetStateAction<ExpenseInterface[]>>, isDataLoading: boolean, plaidBalance: PlaidResponse}) => {
   const [categoryTotals, setCategoryTotals] = useState<Record<string, number>>(
     {},
   );
@@ -175,6 +176,17 @@ const Breakdown = ({data, isDataLoading, plaidBalance} : {data: ExpenseInterface
     console.log(filtered);
   }
 
+  const refetchExpenses = async (newExpense : ExpenseInterface) => {
+    try {
+      console.log("newExpense", newExpense);
+      setData((prevData) => {
+        const combinedData = [...prevData, newExpense];
+        return combinedData.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+      });
+    } catch (error) {
+      console.error("Failed to refetch expenses:", error);
+    }
+  };  
 
   return (
     <>
@@ -249,6 +261,22 @@ const Breakdown = ({data, isDataLoading, plaidBalance} : {data: ExpenseInterface
                       </div>
                     </div>
                 </div>
+              </div>
+              <div className="flex justify-center mt-8">
+                {/* Open the modal using document.getElementById('ID').showModal() method */}
+                <button className="btn" onClick={()=>document.getElementById('my_modal_1').showModal()}>open modal</button>
+                <dialog id="my_modal_1" className="modal">
+                  <div className="modal-box">
+                    {/* Close Button */}
+                    <form method="dialog">
+                      {/* if there is a button in form, it will close the modal */}
+                      <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
+                    </form>
+                    <div className=''>
+                      <Form onFormSubmit={refetchExpenses}/>
+                    </div>                   
+                  </div>
+                </dialog>
               </div>
             </div>
           ) : (

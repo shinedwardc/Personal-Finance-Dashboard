@@ -36,7 +36,7 @@ const Form = ({ onFormSubmit }: formProps) => {
     console.log(categoryToSubmit);
     const newExpense = {
       name,
-      category: { name: categoryToSubmit },
+      category: categoryToSubmit.toString(),
       amount: parseFloat(amount),
       currency,
       date: new Date().toISOString().split("T")[0], // Current date in YYYY-MM-DD format
@@ -65,80 +65,82 @@ const Form = ({ onFormSubmit }: formProps) => {
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <div>
-        <label htmlFor="name" className="block w-full">
-          Name
-        </label>
-        <input
-          type="text"
-          id="name"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          className="input input-bordered p-2 rounded"
-        />
-      </div>
-      <div>
-        <label htmlFor="category" className="block">
-          Category
-        </label>
-        <div className="flex items-center space-x-4">
-          <select
-            id="category"
-            value={selectedCategory}
-            onChange={(e) => setSelectedCategory(e.target.value)}
-            className="select select-bordered p-2 w-full rounded"
-          >
-            <option value="">Select a category</option>
-            {categoryNames.map((category, index) => (
-              <option key={index} value={category}>
-                {category}
-              </option>
-            ))}
-          </select>
-        </div>
-        {selectedCategory.length <= 0 && (
-          <div className="mt-3">
-            <input
-              type="text"
-              placeholder="New custom category"
-              value={customCategory}
-              onChange={(e) => setCustomCategory(e.target.value)}
-              className="input input-bordered p-2 rounded"
-            />
-          </div>
-        )}
-      </div>
-      <div className="mt-2 mb-2">
-        <div className="mb-1">
-          <label htmlFor="amount" className="block">
-            Amount
-            <select className="select select-sm select-bordered w-18 ml-2" value={currency} onChange={(e) => setCurrency(e.target.value)}>
-              <option value="usd">USD $</option>
-              <option value="eur">EUR €</option>
-              <option value="gbp">GBP £</option>
-              <option value="jpy">JPY ¥</option>
-              <option value="aud">AUD $</option>
-              <option value="cad">CAD $</option>
-              <option value="krw">KRW ₩</option>
-              <option value="inr">INR ₹</option>
-            </select>
-          </label>
-        </div>
-        <input
-          type="text"
-          id="amount"
-          value={amount}
-          onChange={(e) => setAmount(e.target.value)}
-          className="input input-bordered p-2 w-full rounded"
-          required
-        />
 
-      </div>
-      <button type="submit" className="btn btn-accent rounded mt-3">
-        Add Expense
-      </button>
-    </form>
+      <form onSubmit={handleSubmit}>
+        <div>
+          <label htmlFor="name" className="block w-full">
+            Name
+          </label>
+          <input
+            type="text"
+            id="name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            className="input input-bordered p-2 rounded"
+          />
+        </div>
+        <div>
+          <label htmlFor="category" className="block">
+            Category
+          </label>
+          <div className="flex items-center space-x-4">
+            <select
+              id="category"
+              value={selectedCategory}
+              onChange={(e) => setSelectedCategory(e.target.value)}
+              className="select select-bordered p-2 w-full rounded"
+            >
+              <option value="">Select a category</option>
+              {categoryNames.map((category, index) => (
+                <option key={index} value={category}>
+                  {category}
+                </option>
+              ))}
+            </select>
+          </div>
+          {selectedCategory.length <= 0 && (
+            <div className="mt-3">
+              <input
+                type="text"
+                placeholder="New custom category"
+                value={customCategory}
+                onChange={(e) => setCustomCategory(e.target.value)}
+                className="input input-bordered p-2 rounded"
+              />
+            </div>
+          )}
+        </div>
+        <div className="mt-2 mb-2">
+          <div className="mb-1">
+            <label htmlFor="amount" className="block">
+              Amount
+              <select className="select select-sm select-bordered w-18 ml-2" value={currency} onChange={(e) => setCurrency(e.target.value)}>
+                <option value="usd">USD $</option>
+                <option value="eur">EUR €</option>
+                <option value="gbp">GBP £</option>
+                <option value="jpy">JPY ¥</option>
+                <option value="aud">AUD $</option>
+                <option value="cad">CAD $</option>
+                <option value="krw">KRW ₩</option>
+                <option value="inr">INR ₹</option>
+              </select>
+            </label>
+          </div>
+          <input
+            type="text"
+            id="amount"
+            value={amount}
+            onChange={(e) => setAmount(e.target.value)}
+            className="input input-bordered p-2 w-full rounded"
+          />
+        </div>
+        <div>
+          <button type="submit" className="btn btn-accent rounded mt-3">
+            Add Expense
+          </button>
+        </div>
+      </form>
+
   );
 };
 

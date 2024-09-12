@@ -80,9 +80,10 @@ function App() {
   }, []);
 
   return (
+
       <Router>
         <ToastContainer />
-        <div className="flex flex-col">
+        <div className="flex flex-col w-full">
           <Sidebar authState={authState} setAuthState={setAuthState} />
           <div className="flex-grow flex flex-col items-center justify-center mt-20">
             <Routes>
@@ -99,7 +100,7 @@ function App() {
                 path="/"
                 element={
                   <PrivateRoute authState={authState}>
-                    <Breakdown data={data} isDataLoading={isDataLoading} plaidBalance={plaidBalance as PlaidResponse}/>
+                    <Breakdown data={data} setData={setData} isDataLoading={isDataLoading} plaidBalance={plaidBalance as PlaidResponse}/>
                   </PrivateRoute>
                 }
               />
