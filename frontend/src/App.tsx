@@ -12,7 +12,7 @@ import Login from "./components/Login";
 import Logout from "./components/Logout";
 import Signup from './components/signup';
 import { ExpenseInterface, PlaidResponse, AuthState } from "./interfaces/interface";
-import { getExpense, fetchPlaidTransactions, fetchPlaidBalance } from "./api/api";
+import { getAuthStatus, getExpense, fetchPlaidTransactions, fetchPlaidBalance } from "./api/api";
 import { useQuery } from "@tanstack/react-query";
 
 
@@ -63,19 +63,18 @@ function App() {
     }
   }, [plaidBalanceData]);
 
-  const isDataLoading = expenseLoading || plaidLoading || plaidBalanceLoading;
+  const isDataLoading = authState.isLoading || expenseLoading || plaidLoading || plaidBalanceLoading;
 
   useEffect(() => {
-    const checkAuth = () => {
-      const token = localStorage.getItem("accessToken");
+    const checkAuth = async () => {
+      const response = await getAuthStatus();
       const plaidToken = localStorage.getItem("plaidAccessToken");
       setAuthState({
-        isLoggedIn: Boolean(token),
+        isLoggedIn: response.authenticated,
         isPlaidConnected: Boolean(plaidToken),
         isLoading: false
       });
     };
-
     checkAuth();
   }, []);
 

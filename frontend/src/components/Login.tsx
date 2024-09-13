@@ -24,7 +24,6 @@ const Login = ({ authState, setAuthState } : { authState: AuthState, setAuthStat
       localStorage.setItem("refreshToken", refresh);
       setAuthState({ isLoggedIn: true, isPlaidConnected: authState.isPlaidConnected, isLoading: false });
       navigate("/"); // Redirect to homepage after login
-      window.location.reload();
     } catch (error) {
       setError("Invalid username or password");
       console.error(error);

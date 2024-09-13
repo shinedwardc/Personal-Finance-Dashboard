@@ -6,13 +6,20 @@ from rest_framework import status
 from expenseTracker.serializers import ExpenseSerializer, UserSerializer
 from django.contrib.auth.models import User
 from django.contrib.auth.hashers import make_password
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import AllowAny
 from .decorator import check_authentication
 import environ
 env = environ.Env()
 environ.Env.read_env()
 import requests
 from django.http import JsonResponse
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def authentication_status(request):
+    if request.user.is_authenticated:
+        return Response({'authenticated': True})
+    return Response({'authenticated': False})
 
 @api_view(['GET','POST','DELETE'])
 @check_authentication

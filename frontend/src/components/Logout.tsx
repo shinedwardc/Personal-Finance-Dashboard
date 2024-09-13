@@ -13,6 +13,7 @@ const Logout = ({ authState, setAuthState }: LogoutProps) => {
 
   useEffect(() => {
     localStorage.removeItem('accessToken');
+    localStorage.removeItem('refreshToken');
     setAuthState({ isLoggedIn: false, isPlaidConnected: authState.isPlaidConnected, isLoading: false });
     navigate('/login');
   }, [setAuthState, navigate, authState]);
