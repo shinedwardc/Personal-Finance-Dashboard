@@ -264,7 +264,7 @@ const Breakdown = ({data, setData, isDataLoading, plaidBalance} : {data: Expense
               </div>
               <div className="flex justify-center mt-8">
                 {/* Open the modal using document.getElementById('ID').showModal() method */}
-                <button className="btn" onClick={()=>document.getElementById('my_modal_1').showModal()}>open modal</button>
+                <button className="btn btn-success" onClick={()=>document.getElementById('my_modal_1').showModal()}>Add new expense</button>
                 <dialog id="my_modal_1" className="modal">
                   <div className="modal-box">
                     {/* Close Button */}
