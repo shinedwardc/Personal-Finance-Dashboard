@@ -6,6 +6,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import Sidebar from "./components/sidebar";
 import Breakdown from "./components/breakdown";
 import List from "./components/list";
+import Calendar from "./components/Calendar";
 import Connections from "./components/Connections";
 import PrivateRoute from "./components/privateRoute";
 import Login from "./components/Login";
@@ -108,6 +109,14 @@ function App() {
                 element={
                   <PrivateRoute authState={authState}>
                     <List data={data} isLoading={isDataLoading} setData={setData}/>
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/calendar"
+                element={
+                  <PrivateRoute authState={authState}>
+                    <Calendar data={data} isLoading={isDataLoading} />
                   </PrivateRoute>
                 }
               />

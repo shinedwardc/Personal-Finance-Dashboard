@@ -22,6 +22,9 @@ const Sidebar = ({ authState, setAuthState } : { authState: {isLoggedIn: boolean
               <Link to="/expenses">Expenses</Link>
             </li>
             <li className="p-4 hover:bg-green-400 text-center">
+              <Link to="/calendar">Calendar</Link>
+            </li>
+            <li className="p-4 hover:bg-green-400 text-center">
               <Link to="/connections">Connections</Link>
             </li>
             <li className="p-4 text-center bg-red-500">
