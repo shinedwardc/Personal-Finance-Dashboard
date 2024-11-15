@@ -9,7 +9,8 @@ const Calendar = ({data, isLoading} : {data: ExpenseInterface[], isLoading: bool
         if (data && data.length > 0) {
             const formattedEvents = data.map((expense) => ({
                 title: expense.name,
-                date: expense.date,
+                start: expense.date,
+                amount: expense.amount,
             }));
             setEvents(formattedEvents);
         }
@@ -18,12 +19,18 @@ const Calendar = ({data, isLoading} : {data: ExpenseInterface[], isLoading: bool
     const [events, setEvents] = useState<{title: string; date: string}[]>([]);
 
     return (
-        <div className="w-1/3">
+        <div className="w-7/12 ml-20">
             <FullCalendar
                 plugins={[dayGridPlugin]}
                 initialView="dayGridMonth"
                 events={events}
-                height={500}
+                eventContent={(info) => (
+                    <div className="text-center">
+                        <h1 className="bg-green-600 overflow-hidden text-ellipsis">{info.event.title}</h1>
+                        <p>{info.event.extendedProps.amount}$</p>
+                    </div>
+                )}
+                height={750}
             >
             </FullCalendar>
         </div>
