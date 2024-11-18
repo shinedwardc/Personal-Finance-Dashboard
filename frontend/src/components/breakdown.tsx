@@ -247,14 +247,14 @@ const Breakdown = ({data, setData, isDataLoading, plaidBalance} : {data: Expense
                   </table>
                 </div>
                 <div className="w-1 bg-slate-300 px-1 mx-2"></div>
-                <div className="ml-2 w-1/3 bg-teal-800 rounded-xl">
-                  <div className="card glass w-60 mt-4 ml-4 shadow-md transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
+                <div className="ml-2 w-1/3 bg-teal-800 rounded-xl flex flex-col justify-evenly">
+                  <div className="card glass w-60 ml-4 shadow-md transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
                       <div className="card-body items-center text-center">
                         <h5 className="text-sm mb-2">Total Expenses</h5>
                         <h1 className="text-3xl font-bold">${total.toFixed(2)}</h1>
                       </div>
                     </div>
-                    <div className="card glass w-60 mt-4 ml-4 shadow-md transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
+                    <div className="card glass w-60 ml-4 shadow-md transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
                       <div className="card-body items-center text-center">
                         <h5 className="text-sm mb-2">Current total account balance</h5>
                         <h1 className="text-3xl font-bold">${balance}</h1>

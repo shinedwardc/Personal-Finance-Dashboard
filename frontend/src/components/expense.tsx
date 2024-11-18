@@ -38,8 +38,8 @@ const Expense = ({ data, deleteTask } : {data : ExpenseInterface, deleteTask : (
       <td className="text-base text-center">{data.currency.toUpperCase()}</td>
       <td className="text-base text-center">{data.date}</td>
       <td>
-        <button className={`btn ${!isExpenseData(data.id) ? 'btn-error' : 'btn-disabled'} btn-tiny`} onClick={deleteTask}>
-          {isExpenseData(data.id) ? 'Plaid' : 'Delete'}
+        <button className={`btn ${isExpenseData(data.id) ? 'btn-error' : 'btn-disabled'} btn-tiny`} onClick={deleteTask}>
+          {!isExpenseData(data.id) ? 'Plaid' : 'Delete'}
         </button>
       </td>
     </tr>

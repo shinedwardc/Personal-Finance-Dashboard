@@ -27,7 +27,7 @@ const Calendar = ({data, isLoading} : {data: ExpenseInterface[], isLoading: bool
                 eventContent={(info) => (
                     <div className="text-center">
                         <h1 className="bg-green-600 overflow-hidden text-ellipsis">{info.event.title}</h1>
-                        <p>{info.event.extendedProps.amount}$</p>
+                        <p className="bg-teal-800">{info.event.extendedProps.amount}$</p>
                     </div>
                 )}
                 height={750}

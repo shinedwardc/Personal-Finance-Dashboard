@@ -100,7 +100,10 @@ const List = ({data, isLoading, setData} : {data: ExpenseInterface[], isLoading:
                 </tbody>
               </table>
             </div>
-            <div className="mb-8">
+            <div className="relative right-72">
+              <p>*: Expenses made from Plaid</p>
+            </div>
+            <div className="my-4 p-4 border border-green-800">
               <Form onFormSubmit={refetchExpenses} />
             </div>            
             </>
