@@ -88,6 +88,12 @@ def get_currency_exchange(request,from_currency, to_currency):
         return JsonResponse({'rate': response.json()['conversion_rates'][to_currency.upper()]}, status=200)
     return JsonResponse({'error': 'Currency not found'}, status=400)
 
+#@api_view(['POST'])
+#def recurring_expense(request):
+#    if request.method == 'POST':
+
+
+
 #def index(request):
 #    latest_question_list = Question.objects.order_by("-pub_date")[:5]
 #    template = loader.get_template("polls/index.html")

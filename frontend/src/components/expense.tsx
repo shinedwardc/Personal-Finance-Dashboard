@@ -19,27 +19,39 @@ const currencies: Currency = {
   aud: "$",
   cad: "$",
   krw: "₩",
-  inr: "₹"
+  inr: "₹",
 };
 
-const isExpenseData = (id : number | string) => {
-  return (typeof id === 'number');
+const isExpenseData = (id: number | string) => {
+  return typeof id === "number";
 };
 
-const Expense = ({ data, deleteTask } : {data : ExpenseInterface, deleteTask : () => void}) => {
+const Expense = ({
+  data,
+  deleteTask,
+}: {
+  data: ExpenseInterface;
+  deleteTask: () => void;
+}) => {
   //console.log("data", data);
   return (
-    <tr className="hover:bg-green-600">
+    <tr className="hover:bg-white hover:text-green-800">
       <td className="text-lg font-ubtunu font-bold text-center">{data.name}</td>
       <td className="text-base text-center">
-        {typeof(data.id) === 'number' ? data.category : '*' + data.category}
+        {typeof data.id === "number" ? data.category : "*" + data.category}
       </td>
-      <td className="text-base text-center">{data.amount}{currencies[data.currency as keyof Currency]}</td>
+      <td className="text-base text-center">
+        {data.amount}
+        {currencies[data.currency as keyof Currency]}
+      </td>
       <td className="text-base text-center">{data.currency.toUpperCase()}</td>
       <td className="text-base text-center">{data.date}</td>
       <td>
-        <button className={`btn ${isExpenseData(data.id) ? 'btn-error' : 'btn-disabled'} btn-tiny`} onClick={deleteTask}>
-          {!isExpenseData(data.id) ? 'Plaid' : 'Delete'}
+        <button
+          className={`btn ${isExpenseData(data.id) ? "btn-error" : "btn-disabled"} btn-tiny`}
+          onClick={deleteTask}
+        >
+          {!isExpenseData(data.id) ? "Plaid" : "Delete"}
         </button>
       </td>
     </tr>

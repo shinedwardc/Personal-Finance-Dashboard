@@ -1,7 +1,13 @@
-import { Navigate } from 'react-router-dom';
-import { AuthState } from '../interfaces/interface';
+import { Navigate } from "react-router-dom";
+import { AuthState } from "../interfaces/interface";
 
-const PrivateRoute = ({ authState, children }: { authState: AuthState, children: React.ReactNode }) => {
+const PrivateRoute = ({
+  authState,
+  children,
+}: {
+  authState: AuthState;
+  children: React.ReactNode;
+}) => {
   if (authState.isLoading) {
     return (
       <div className="flex justify-center items-center h-screen">
@@ -9,7 +15,7 @@ const PrivateRoute = ({ authState, children }: { authState: AuthState, children:
       </div>
     );
   }
-  
+
   if (!authState.isLoggedIn) {
     return <Navigate to="/login" replace />;
   }

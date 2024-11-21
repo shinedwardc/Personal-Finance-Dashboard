@@ -5,17 +5,27 @@ import axios from "axios";
 
 //https://flowbite.com/docs/components/spinner/#progress-spinner
 
-const List = ({data, isLoading, setData} : {data: ExpenseInterface[], isLoading: boolean, setData: React.Dispatch<React.SetStateAction<ExpenseInterface[]>>}) => {
+const List = ({
+  data,
+  isLoading,
+  setData,
+}: {
+  data: ExpenseInterface[];
+  isLoading: boolean;
+  setData: React.Dispatch<React.SetStateAction<ExpenseInterface[]>>;
+}) => {
   //const [search, setSearch] = useState<string>("");
   //const [useFilteredData, setUseFilteredData] = useState<boolean>(false);
   //const [filteredData, setFilteredData] = useState<ExpenseInterface[]>([]);
 
-  const refetchExpenses = async (newExpense : ExpenseInterface) => {
+  const refetchExpenses = async (newExpense: ExpenseInterface) => {
     try {
       console.log("newExpense", newExpense);
       setData((prevData) => {
         const combinedData = [...prevData, newExpense];
-        return combinedData.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+        return combinedData.sort(
+          (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
+        );
       });
     } catch (error) {
       console.error("Failed to refetch expenses:", error);
@@ -57,12 +67,11 @@ const List = ({data, isLoading, setData} : {data: ExpenseInterface[], isLoading:
     }
   }*/
 
-
   return (
     <>
-       { !isLoading ? (
-          data.length > 0 ? (
-            <>
+      {!isLoading ? (
+        data.length > 0 ? (
+          <>
             <div className="mb-6 border-cyan-500 overflow-x-auto">
               {/*<div className="mb-4 flex justify-center">
                 <label className="input input-bordered flex items-center w-64 gap-2">
@@ -82,15 +91,25 @@ const List = ({data, isLoading, setData} : {data: ExpenseInterface[], isLoading:
               <table className="table table-auto bg-green-800 border-collapse border border-slate-400 text-sm text-center">
                 <thead>
                   <tr>
-                    {["Name", "Category", "Amount", "Currency", "Date", "Delete"].map((header) => (
-                      <th key={header} className="border border-slate-300 px-4 py-2">
+                    {[
+                      "Name",
+                      "Category",
+                      "Amount",
+                      "Currency",
+                      "Date",
+                      "Delete",
+                    ].map((header) => (
+                      <th
+                        key={header}
+                        className="border border-slate-300 px-4 py-2"
+                      >
                         {header}
                       </th>
                     ))}
                   </tr>
                 </thead>
                 <tbody>
-                  {(data).map((expense, index) => (
+                  {data.map((expense, index) => (
                     <Expense
                       key={index}
                       data={expense as ExpenseInterface}
@@ -105,24 +124,23 @@ const List = ({data, isLoading, setData} : {data: ExpenseInterface[], isLoading:
             </div>
             <div className="my-4 p-4 border border-green-800">
               <Form onFormSubmit={refetchExpenses} />
-            </div>            
-            </>
-          ) : (
-            <>
+            </div>
+          </>
+        ) : (
+          <>
             <div>
               <p>No expenses! Add some</p>
             </div>
             <div className="mb-8">
               <Form onFormSubmit={refetchExpenses} />
             </div>
-            </>
-          )
-        ) : (
-          <div className="flex justify-center items-center">
-            <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-gray-900"></div>
-          </div>
+          </>
         )
-      }
+      ) : (
+        <div className="flex justify-center items-center">
+          <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-gray-900"></div>
+        </div>
+      )}
     </>
   );
 };
