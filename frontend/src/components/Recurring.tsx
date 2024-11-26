@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
-import { toast, Bounce } from "react-toastify";
 //import { getCategories } from '../api/api';
 
-const Recurring = () => {
+const Recurring = ({ onFormSubmit }) => {
   interface Expense {
     name: string;
     amount: number;
+    category: string;
     date: string;
     currency: string;
     frequency: string;
@@ -16,9 +16,10 @@ const Recurring = () => {
   //const [categories, setCategoryNames] = useState<string[]>([]);
   //const [registered, setRegistered] = useState<Expense[]>([]);
 
-  const [expense, setExpense] = useState({
+  const [expense, setExpense] = useState<Expense>({
     name: "",
     amount: 0,
+    category: "Recurring bill",
     date: "",
     currency: "usd",
     frequency: "",
@@ -27,10 +28,11 @@ const Recurring = () => {
 
   const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    //console.log(e.target);
+    console.log(e.target.amount.value);
     const newRecurring = {
       name: expense.name,
-      amount: parseInt(expense.amount.toString()),
+      amount: Number(expense.amount),
+      category: "Recurring bill",
       date: new Date(expense.date).toISOString().split("T")[0],
       currency: "usd",
       frequency: expense.frequency,
@@ -50,17 +52,7 @@ const Recurring = () => {
         },
       );
       console.log("response data: ", response.data);
-      toast.success(`Added monthly expense`, {
-        position: "top-center",
-        autoClose: 5000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "light",
-        transition: Bounce,
-      });
+      onFormSubmit(response.data);
     } catch (err) {
       console.error(err);
     }

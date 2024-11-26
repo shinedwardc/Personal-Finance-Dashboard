@@ -1,6 +1,8 @@
 import Expense from "./expense";
 import { ExpenseInterface } from "../interfaces/interface";
 import Form from "./Form";
+import Recurring from "./Recurring";
+import { toast, Bounce } from "react-toastify";
 import axios from "axios";
 
 //https://flowbite.com/docs/components/spinner/#progress-spinner
@@ -20,12 +22,23 @@ const List = ({
 
   const refetchExpenses = async (newExpense: ExpenseInterface) => {
     try {
-      console.log("newExpense", newExpense);
+      //console.log("newExpense", newExpense);
       setData((prevData) => {
         const combinedData = [...prevData, newExpense];
         return combinedData.sort(
           (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
         );
+      });
+      toast.success(`Added monthly expense`, {
+        position: "top-center",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+        transition: Bounce,
       });
     } catch (error) {
       console.error("Failed to refetch expenses:", error);
@@ -46,6 +59,17 @@ const List = ({
       setData((prevExpenses) =>
         prevExpenses.filter((expense) => expense.id !== expenseId),
       );
+      toast.success(`Successfully deleted expense id ${expenseId}`, {
+        position: "top-center",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+        transition: Bounce,
+      });
     } else {
       console.error("Failed to delete expense");
     }
@@ -72,7 +96,7 @@ const List = ({
       {!isLoading ? (
         data.length > 0 ? (
           <>
-            <div className="mb-6 border-cyan-500 overflow-x-auto">
+            <div className="mb-2 border-cyan-500 overflow-x-auto">
               {/*<div className="mb-4 flex justify-center">
                 <label className="input input-bordered flex items-center w-64 gap-2">
                   <input type="text" className="grow" placeholder="Search" value={search} onChange={handleSearch}/>
@@ -124,6 +148,12 @@ const List = ({
             </div>
             <div className="my-4 p-4 border border-green-800">
               <Form onFormSubmit={refetchExpenses} />
+            </div>
+            <div>
+              --- OR ---
+            </div>
+            <div className="my-4 p-4 border border-green-800">
+              <Recurring onFormSubmit={refetchExpenses} />
             </div>
           </>
         ) : (

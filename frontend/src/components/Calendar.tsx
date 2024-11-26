@@ -31,11 +31,33 @@ const Calendar = ({
 
   useEffect(() => {
     if (data && data.length > 0) {
-      const formattedEvents = data.map((expense) => ({
-        title: expense.name,
-        start: expense.date,
-        amount: expense.amount,
-      }));
+      const formattedEvents = data.flatMap((expense) => {
+        const events = [];
+        events.push({
+          title: expense.name,
+          start: expense.date,
+          amount: expense.amount,
+          frequency: expense.frequency,
+          upcoming: false,
+        });
+        if (expense.frequency && expense.period) {
+          const startDate = new Date(expense.date);
+          const increment = expense.frequency === "monthly" ? 1 : 12;
+
+          for (let i = 1; i <= expense.period; i++){
+            const recurringDate = new Date(startDate);
+            recurringDate.setMonth(startDate.getMonth() + i * increment);
+            events.push({
+              title: expense.name,
+              start: recurringDate.toISOString().split("T")[0],
+              amount: expense.amount,
+              frequency: expense.frequency,
+              upcoming: true,
+            })
+          }
+        }
+        return events;
+      });
       setEvents(formattedEvents);
     }
   }, [data]);
@@ -78,13 +100,19 @@ const Calendar = ({
                   <h1 className="bg-green-600 overflow-hidden text-ellipsis">
                     {info.event.title}
                   </h1>
-                  <p className="bg-teal-800">
+                  <p className={info.event.extendedProps.upcoming ? "bg-red-500" : "bg-teal-800"}>
                     {info.event.extendedProps.amount}$
+                    {console.log(info.event.extendedProps)}
                   </p>
                 </div>
               )}
               height={750}
             ></FullCalendar>
+            <div className="flex flex-row justify-items-start gap-1">
+              <p>* </p>
+              <div className="inline-block bg-red-500 text-red-500">*****</div>
+              <p>: Upcoming recurring bill</p>            
+            </div>            
           </div>
           <div className="stats shadow">
             <div className="stat place-items-center">

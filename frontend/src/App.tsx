@@ -122,14 +122,6 @@ function App() {
                 }
               />
               <Route
-                path="/recurring"
-                element={
-                  <PrivateRoute authState={authState}>
-                    <Recurring />
-                  </PrivateRoute>
-                }
-              />
-              <Route
                 path="/connections"
                 element={
                   <PrivateRoute authState={authState}>
