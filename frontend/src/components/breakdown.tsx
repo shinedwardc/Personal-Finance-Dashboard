@@ -45,7 +45,7 @@ const Breakdown = ({
   );
   const [total, setTotal] = useState<number>(0);
   const [balance, setBalance] = useState<number>(0);
-  const [date, setDate] = useState(new Date());
+  //const [date, setDate] = useState(new Date());
   const [categories, setCategories] = useState<string[]>([]);
   const [categoryLoading, setCategoryLoading] = useState<boolean>(true);
   const [graphType, setGraphType] = useState<string>("bar");
@@ -101,18 +101,12 @@ const Breakdown = ({
 
   const calculateTotalByCategory = async (
     expenses: ExpenseInterface[],
-    date: Date | null = null,
   ): Promise<Record<string, number>> => {
     const totals: Record<string, number> = {};
-
+    setTotal(0);
     console.log("expenses", expenses);
     for (const expense of expenses) {
-      if (
-        date &&
-        new Date(expense.date).toDateString() < new Date(date).toDateString()
-      ) {
-        continue; // Skip expenses before the date
-      }
+      //console.log(new Date(expense.date).toDateString())
       const categoryName = expense.category;
       const amount = parseFloat(expense.amount.toString());
       //console.log("amount", amount);
@@ -242,87 +236,77 @@ const Breakdown = ({
   };
 
   return (
-    <>
-      <div>
-        {!isDataLoading ? (
-          <div className="flex flex-col w-full">
-            <div className="flex justify-start mb-7">
-              <h1 className="text-5xl font-ubuntu text-lime-400">
-                Expense Tracker
-              </h1>
-            </div>
-            <div className="flex flex-row justify-between w-full space-x-4">
-              <div className="flex flex-col justify-start w-1/3 bg-green-800 rounded-xl">
-                <div className="w-full">
-                  <h2 className="text-center mt-3 mb-3 font-ubuntu text-2xl">
-                    Expense summary
-                  </h2>
-                  <div className="flex flex-row justify-between text-center">
-                    <div className="flex-1">
-                      <label htmlFor="graph-select">Graph style: </label>
-                      <br />
-                      <select
-                        className="select select-bordered select-sm"
-                        id="graph-select"
-                        value={graphType}
-                        onChange={handleGraphSelect}
-                      >
-                        <option value="bar">Bar graph</option>
-                        <option value="line">Line graph</option>
-                      </select>
-                    </div>
-                    <div className="flex-1">
-                      <label>From date: </label>
-                      <DatePicker
-                        className="w-2/3 mt-1 text-center"
-                        selected={date}
-                        onChange={(newDate: Date | null) => {
-                          if (newDate) {
-                            handleDateSelect(newDate);
-                          }
-                        }}
-                      />
-                    </div>
-                  </div>
-                  <div className="flex justify-center items-center">
-                    {graph}
+    <div className="w-2/3 ml-36 modal-open">
+      {!isDataLoading ? (
+        <div className="flex flex-col w-full">
+          <div className="flex justify-start mb-7">
+            <h1 className="text-5xl font-ubuntu text-lime-400">
+              Expense Tracker
+            </h1>
+          </div>
+          <div className="flex flex-row justify-between w-full space-x-4">
+            <div className="flex flex-col p-2 justify-start w-1/3 bg-green-800 rounded-xl">
+              <div className="w-full">
+                <h2 className="text-center mt-3 mb-3 font-ubuntu text-2xl">
+                  Expense overall summary
+                </h2>
+                <div className="flex flex-row justify-between text-center">
+                  <div className="flex-1">
+                    <label htmlFor="graph-select">Graph style: </label>
+                    <br />
+                    <select
+                      className="select select-bordered select-sm"
+                      id="graph-select"
+                      value={graphType}
+                      onChange={handleGraphSelect}
+                    >
+                      <option value="bar">Bar graph</option>
+                      <option value="line">Line graph</option>
+                    </select>
                   </div>
                 </div>
+                <div className="flex justify-center items-center">
+                    {graph}
+                </div>
               </div>
-              <div className="w-1 bg-slate-300 px-1 mx-2"></div>
-              <div className="overflow-x-auto w-1/3 bg-emerald-800 rounded-xl">
-                <table className="table">
-                  <thead className="text-center">
-                    <tr>
-                      <th className="border-r">Category</th>
-                      <th>Amount sum</th>
-                    </tr>
-                  </thead>
-                  <tbody className="text-center">
-                    {!categoryLoading &&
-                      categories.length > 0 &&
-                      categories.map((category) => (
-                        <tr key={category}>
-                          <td className="border-r">{category}</td>
-                          <td>
-                            {categoryTotals[category]
-                              ? categoryTotals[category].toFixed(2)
-                              : 0}
-                          </td>
-                        </tr>
-                      ))}
-                  </tbody>
-                </table>
-              </div>
-              <div className="w-1 bg-slate-300 px-1 mx-2"></div>
-              <div className="ml-2 w-1/3 bg-teal-800 rounded-xl flex flex-col justify-evenly">
-                <div className="card glass w-60 ml-4 shadow-md transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
+            </div>
+            <div className="w-1 bg-slate-300 px-1 mx-2"></div>
+            <div className="overflow-x-auto w-1/3 bg-emerald-800 rounded-xl">
+              <table className="table">
+                <thead className="text-center">
+                  <tr>
+                    <th className="border-r">Category</th>
+                    <th>Amount sum</th>
+                  </tr>
+                </thead>
+                <tbody className="text-center">
+                  {!categoryLoading &&
+                    categories.length > 0 &&
+                    categories.map((category) => (
+                      <tr key={category}>
+                        <td className="border-r">{category}</td>
+                        <td>
+                          {categoryTotals[category]
+                            ? categoryTotals[category].toFixed(2)
+                            : 0}
+                        </td>
+                      </tr>
+                    ))}
+                </tbody>
+              </table>
+            </div>
+            <div className="w-1 bg-slate-300 px-1 mx-2"></div>
+            <div className="w-1/3 bg-teal-800 rounded-xl flex flex-col justify-evenly">
+              <div className="flex justify-center">
+                <div className="card glass w-60 shadow-md transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
                   <div className="card-body items-center text-center">
                     <h5 className="text-sm mb-2">Total Expenses</h5>
                     <h1 className="text-3xl font-bold">${total.toFixed(2)}</h1>
                   </div>
                 </div>
-                <div className="card glass w-60 ml-4 shadow-md transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
+              </div>
+              <div className="flex justify-center">
+                <div className="card glass w-60 shadow-md transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
                   <div className="card-body items-center text-center">
                     <h5 className="text-sm mb-2">
                       Current total account balance
@@ -332,39 +316,39 @@ const Breakdown = ({
                 </div>
               </div>
             </div>
-            <div className="flex justify-center mt-8">
-              {/* Open the modal using document.getElementById('ID').showModal() method */}
-              <button
-                className="btn btn-success"
-                onClick={() =>
-                  document.getElementById("my_modal_1").showModal()
-                }
-              >
-                Add new expense
-              </button>
-              <dialog id="my_modal_1" className="modal">
-                <div className="modal-box">
-                  {/* Close Button */}
-                  <form method="dialog">
-                    {/* if there is a button in form, it will close the modal */}
-                    <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">
-                      ✕
-                    </button>
-                  </form>
-                  <div className="">
-                    <Form onFormSubmit={refetchExpenses} />
-                  </div>
+          </div>
+          <div className="flex justify-center mt-8">
+            {/* Open the modal using document.getElementById('ID').showModal() method */}
+            <button
+              className="btn btn-success"
+              onClick={() =>
+                document.getElementById("my_modal_1").showModal()
+              }
+            >
+              Add new expense
+            </button>
+            <dialog id="my_modal_1" className="modal">
+              <div className="modal-box">
+                {/* Close Button */}
+                <form method="dialog">
+                  {/* if there is a button in form, it will close the modal */}
+                  <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">
+                    ✕
+                  </button>
+                </form>
+                <div className="">
+                  <Form onFormSubmit={refetchExpenses} />
                 </div>
-              </dialog>
-            </div>
+              </div>
+            </dialog>
           </div>
-        ) : (
-          <div className="flex justify-center items-center">
-            <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-gray-900"></div>
-          </div>
-        )}
-      </div>
-    </>
+        </div>
+      ) : (
+        <div className="flex justify-center items-center">
+          <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-gray-900"></div>
+        </div>
+      )}
+    </div>
   );
 };
 export default Breakdown;

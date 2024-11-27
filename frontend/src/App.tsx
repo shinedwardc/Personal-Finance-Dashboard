@@ -84,7 +84,7 @@ function App() {
 
       <Router>
         <ToastContainer />
-        <div className="flex flex-col w-full">
+        <div>
           <Sidebar authState={authState} setAuthState={setAuthState} />
           <div className="flex-grow flex flex-col items-center justify-center mt-20">
             <Routes>
