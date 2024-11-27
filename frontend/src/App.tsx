@@ -7,7 +7,6 @@ import Sidebar from "./components/sidebar";
 import Breakdown from "./components/breakdown";
 import List from "./components/list";
 import Calendar from "./components/Calendar";
-import Recurring from "./components/Recurring";
 import Connections from "./components/Connections";
 import PrivateRoute from "./components/privateRoute";
 import Login from "./components/Login";
