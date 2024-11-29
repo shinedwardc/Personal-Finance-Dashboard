@@ -16,6 +16,8 @@ export interface ExpenseInterface {
   name: string;
   category: string;
   currency: string;
+  frequency: string | null;
+  period: number | null;
   date: string;
   updated_at: Date;
   user?: User | string;

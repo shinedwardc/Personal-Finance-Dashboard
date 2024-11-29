@@ -12,7 +12,7 @@ const Calendar = ({
 }) => {
   const calendarRef = useRef(null);
 
-  const [events, setEvents] = useState<{ title: string; date: string }[]>([]);
+  const [events, setEvents] = useState<{ title: string; start: string; amount: number; frequency: string | null; }[]>([]);
   const [month, setMonth] = useState<number>(0);
   const [year, setYear] = useState<number>(0);
   const [monthlySpent, setMonthlySpent] = useState<number>(0);
@@ -31,33 +31,12 @@ const Calendar = ({
 
   useEffect(() => {
     if (data && data.length > 0) {
-      const formattedEvents = data.flatMap((expense) => {
-        const events = [];
-        events.push({
+      const formattedEvents = data.map((expense) => ({
           title: expense.name,
           start: expense.date,
           amount: expense.amount,
           frequency: expense.frequency,
-          upcoming: false,
-        });
-        if (expense.frequency && expense.period) {
-          const startDate = new Date(expense.date);
-          const increment = expense.frequency === "monthly" ? 1 : 12;
-
-          for (let i = 1; i <= expense.period; i++){
-            const recurringDate = new Date(startDate);
-            recurringDate.setMonth(startDate.getMonth() + i * increment);
-            events.push({
-              title: expense.name,
-              start: recurringDate.toISOString().split("T")[0],
-              amount: expense.amount,
-              frequency: expense.frequency,
-              upcoming: true,
-            })
-          }
-        }
-        return events;
-      });
+        }));
       setEvents(formattedEvents);
     }
   }, [data]);
@@ -100,7 +79,7 @@ const Calendar = ({
                   <h1 className="bg-green-600 overflow-hidden text-ellipsis">
                     {info.event.title}
                   </h1>
-                  <p className={info.event.extendedProps.upcoming ? "bg-red-500" : "bg-teal-800"}>
+                  <p className={info.event.start > new Date() ? "bg-red-500" : "bg-teal-800"}>
                     {info.event.extendedProps.amount}$
                     {console.log(info.event.extendedProps)}
                   </p>

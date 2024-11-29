@@ -1,20 +1,38 @@
 /** @type {import('tailwindcss').Config} */
 export default {
-  content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
+    darkMode: ["class"],
+    content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
   theme: {
-    extend: {
-      fontFamily: {
-        roboto: ['Roboto', 'sans-serif'],
-        ubuntu: ['Ubuntu', 'sans-serif'],
-      }
-    },
+  	extend: {
+  		fontFamily: {
+  			roboto: ['Roboto', 'sans-serif'],
+  			ubuntu: ['Ubuntu', 'sans-serif']
+  		},
+  		borderRadius: {
+  			lg: 'var(--radius)',
+  			md: 'calc(var(--radius) - 2px)',
+  			sm: 'calc(var(--radius) - 4px)'
+  		},
+  		colors: {
+  			sidebar: {
+  				DEFAULT: 'hsl(var(--sidebar-background))',
+  				foreground: 'hsl(var(--sidebar-foreground))',
+  				primary: 'hsl(var(--sidebar-primary))',
+  				'primary-foreground': 'hsl(var(--sidebar-primary-foreground))',
+  				accent: 'hsl(var(--sidebar-accent))',
+  				'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
+  				border: 'hsl(var(--sidebar-border))',
+  				ring: 'hsl(var(--sidebar-ring))'
+  			}
+  		}
+  	}
   },
   purge: [
     './src/**/*.html',
     './src/**/*.js',
     './src/**/*.tsx',    
   ],
-  plugins: [require('daisyui')],
+  plugins: [require('daisyui'), require("tailwindcss-animate")],
   daisyui: {
     themes: ["light","dark","forest","lemonade","aqua","synthwave","night"]
   },

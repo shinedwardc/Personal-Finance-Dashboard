@@ -3,11 +3,10 @@ import "./App.css";
 import { useState, useEffect } from "react";
 import { ToastContainer } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
-import Sidebar from "./components/sidebar";
+import Navbar from "./components/Navbar";
 import Breakdown from "./components/breakdown";
 import List from "./components/list";
 import Calendar from "./components/Calendar";
-import Recurring from "./components/Recurring";
 import Connections from "./components/Connections";
 import PrivateRoute from "./components/privateRoute";
 import Login from "./components/Login";
@@ -85,8 +84,8 @@ function App() {
       <Router>
         <ToastContainer />
         <div>
-          <Sidebar authState={authState} setAuthState={setAuthState} />
-          <div className="flex-grow flex flex-col items-center justify-center mt-20">
+          <Navbar authState={authState} setAuthState={setAuthState} />
+          <div className="flex-grow flex flex-col items-center justify-center mt-16">
             <Routes>
               {/* Public routes */}
               <Route
