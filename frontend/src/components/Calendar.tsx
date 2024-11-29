@@ -81,7 +81,6 @@ const Calendar = ({
                   </h1>
                   <p className={info.event.start > new Date() ? "bg-red-500" : "bg-teal-800"}>
                     {info.event.extendedProps.amount}$
-                    {console.log(info.event.extendedProps)}
                   </p>
                 </div>
               )}

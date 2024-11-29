@@ -7,6 +7,7 @@ import Navbar from "./components/Navbar";
 import Breakdown from "./components/breakdown";
 import List from "./components/list";
 import Calendar from "./components/Calendar";
+import Stats from "./components/Stats";
 import Connections from "./components/Connections";
 import PrivateRoute from "./components/privateRoute";
 import Login from "./components/Login";
@@ -117,6 +118,14 @@ function App() {
                 element={
                   <PrivateRoute authState={authState}>
                     <Calendar data={data} isLoading={isDataLoading} />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/stats"
+                element={
+                  <PrivateRoute authState={authState}>
+                    <Stats data={data} isLoading={isDataLoading} />
                   </PrivateRoute>
                 }
               />
