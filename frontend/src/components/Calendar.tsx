@@ -65,7 +65,16 @@ const Calendar = ({
     <>
       {!isLoading ? (
         <>
-          <div className="w-7/12 ml-20">
+          <div className="stats bg-primary shadow">
+            <div className="stat place-items-center text-black">
+              <div className="stat-title text-black">Monthly spent</div>
+              <div className="stat-value">{monthlySpent}$</div>
+              <div className="stat-desc text-black">
+                {month}/{year}
+              </div>
+            </div>
+          </div>
+          <div className="w-7/12 ml-20 mb-20">
             <FullCalendar
               plugins={[dayGridPlugin]}
               initialView="dayGridMonth"
@@ -91,15 +100,6 @@ const Calendar = ({
               <div className="inline-block bg-red-500 text-red-500">*****</div>
               <p>: Upcoming recurring bill</p>            
             </div>            
-          </div>
-          <div className="stats shadow">
-            <div className="stat place-items-center">
-              <div className="stat-title">Monthly spent</div>
-              <div className="stat-value">{monthlySpent}$</div>
-              <div className="stat-desc">
-                {month}/{year}
-              </div>
-            </div>
           </div>
         </>
       ) : (

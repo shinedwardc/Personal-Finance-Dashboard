@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { ExpenseInterface } from "@/interfaces/interface";
-import { Area, AreaChart, CartesianGrid, XAxis } from "recharts"
+import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from "recharts"
 import { ChartConfig, ChartContainer } from "@/components/ui/chart"
 import { ChartTooltip, ChartTooltipContent } from "@/components/ui/chart"
 
@@ -19,30 +19,41 @@ const Stats = ({
   const chartConfig = {
     date: {
       label: "Total spent",
-      color: "#2563eb",
+      color: "#FF0000",
     },
   } satisfies ChartConfig
 
   useEffect(() => {
     if (data.length > 0){
-        const filtered = data.filter((expense) => (
-            expense.date.slice(5,7) === (currentDate.getMonth() + 1).toString()
+        const selectedMonthExpenses = data.filter((expense) => (
+            expense.date.slice(5,7) === ((currentDate.getMonth() + 1).toString())
         ));
-        const total = filtered.reduce(
+        const prevMonthExpenses = data.filter((expense) => (
+          expense.date.slice(5,7) === (currentDate.getMonth()).toString()
+        ));
+        console.log('prev month: ', prevMonthExpenses);
+        const total = selectedMonthExpenses.reduce(
             (sum,event) => sum + parseInt(event.amount), 0
         )
         setMonthlySpent(total);
         // Create a map to hold cumulative amounts by date
         const cumulativeAmountPerBy = new Map();
-
-
-        // Populate the map with filtered data
-        filtered.forEach(({ date, amount }) => {
+        // Filter data for the selected month and populate map
+        selectedMonthExpenses.forEach(({ date, amount }) => {
           const dateKey =
             date instanceof Date ? date.toISOString().split("T")[0] : date;
           const currentAmount = cumulativeAmountPerBy.get(dateKey) || 0;
           cumulativeAmountPerBy.set(dateKey, currentAmount + amount);
         });
+    
+        /*const prevMonthCumulativeAmountPerBy = new Map();
+        // Filter data for the month before the selected month and populate map
+        prevMonthExpenses.forEach(({ date, amount }) => {
+          const dateKey =
+            date instanceof Date ? date.toISOString().split("T")[0] : date;
+          const currentAmount = prevMonthCumulativeAmountPerBy.get(dateKey) || 0;
+          prevMonthCumulativeAmountPerBy.set(dateKey, currentAmount + amount);
+        })*/
 
         // Get the number of days in the current month
         const daysInCurrentMonth = new Date(
@@ -64,9 +75,17 @@ const Stats = ({
             currentDate.getMonth(),
             i + 1
           ).toISOString().split("T")[0];
+          /*const prevDateKey = new Date(
+            currentDate.getFullYear(),
+            currentDate.getMonth() - 1,
+            i + 1
+          ).toISOString().split("T")[0];*/
           if (!cumulativeAmountPerBy.has(dateKey)) {
             cumulativeAmountPerBy.set(dateKey, 0);
           }
+          /*if (!cumulativeAmountPerBy.has(prevDateKey)) {
+            cumulativeAmountPerBy.set(prevDateKey,0);
+          }*/
         }
         const sortedCumulativeAmountPerBy = new Map(
           [...cumulativeAmountPerBy.entries()].sort(([a], [b]) => {
@@ -86,23 +105,29 @@ const Stats = ({
         {"2024-11-27" => 42}*/
         const chartDataArray = [];
         let amount = 0;
+        let currMonth = sortedCumulativeAmountPerBy.keys().next().value.slice(5,7);
         for (const [key,value] of sortedCumulativeAmountPerBy.entries()){
+          if (key.slice(5,7) !== currMonth){
+            amount = 0;
+            currMonth = key.slice(5,7);
+          }
           amount += value;
           const dateAmount = {
-            date: key.slice(8,10),
+            date: key.slice(8,10)[0] === "0" ? key.slice(9,10) : key.slice(8,10),
             amount: amount
           }
           chartDataArray.push(dateAmount);
           sortedCumulativeAmountPerBy.set(key,amount);
         }
         setExpenseMap(sortedCumulativeAmountPerBy);
-        console.log(chartDataArray);
+        //console.log('sorted cumulative amount per by', sortedCumulativeAmountPerBy);
+        //console.log('chart data array',chartDataArray);
         setChartData(chartDataArray);
     }
   },[data,currentDate])
 
   const handleArrow = (e) => {
-    const increment = e.target.id === "leftArrow" ? -1 : 1;
+    const increment = e.currentTarget.id === "leftArrow" ? -1 : 1;
     setCurrentDate(
       new Date(currentDate.setMonth(currentDate.getMonth() + increment)),
     );
@@ -111,29 +136,27 @@ const Stats = ({
   return (
     <div className="w-2/3 ml-24">
         <div className="flex flex-row justify-start gap-1">
-        <button onClick={handleArrow}>
-          <svg
-            id="leftArrow"
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            strokeWidth={1.5}
-            stroke="currentColor"
-            className="size-6"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M15.75 19.5 8.25 12l7.5-7.5"
-            />
-          </svg>
-        </button>
-        <p>{currentDate.toISOString().split("T")[0].slice(0, 7)}</p>
-        {(new Date().getFullYear() !== currentDate.getFullYear() || 
-          new Date().getMonth() !== currentDate.getMonth()) && (
-            <button onClick={handleArrow}>
+          <button className = "bg-green-600" id="leftArrow" onClick={handleArrow}>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth={1.5}
+              stroke="currentColor"
+              className="size-6"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M15.75 19.5 8.25 12l7.5-7.5"
+              />
+            </svg>
+          </button>
+          <p>{currentDate.toISOString().split("T")[0].slice(0, 7)}</p>
+          {(new Date().getFullYear() !== currentDate.getFullYear() || 
+            new Date().getMonth() !== currentDate.getMonth()) && (
+            <button className="bg-green-600" id="rightArrow" onClick={handleArrow}>
               <svg
-                id="rightArrow"
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"
                 viewBox="0 0 24 24"
@@ -152,8 +175,8 @@ const Stats = ({
       </div>
       {!isLoading ? (
       <div className="flex justify-center flex-col">
-        <p>{monthlySpent}</p>
-        <ul>
+        <p className="m-5">{monthlySpent}$</p>
+        {/*<ul>
           {
             expenseMap.size > 0 && 
             Array.from(expenseMap).map(([date,amount]) => (
@@ -162,7 +185,7 @@ const Stats = ({
               </li>
             ))
           }
-        </ul>
+        </ul>*/}
         <div className="w-full">
           <ChartContainer config={chartConfig} className="min-h-[200px] w-full">
             <AreaChart accessibilityLayer data={chartData} 
@@ -176,11 +199,18 @@ const Stats = ({
               tickLine={false}
               axisLine={false}
               tickMargin={8}
-              tickFormatter={(value) => value.slice(0, 3)}
+              tickFormatter={(value) => value.slice(0,2)}
+            />
+            <YAxis
+              tickLine={false}
+              axisLine={false}
+              tickMargin={8}
+              tickCount={5} 
+              tickFormatter={(value) => value.toString() + "$"}
             />
             <ChartTooltip
               cursor={false}
-              content={<ChartTooltipContent indicator="dot" nameKey="date" hideLabel hideIndicator/>}
+              content={<ChartTooltipContent nameKey="date" hideIndicator/>}
             />
             <Area
               dataKey="amount"
@@ -197,7 +227,6 @@ const Stats = ({
         <>
         </>
       )}
-
     </div>
   );
 };

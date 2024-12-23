@@ -1,4 +1,6 @@
 /** @type {import('tailwindcss').Config} */
+import daisyui from 'daisyui';
+import tailwindcssAnimate from 'tailwindcss-animate';
 export default {
     darkMode: ["class"],
     content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
@@ -27,12 +29,7 @@ export default {
   		}
   	}
   },
-  purge: [
-    './src/**/*.html',
-    './src/**/*.js',
-    './src/**/*.tsx',    
-  ],
-  plugins: [require('daisyui'), require("tailwindcss-animate")],
+  plugins: [daisyui, tailwindcssAnimate],
   daisyui: {
     themes: ["light","dark","forest","lemonade","aqua","synthwave","night"]
   },

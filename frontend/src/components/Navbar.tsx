@@ -31,7 +31,7 @@ const Navbar = ({
   return (
     <>
       {authState.isLoggedIn ? (
-        <div className="drawer w-full text-white ">
+        <div className="drawer w-full text-white">
           <input id="my-drawer-3" type="checkbox" className="drawer-toggle" />
           <div className="navbar bg-green-800 w-full rounded mt-2">
             <div className="flex-none lg:hidden">

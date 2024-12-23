@@ -14,7 +14,6 @@ import {
 import { useEffect, useState, useMemo } from "react";
 import { ExpenseInterface, PlaidResponse } from "../interfaces/interface";
 import Form from "./Form";
-import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 
 ChartJS.register(
