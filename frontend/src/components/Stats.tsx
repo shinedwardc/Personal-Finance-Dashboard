@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { ExpenseInterface } from "@/interfaces/interface";
-import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from "recharts"
+import { Area, AreaChart, CartesianGrid, XAxis, YAxis, Legend } from "recharts"
 import { ChartConfig, ChartContainer } from "@/components/ui/chart"
 import { ChartTooltip, ChartTooltipContent } from "@/components/ui/chart"
 
@@ -46,15 +46,17 @@ const Stats = ({
           cumulativeAmountPerBy.set(dateKey, currentAmount + amount);
         });
     
-        /*const prevMonthCumulativeAmountPerBy = new Map();
+        const prevMonthCumulativeAmountPerBy = new Map();
         // Filter data for the month before the selected month and populate map
         prevMonthExpenses.forEach(({ date, amount }) => {
           const dateKey =
             date instanceof Date ? date.toISOString().split("T")[0] : date;
           const currentAmount = prevMonthCumulativeAmountPerBy.get(dateKey) || 0;
           prevMonthCumulativeAmountPerBy.set(dateKey, currentAmount + amount);
-        })*/
+        })
 
+        //const mergedMap = new Map([...prevMonthCumulativeAmountPerBy,...cumulativeAmountPerBy]);
+        //console.log('mergedmap ', mergedMap);
         // Get the number of days in the current month
         const daysInCurrentMonth = new Date(
           currentDate.getFullYear(),
@@ -75,11 +77,11 @@ const Stats = ({
             currentDate.getMonth(),
             i + 1
           ).toISOString().split("T")[0];
-          /*const prevDateKey = new Date(
+          const prevDateKey = new Date(
             currentDate.getFullYear(),
             currentDate.getMonth() - 1,
             i + 1
-          ).toISOString().split("T")[0];*/
+          ).toISOString().split("T")[0];
           if (!cumulativeAmountPerBy.has(dateKey)) {
             cumulativeAmountPerBy.set(dateKey, 0);
           }
@@ -193,7 +195,7 @@ const Stats = ({
                 left: 12,
                 right: 12,
               }}>
-            <CartesianGrid vertical={false} />
+            <CartesianGrid vertical={false} strokeDasharray="3 3"/>
             <XAxis
               dataKey="date"
               tickLine={false}
@@ -212,12 +214,14 @@ const Stats = ({
               cursor={false}
               content={<ChartTooltipContent nameKey="date" hideIndicator/>}
             />
+            <Legend />
             <Area
               dataKey="amount"
               type="linear"
               fill="var(--color-date)"
               fillOpacity={0.4}
               stroke="var(--color-date)"
+              name="Expense total trend"
             />
             </AreaChart>
           </ChartContainer>

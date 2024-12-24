@@ -9,6 +9,7 @@ import List from "./components/list";
 import Calendar from "./components/Calendar";
 import Stats from "./components/Stats";
 import Connections from "./components/Connections";
+import Profile from "./components/Profile";
 import PrivateRoute from "./components/privateRoute";
 import Login from "./components/Login";
 import Logout from "./components/Logout";
@@ -85,7 +86,7 @@ function App() {
         <ToastContainer />
         <div>
           <Navbar authState={authState} setAuthState={setAuthState} />
-          <div className="flex-grow flex flex-col items-center justify-center mt-16">
+          <div className="flex-grow flex flex-col items-center justify-center mr-[64px] mt-16">
             <Routes>
               {/* Public routes */}
               <Route
@@ -133,6 +134,14 @@ function App() {
                 element={
                   <PrivateRoute authState={authState}>
                     <Connections />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/profile"
+                element={
+                  <PrivateRoute authState={authState}>
+                    <Profile />
                   </PrivateRoute>
                 }
               />
