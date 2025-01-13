@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { ToastContainer } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
 import Navbar from "./components/Navbar";
-import Breakdown from "./components/breakdown";
+import Breakdown from "./components/Breakdown";
 import List from "./components/list";
 import Calendar from "./components/Calendar";
 import Stats from "./components/Stats";
@@ -18,6 +18,9 @@ import { ExpenseInterface, PlaidResponse, AuthState } from "./interfaces/interfa
 import { getAuthStatus, getExpense, fetchPlaidTransactions, fetchPlaidBalance } from "./api/api";
 import { useQuery } from "@tanstack/react-query";
 
+type Inputs = {
+  monthlyLimit: number
+}
 
 function App() {
   const [authState, setAuthState] = useState<AuthState>({
@@ -45,6 +48,12 @@ function App() {
     queryFn: fetchPlaidBalance,
     enabled: authState.isLoggedIn && authState.isPlaidConnected
   });
+
+  const [settings, setSettings] = useState<Inputs>({monthlyLimit: 0});
+
+  const handleSettingsForm = (data: Inputs) => {
+    setSettings(data);
+  }
 
   useEffect(() => {
     console.log("expenseData", expenseData);
@@ -101,7 +110,7 @@ function App() {
                 path="/"
                 element={
                   <PrivateRoute authState={authState}>
-                    <Breakdown data={data} setData={setData} isDataLoading={isDataLoading} plaidBalance={plaidBalance as PlaidResponse}/>
+                    <Breakdown data={data} settings={settings} setData={setData} isDataLoading={isDataLoading} plaidBalance={plaidBalance as PlaidResponse}/>
                   </PrivateRoute>
                 }
               />
@@ -141,7 +150,7 @@ function App() {
                 path="/profile"
                 element={
                   <PrivateRoute authState={authState}>
-                    <Profile />
+                    <Profile onFormSubmit={handleSettingsForm}/>
                   </PrivateRoute>
                 }
               />

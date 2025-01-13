@@ -28,13 +28,19 @@ ChartJS.register(
   RadialLinearScale,
 );
 
+type Inputs = {
+  monthlyLimit: number
+}
+
 const Breakdown = ({
   data,
   setData,
+  settings,
   isDataLoading,
   plaidBalance,
 }: {
   data: ExpenseInterface[];
+  settings: Inputs;
   setData: React.Dispatch<React.SetStateAction<ExpenseInterface[]>>;
   isDataLoading: boolean;
   plaidBalance: PlaidResponse;
@@ -301,6 +307,20 @@ const Breakdown = ({
                   <div className="card-body items-center text-center">
                     <h5 className="text-sm mb-2">Total Expenses</h5>
                     <h1 className="text-3xl font-bold">${total.toFixed(2)}</h1>
+                  </div>
+                </div>
+              </div>
+              <div className="flex justify-center">
+                <div className="card glass w-60 shadow-md transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
+                  <div className="card-body items-center text-center">
+                    <h5 className="text-sm mb-2">Monthly budget</h5>
+                    <h1 className="text-3xl font-bold">${settings.monthlyLimit}</h1>
+                    <h3 className={`text-sm ${settings.monthlyLimit - total.toFixed(2) < 0 ? 'text-red-400' : 'text-green-400'}`}>
+                      {settings.monthlyLimit - total.toFixed(2) < 0 
+                        ? `Spent over monthly budget limit by ${Math.abs(settings.monthlyLimit - total.toFixed(2)).toFixed(2)}$`
+                        : `Amount left until budget limit ${settings.monthlyLimit - total.toFixed(2)}$`
+                      }
+                    </h3>
                   </div>
                 </div>
               </div>
