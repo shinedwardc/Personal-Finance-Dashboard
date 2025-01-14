@@ -29,8 +29,8 @@ ChartJS.register(
 );
 
 type Inputs = {
-  monthlyLimit: number
-}
+  monthlyLimit: number;
+};
 
 const Breakdown = ({
   data,
@@ -249,100 +249,110 @@ const Breakdown = ({
               Expense Tracker
             </h1>
           </div>
-          <div className="flex flex-row justify-between w-full space-x-4">
-            <div className="flex flex-col p-2 justify-start w-1/3 bg-green-800 rounded-xl">
-              <div className="w-full">
-                <h2 className="text-center mt-3 mb-3 font-ubuntu text-2xl">
-                  Expense overall summary
-                </h2>
-                <div className="flex flex-row justify-between text-center">
-                  <div className="flex-1">
-                    <label htmlFor="graph-select">Graph style: </label>
-                    <br />
-                    <select
-                      className="select select-bordered select-sm"
-                      id="graph-select"
-                      value={graphType}
-                      onChange={handleGraphSelect}
-                    >
-                      <option value="bar">Bar graph</option>
-                      <option value="line">Line graph</option>
-                    </select>
+          {data.length > 0 ? (
+            <div className="flex flex-row justify-between w-full space-x-4">
+              <div className="flex flex-col p-2 justify-start w-1/3 bg-green-800 rounded-xl">
+                <div className="w-full">
+                  <h2 className="text-center mt-3 mb-3 font-ubuntu text-2xl">
+                    Expense overall summary
+                  </h2>
+                  <div className="flex flex-row justify-between text-center">
+                    <div className="flex-1">
+                      <label htmlFor="graph-select">Graph style: </label>
+                      <br />
+                      <select
+                        className="select select-bordered select-sm"
+                        id="graph-select"
+                        value={graphType}
+                        onChange={handleGraphSelect}
+                      >
+                        <option value="bar">Bar graph</option>
+                        <option value="line">Line graph</option>
+                      </select>
+                    </div>
                   </div>
-                </div>
-                <div className="flex justify-center items-center">
+                  <div className="flex justify-center items-center">
                     {graph}
-                </div>
-              </div>
-            </div>
-            <div className="w-1 bg-slate-300 px-1 mx-2"></div>
-            <div className="overflow-x-auto w-1/3 bg-emerald-800 rounded-xl">
-              <table className="table">
-                <thead className="text-center">
-                  <tr>
-                    <th className="border-r">Category</th>
-                    <th>Amount sum</th>
-                  </tr>
-                </thead>
-                <tbody className="text-center">
-                  {!categoryLoading &&
-                    categories.length > 0 &&
-                    categories.map((category) => (
-                      <tr key={category}>
-                        <td className="border-r">{category}</td>
-                        <td>
-                          {categoryTotals[category]
-                            ? categoryTotals[category].toFixed(2)
-                            : 0}
-                        </td>
-                      </tr>
-                    ))}
-                </tbody>
-              </table>
-            </div>
-            <div className="w-1 bg-slate-300 px-1 mx-2"></div>
-            <div className="w-1/3 bg-teal-800 rounded-xl flex flex-col justify-evenly">
-              <div className="flex justify-center">
-                <div className="card glass w-60 shadow-md transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
-                  <div className="card-body items-center text-center">
-                    <h5 className="text-sm mb-2">Total Expenses</h5>
-                    <h1 className="text-3xl font-bold">${total.toFixed(2)}</h1>
                   </div>
                 </div>
               </div>
-              <div className="flex justify-center">
-                <div className="card glass w-60 shadow-md transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
-                  <div className="card-body items-center text-center">
-                    <h5 className="text-sm mb-2">Monthly budget</h5>
-                    <h1 className="text-3xl font-bold">${settings.monthlyLimit}</h1>
-                    <h3 className={`text-sm ${settings.monthlyLimit - total.toFixed(2) < 0 ? 'text-red-400' : 'text-green-400'}`}>
-                      {settings.monthlyLimit - total.toFixed(2) < 0 
-                        ? `Spent over monthly budget limit by ${Math.abs(settings.monthlyLimit - total.toFixed(2)).toFixed(2)}$`
-                        : `Amount left until budget limit ${settings.monthlyLimit - total.toFixed(2)}$`
-                      }
-                    </h3>
+              <div className="w-1 bg-slate-300 px-1 mx-2"></div>
+              <div className="overflow-x-auto w-1/3 bg-emerald-800 rounded-xl">
+                <table className="table">
+                  <thead className="text-center">
+                    <tr>
+                      <th className="border-r">Category</th>
+                      <th>Amount sum</th>
+                    </tr>
+                  </thead>
+                  <tbody className="text-center">
+                    {!categoryLoading &&
+                      categories.length > 0 &&
+                      categories.map((category) => (
+                        <tr key={category}>
+                          <td className="border-r">{category}</td>
+                          <td>
+                            {categoryTotals[category]
+                              ? categoryTotals[category].toFixed(2)
+                              : 0}
+                          </td>
+                        </tr>
+                      ))}
+                  </tbody>
+                </table>
+              </div>
+              <div className="w-1 bg-slate-300 px-1 mx-2"></div>
+              <div className="w-1/3 bg-teal-800 rounded-xl flex flex-col justify-evenly">
+                <div className="flex justify-center">
+                  <div className="card glass w-60 shadow-md transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
+                    <div className="card-body items-center text-center">
+                      <h5 className="text-sm mb-2">Total Expenses</h5>
+                      <h1 className="text-3xl font-bold">
+                        ${total.toFixed(2)}
+                      </h1>
+                    </div>
                   </div>
                 </div>
-              </div>
-              <div className="flex justify-center">
-                <div className="card glass w-60 shadow-md transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
-                  <div className="card-body items-center text-center">
-                    <h5 className="text-sm mb-2">
-                      Current total account balance
-                    </h5>
-                    <h1 className="text-3xl font-bold">${balance}</h1>
+                <div className="flex justify-center">
+                  <div className="card glass w-60 shadow-md transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
+                    <div className="card-body items-center text-center">
+                      <h5 className="text-sm mb-2">Monthly budget</h5>
+                      <h1 className="text-3xl font-bold">
+                        ${settings.monthlyLimit}
+                      </h1>
+                      <h3
+                        className={`text-sm ${settings.monthlyLimit - total.toFixed(2) < 0 ? "text-red-400" : "text-green-400"}`}
+                      >
+                        {settings.monthlyLimit - total.toFixed(2) < 0
+                          ? `Spent over monthly budget limit by ${Math.abs(settings.monthlyLimit - total.toFixed(2)).toFixed(2)}$`
+                          : `Amount left until budget limit ${settings.monthlyLimit - total.toFixed(2)}$`}
+                      </h3>
+                    </div>
+                  </div>
+                </div>
+                <div className="flex justify-center">
+                  <div className="card glass w-60 shadow-md transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
+                    <div className="card-body items-center text-center">
+                      <h5 className="text-sm mb-2">
+                        Current total account balance
+                      </h5>
+                      <h1 className="text-3xl font-bold">${balance}</h1>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
-          </div>
+          ) : (
+            <div>
+              <h2 className="font-semibold font-ubuntu">Welcome to Expense Tracker! Add some new expenses below or go to the Expenses page to add some</h2>
+            </div>
+          )}
+
           <div className="flex justify-center mt-8">
             {/* Open the modal using document.getElementById('ID').showModal() method */}
             <button
               className="btn btn-success"
-              onClick={() =>
-                document.getElementById("my_modal_1").showModal()
-              }
+              onClick={() => document.getElementById("my_modal_1").showModal()}
             >
               Add new expense
             </button>
