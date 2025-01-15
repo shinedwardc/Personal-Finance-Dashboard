@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from .models import Expense
+from .models import Expense, UserProfile
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework import status
@@ -64,17 +64,41 @@ def get_user(request):
 
 @api_view(['POST'])
 def user_post(request):
+    # Check user input data from request
     username = request.data.get('username')
     password = request.data.get('password')
     email = request.data.get('email')
     first_name = request.data.get('fName')
     last_name = request.data.get('lName')
+    monthly_budget = request.data.get('monthlyBudget')
+    # Check if username already exists, prevents duplicate usernames
     if User.objects.filter(username=username).exists():
         return Response({'error': 'Username already exists.'}, status=status.HTTP_400_BAD_REQUEST)
-    user = User(username=username, password=make_password(password), email=email, first_name=first_name, last_name=last_name)
+    user = User(
+        username=username,
+        password=make_password(password),
+        email=email,
+        first_name=first_name,
+        last_name=last_name,
+    )
     user.save()
 
+    # Save user profile settings (monthly budget)
+    user_profile, created = UserProfile.objects.get_or_create(user=user)
+    user_profile.monthly_budget = monthly_budget
+    user_profile.save()
+
     return Response({'message': 'User created successfully.'}, status=status.HTTP_201_CREATED)
+
+@api_view(['POST'])
+def update_monthly_budget(request):
+    user = request.user
+    monthly_budget = request.data.get('monthlyBudget')
+    if not monthly_budget:
+        return Response({'error': 'Monthly budget is required.'}, status=status.HTTP_400_BAD_REQUEST)
+    user.monthly_budget = monthly_budget
+    user.save()
+    return Response({'message': 'Monthly budget updated successfully.'}, status=status.HTTP_200_OK)
 
 @api_view(['GET'])
 def get_currency_exchange(request,from_currency, to_currency):

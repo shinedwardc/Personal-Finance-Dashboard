@@ -13,7 +13,7 @@ import Profile from "./components/Profile";
 import PrivateRoute from "./components/privateRoute";
 import Login from "./components/Login";
 import Logout from "./components/Logout";
-import Signup from './components/signup';
+import Signup from './components/Signup';
 import { ExpenseInterface, PlaidResponse, AuthState } from "./interfaces/interface";
 import { getAuthStatus, getExpense, fetchPlaidTransactions, fetchPlaidBalance } from "./api/api";
 import { useQuery } from "@tanstack/react-query";

@@ -1,7 +1,11 @@
 from django.db import models
 from django.contrib.auth.models import User
-# Create your models here.
-    
+
+# Create or update the profile when a user is created or saved
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+
+# Expense model    
 class Expense(models.Model):
     id = models.AutoField(primary_key=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -34,3 +38,16 @@ class Expense(models.Model):
     def __str__(self) -> str:
         return f"User {self.user}, spent {self.amount}, category is {self.category}, this was created at {self.created_at}"
     
+
+class UserProfile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    monthly_budget = models.IntegerField(blank=True, null=True)
+
+    def __str__(self) -> str:
+        return f"{self.user.username} has a budget limit of {self.monthly_budget}"
+    
+@receiver(post_save, sender=User)
+def create_or_update_user_profile(sender, instance, created, **kwargs):
+    if created:
+        UserProfile.objects.create(user=instance)
+    instance.userprofile.save()

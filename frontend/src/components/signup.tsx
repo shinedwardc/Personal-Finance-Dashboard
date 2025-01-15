@@ -5,12 +5,13 @@ import { useNavigate } from "react-router-dom";
 const Signup = () => {
   const navigate = useNavigate();
 
-  const [username, setUsername] = useState("");
-  const [email, setEmail] = useState("");
-  const [fName, setFName] = useState("");
-  const [lName, setLName] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
+  const [username, setUsername] = useState<string>("");
+  const [email, setEmail] = useState<string>("");
+  const [fName, setFName] = useState<string>("");
+  const [lName, setLName] = useState<string>("");
+  const [password, setPassword] = useState<string>("");
+  const [confirmPassword, setConfirmPassword] = useState<string>("");
+  const [monthlyBudget, setMonthlyBudget] = useState<number | null>(null);
 
   const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -18,6 +19,7 @@ const Signup = () => {
       alert("Passwords do not match.");
       return;
     }
+    console.log(monthlyBudget);
     try {
       const response = await axios.post("http://localhost:8000/signup/", {
         username,
@@ -25,6 +27,7 @@ const Signup = () => {
         email,
         fName,
         lName,
+        monthlyBudget,
       });
       if (response.status === 201) {
         console.log("here");
@@ -38,65 +41,77 @@ const Signup = () => {
   return (
     <form onSubmit={handleFormSubmit}>
       <div className="mb-2">
-        <label className="block text-sm font-medium">Username:</label>
+        <label className="block text-sm font-medium">Username *</label>
         <input
           type="text"
           value={username}
-          className="bg-gray-50 border border-gray-300"
+          required={true}
+          className="border border-gray-300"
           onChange={(e) => setUsername(e.target.value)}
         />
       </div>
       <div className="flex flex-wrap gap-5">
         <div className="mb-2">
-          <label className="block text-sm font-medium">First name:</label>
+          <label className="block text-sm font-medium">First name </label>
           <input
             type="text"
             value={fName}
-            className="bg-gary-50 border border-gray-300"
+            className="border border-gray-300"
             onChange={(e) => setFName(e.target.value)}
           />
         </div>
         <div className="mb-2">
-          <label className="block text-sm font-medium">Last name:</label>
+          <label className="block text-sm font-medium">Last name </label>
           <input
             type="text"
             value={lName}
-            className="bg-gary-50 border border-gray-300"
+            className="border border-gray-300"
             onChange={(e) => setLName(e.target.value)}
           />
         </div>
         <div className="mb-2">
-          <label className="block text-sm font-medium">Email:</label>
+          <label className="block text-sm font-medium">Email *</label>
           <input
             type="email"
             value={email}
-            className="bg-gary-50 border border-gray-300"
+            required={true}
+            className="border border-gray-300"
             onChange={(e) => setEmail(e.target.value)}
           />
         </div>
       </div>
       <div className="mb-2">
-        <label className="block text-sm font-medium">Password:</label>
+        <label className="block text-sm font-medium">Password *</label>
         <input
           type="password"
           minLength={2}
           maxLength={16}
           required={true}
           value={password}
-          className="bg-gary-50 border border-gray-300"
+          className="border border-gray-300"
           onChange={(e) => setPassword(e.target.value)}
         />
       </div>
-      <div>
-        <label className="block text-sm font-medium">Re-type password:</label>
+      <div className="mb-2">
+        <label className="block text-sm font-medium">Re-type password *</label>
         <input
           type="password"
           minLength={2}
           maxLength={16}
           required={true}
           value={confirmPassword}
-          className="bg-gary-50 border border-gray-300"
+          className="border border-gray-300"
           onChange={(e) => setConfirmPassword(e.target.value)}
+        />
+      </div>
+      <div>
+        <label className="block text-sm font-medium">Monthly budget </label>
+        <input
+          type="number"
+          required={false}
+          value={monthlyBudget !== null ? monthlyBudget : ''}
+          className="border border-gray-300"
+          onChange={(e) => setMonthlyBudget(e.target.value === '' ? null : parseInt(e.target.value))}
         />
       </div>
       <button className="mt-1 text-white bg-green-400 rounded-lg">

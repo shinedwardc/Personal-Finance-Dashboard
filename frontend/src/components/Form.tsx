@@ -62,6 +62,7 @@ const Form = ({ onFormSubmit }: formProps) => {
         console.log("Error message:", error.message);
       }
     }
+    setCategoryNames((prev) => [...prev, categoryToSubmit]);
   };
 
   return (
@@ -82,6 +83,8 @@ const Form = ({ onFormSubmit }: formProps) => {
         <label htmlFor="category" className="block">
           Category
         </label>
+        {categoryNames.length > 0 && 
+        customCategory.length === 0 &&
         <div className="flex items-center space-x-4">
           <select
             id="category"
@@ -96,18 +99,17 @@ const Form = ({ onFormSubmit }: formProps) => {
               </option>
             ))}
           </select>
-        </div>
-        {selectedCategory.length <= 0 && (
-          <div className="mt-3">
-            <input
-              type="text"
-              placeholder="New custom category"
-              value={customCategory}
-              onChange={(e) => setCustomCategory(e.target.value)}
-              className="input input-bordered p-2 rounded"
-            />
-          </div>
-        )}
+        </div>}
+        {selectedCategory.length <= 0 && 
+        <div className="mt-3">
+          <input
+            type="text"
+            placeholder="New custom category"
+            value={customCategory}
+            onChange={(e) => setCustomCategory(e.target.value)}
+            className="input input-bordered p-2 rounded"
+          />
+        </div>}
       </div>
       <div className="mt-2 mb-2">
         <div className="mb-1">

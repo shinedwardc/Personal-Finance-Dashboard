@@ -11,7 +11,7 @@ import {
   Legend,
   RadialLinearScale,
 } from "chart.js";
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useRef } from "react";
 import { ExpenseInterface, PlaidResponse } from "../interfaces/interface";
 import Form from "./Form";
 import "react-datepicker/dist/react-datepicker.css";
@@ -54,6 +54,8 @@ const Breakdown = ({
   const [categories, setCategories] = useState<string[]>([]);
   const [categoryLoading, setCategoryLoading] = useState<boolean>(true);
   const [graphType, setGraphType] = useState<string>("bar");
+
+  const modalRef = useRef<HTMLDialogElement>(null);
 
   useEffect(() => {
     const initialize = async () => {
@@ -238,6 +240,9 @@ const Breakdown = ({
     } catch (error) {
       console.error("Failed to refetch expenses:", error);
     }
+    if (modalRef.current) {
+      modalRef.current.close();
+    }
   };
 
   return (
@@ -347,7 +352,6 @@ const Breakdown = ({
               <h2 className="font-semibold font-ubuntu">Welcome to Expense Tracker! Add some new expenses below or go to the Expenses page to add some</h2>
             </div>
           )}
-
           <div className="flex justify-center mt-8">
             {/* Open the modal using document.getElementById('ID').showModal() method */}
             <button
@@ -356,7 +360,7 @@ const Breakdown = ({
             >
               Add new expense
             </button>
-            <dialog id="my_modal_1" className="modal">
+            <dialog id="my_modal_1" className="modal" ref={modalRef}>
               <div className="modal-box">
                 {/* Close Button */}
                 <form method="dialog">
@@ -365,7 +369,7 @@ const Breakdown = ({
                     ✕
                   </button>
                 </form>
-                <div className="">
+                <div>
                   <Form onFormSubmit={refetchExpenses} />
                 </div>
               </div>
