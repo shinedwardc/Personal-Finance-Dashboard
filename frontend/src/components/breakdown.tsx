@@ -12,7 +12,11 @@ import {
   RadialLinearScale,
 } from "chart.js";
 import { useEffect, useState, useMemo, useRef } from "react";
-import { ExpenseInterface, PlaidResponse } from "../interfaces/interface";
+import {
+  ExpenseInterface,
+  PlaidResponse,
+  Settings,
+} from "../interfaces/interface";
 import Form from "./Form";
 import "react-datepicker/dist/react-datepicker.css";
 
@@ -28,10 +32,6 @@ ChartJS.register(
   RadialLinearScale,
 );
 
-type Inputs = {
-  monthlyLimit: number;
-};
-
 const Breakdown = ({
   data,
   setData,
@@ -40,7 +40,7 @@ const Breakdown = ({
   plaidBalance,
 }: {
   data: ExpenseInterface[];
-  settings: Inputs;
+  settings: Settings;
   setData: React.Dispatch<React.SetStateAction<ExpenseInterface[]>>;
   isDataLoading: boolean;
   plaidBalance: PlaidResponse;
@@ -323,14 +323,14 @@ const Breakdown = ({
                     <div className="card-body items-center text-center">
                       <h5 className="text-sm mb-2">Monthly budget</h5>
                       <h1 className="text-3xl font-bold">
-                        ${settings.monthlyLimit}
+                        ${settings.monthlyBudget}
                       </h1>
                       <h3
-                        className={`text-sm ${settings.monthlyLimit - total.toFixed(2) < 0 ? "text-red-400" : "text-green-400"}`}
+                        className={`text-sm ${settings.monthlyBudget - Number(total.toFixed(2)) < 0 ? "text-red-400" : "text-green-400"}`}
                       >
-                        {settings.monthlyLimit - total.toFixed(2) < 0
-                          ? `Spent over monthly budget limit by ${Math.abs(settings.monthlyLimit - total.toFixed(2)).toFixed(2)}$`
-                          : `Amount left until budget limit ${settings.monthlyLimit - total.toFixed(2)}$`}
+                        {settings.monthlyBudget - Number(total.toFixed(2)) < 0
+                          ? `Spent over monthly budget limit by ${Math.abs(settings.monthlyBudget - Number(total.toFixed(2))).toFixed(2)}$`
+                          : `Amount left until budget limit ${settings.monthlyBudget - Number(total.toFixed(2))}$`}
                       </h3>
                     </div>
                   </div>
@@ -349,7 +349,10 @@ const Breakdown = ({
             </div>
           ) : (
             <div>
-              <h2 className="font-semibold font-ubuntu">Welcome to Expense Tracker! Add some new expenses below or go to the Expenses page to add some</h2>
+              <h2 className="font-semibold font-ubuntu">
+                Welcome to Expense Tracker! Add some new expenses below or go to
+                the Expenses page to add some
+              </h2>
             </div>
           )}
           <div className="flex justify-center mt-8">

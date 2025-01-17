@@ -90,14 +90,24 @@ def user_post(request):
 
     return Response({'message': 'User created successfully.'}, status=status.HTTP_201_CREATED)
 
+@api_view(['GET'])
+@check_authentication
+def get_profile_settings(request):
+    user = request.user
+    user_profile = UserProfile.objects.get(user=user)
+    return Response({'monthlyBudget': user_profile.monthly_budget}, status=status.HTTP_200_OK)
+
 @api_view(['POST'])
+@check_authentication
 def update_monthly_budget(request):
     user = request.user
     monthly_budget = request.data.get('monthlyBudget')
+    user_profile = UserProfile.objects.get(user=user)
+    print(user_profile)
     if not monthly_budget:
         return Response({'error': 'Monthly budget is required.'}, status=status.HTTP_400_BAD_REQUEST)
-    user.monthly_budget = monthly_budget
-    user.save()
+    user_profile.monthly_budget = monthly_budget
+    user_profile.save()
     return Response({'message': 'Monthly budget updated successfully.'}, status=status.HTTP_200_OK)
 
 @api_view(['GET'])

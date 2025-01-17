@@ -14,15 +14,14 @@ import PrivateRoute from "./components/privateRoute";
 import Login from "./components/Login";
 import Logout from "./components/Logout";
 import Signup from './components/Signup';
-import { ExpenseInterface, PlaidResponse, AuthState } from "./interfaces/interface";
-import { getAuthStatus, getExpense, fetchPlaidTransactions, fetchPlaidBalance } from "./api/api";
-import { useQuery } from "@tanstack/react-query";
+import { ExpenseInterface, PlaidResponse, AuthState, Settings } from "./interfaces/interface";
+import { getAuthStatus, getExpense, fetchPlaidTransactions, fetchPlaidBalance, fetchProfileSettings, updateBudgetLimit } from "./api/api";
+import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 
-type Inputs = {
-  monthlyLimit: number
-}
+
 
 function App() {
+  const queryClient = useQueryClient();
   const [authState, setAuthState] = useState<AuthState>({
     isLoggedIn: false,
     isPlaidConnected: false,
@@ -49,15 +48,29 @@ function App() {
     enabled: authState.isLoggedIn && authState.isPlaidConnected
   });
 
-  const [settings, setSettings] = useState<Inputs>({monthlyLimit: 0});
+  const {data: settingsData, isLoading: settingsLoading} = useQuery({
+    queryKey: ['settings', authState.isLoggedIn],
+    queryFn: fetchProfileSettings,
+    enabled: authState.isLoggedIn
+  });
 
-  const handleSettingsForm = (data: Inputs) => {
-    setSettings(data);
+  const mutation = useMutation({
+    mutationFn: (data: Settings) => {
+      return updateBudgetLimit(data);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(['settings',authState.isLoggedIn]);
+    }
+  })
+
+  const handleSettingsForm = (data: Settings) : void => {
+    //updateBudgetLimit(data);
+    mutation.mutate(data);
   }
 
   useEffect(() => {
-    console.log("expenseData", expenseData);
-    console.log("plaidData", plaidData);
+    //console.log("expenseData", expenseData);
+    //console.log("plaidData", plaidData);
     if (expenseData) {
       setData(expenseData);
     }
@@ -75,7 +88,7 @@ function App() {
     }
   }, [plaidBalanceData]);
 
-  const isDataLoading = authState.isLoading || expenseLoading || plaidLoading || plaidBalanceLoading;
+  const isDataLoading = authState.isLoading || expenseLoading || plaidLoading || plaidBalanceLoading || settingsLoading;
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -110,7 +123,7 @@ function App() {
                 path="/"
                 element={
                   <PrivateRoute authState={authState}>
-                    <Breakdown data={data} settings={settings} setData={setData} isDataLoading={isDataLoading} plaidBalance={plaidBalance as PlaidResponse}/>
+                    <Breakdown data={data} settings={settingsData} setData={setData} isDataLoading={isDataLoading} plaidBalance={plaidBalance as PlaidResponse}/>
                   </PrivateRoute>
                 }
               />
@@ -150,7 +163,7 @@ function App() {
                 path="/profile"
                 element={
                   <PrivateRoute authState={authState}>
-                    <Profile onFormSubmit={handleSettingsForm}/>
+                    <Profile settings={settingsData} isLoading={settingsLoading} onFormSubmit={handleSettingsForm}/>
                   </PrivateRoute>
                 }
               />

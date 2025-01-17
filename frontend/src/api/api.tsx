@@ -1,5 +1,5 @@
 import axios, {AxiosInstance} from "axios";
-import { ExpenseInterface } from "../interfaces/interface";
+import { ExpenseInterface, Settings } from "../interfaces/interface";
 
 const api: AxiosInstance = axios.create({
   baseURL: 'http://localhost:8000',
@@ -125,5 +125,27 @@ export const fetchPlaidBalance = async () => {
     return response.data;
   } catch (error) {
     console.error(error);
+  }
+};
+
+export const fetchProfileSettings = async () => {
+  try {
+    const response = await api.get("/get-profile-settings/");
+    return response.data;
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+export const updateBudgetLimit = async (data : Settings) => {
+  try {
+    console.log(data);
+    const response = await api.post("/update_monthly_budget/", {
+      monthlyBudget: data.monthlyBudget,
+    });
+    console.log(response.data);
+    return response.data;
+  } catch (error) {
+    console.error("Error updating budget limit:", error);
   }
 }

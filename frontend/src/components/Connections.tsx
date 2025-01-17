@@ -1,4 +1,4 @@
-import Plaid from "./plaid";
+import Plaid from "./Plaid";
 
 const Connections = () => {
   return (

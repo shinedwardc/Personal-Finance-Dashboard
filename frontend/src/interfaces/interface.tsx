@@ -59,3 +59,7 @@ interface Item {
   update_type: string;
   webhook: string;
 }
+
+export interface Settings {
+  monthlyBudget: number;
+}
