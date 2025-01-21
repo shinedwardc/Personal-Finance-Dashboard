@@ -59,7 +59,7 @@ function App() {
       return updateBudgetLimit(data);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries(['settings',authState.isLoggedIn]);
+      queryClient.invalidateQueries({queryKey: ['settings',authState.isLoggedIn]});
     }
   })
 

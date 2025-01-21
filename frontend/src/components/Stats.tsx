@@ -25,9 +25,12 @@ const Stats = ({
 
   useEffect(() => {
     if (data.length > 0){
-        const selectedMonthExpenses = data.filter((expense) => (
-            expense.date.slice(5,7) === ((currentDate.getMonth() + 1).toString())
-        ));
+        const selectedMonthExpenses = data.filter((expense) => {
+          if (expense.date.slice(5,6) === "0"){
+            return expense.date.slice(6,7) === ((currentDate.getMonth() + 1).toString())
+          }
+          return expense.date.slice(5,7) === ((currentDate.getMonth() + 1).toString())
+        });
         const prevMonthExpenses = data.filter((expense) => (
           expense.date.slice(5,7) === (currentDate.getMonth()).toString()
         ));
@@ -122,8 +125,8 @@ const Stats = ({
           sortedCumulativeAmountPerBy.set(key,amount);
         }
         setExpenseMap(sortedCumulativeAmountPerBy);
-        //console.log('sorted cumulative amount per by', sortedCumulativeAmountPerBy);
-        //console.log('chart data array',chartDataArray);
+        console.log('sorted cumulative amount per by', sortedCumulativeAmountPerBy);
+        console.log('chart data array',chartDataArray);
         setChartData(chartDataArray);
     }
   },[data,currentDate])
