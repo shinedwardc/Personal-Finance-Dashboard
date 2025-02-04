@@ -24,13 +24,28 @@ api.interceptors.request.use(
 
 api.interceptors.response.use(
   (response) => response,
-  (error) => {
-    if (error.response && error.response.status === 401) {
-      localStorage.removeItem('accessToken');
-      // Redirect to login page
-      window.location.href = '/login';
+  async (error) => {
+    if (error.response && error.response.status === 401 && !error.config._retry) {
+      error.config._retry = true;
+      try {
+        const response = await axios.post('http://localhost:8000/api/token/refresh/', {
+          refresh: localStorage.getItem('refreshToken')
+        });
+        const { access } = response.data;
+        console.log('refreshed, here is the response data of refresh: ', response.data);
+        localStorage.setItem('accessToken', access);
+        error.config.headers['Authorization'] = `Bearer ${access}`;
+        return api(error.config);
+      } catch (refreshError) {
+        // If refresh fails, logout the user
+        localStorage.removeItem('accessToken');
+        localStorage.removeItem('refreshToken');
+        // Redirect to login page or dispatch a logout action
+        window.location.href = '/login';
+        return Promise.reject(refreshError);
+      }
     }
-    return Promise.reject(error);
+  return Promise.reject(error);
   }
 );
 
