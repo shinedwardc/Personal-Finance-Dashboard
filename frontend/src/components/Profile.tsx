@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { Settings } from "../interfaces/interface";
+import Connections from "./Connections";
 
 const Profile = ({
   settings,
@@ -26,7 +27,7 @@ const Profile = ({
 
   return (
     <>
-      <div className="flex w-1/2 flex-row p-4 bg-green-600 gap-x-4 h-64">
+      <div className="flex w-1/2 flex-row p-4 bg-green-600 gap-x-2 h-86 rounded-xl">
         <div className="pr-4">
           <ul className="text-center flex flex-col h-full">
             <li className="font-bold text-4xl mb-2">Settings</li>
@@ -38,13 +39,13 @@ const Profile = ({
             </li>
             <li
               className="rounded-full p-1 mb-1"
-              onClick={() => setView("Notifications")}
+              onClick={() => setView("Connections")}
             >
-              <button className="btn btn-accent">Notifications</button>
+              <button className="btn btn-accent">Connections</button>
             </li>
           </ul>
         </div>
-        <div className="w-[2px] bg-gray-800"></div>
+        <div className="p-0.5 bg-gray-800"></div>
         <div className="w-full p-4">
           <div className="mb-2">
             <p className="text-bold text-2xl">{view}</p>
@@ -71,12 +72,22 @@ const Profile = ({
                       className="btn btn-accent"
                       type="submit"
                       value="Submit"
+                      onClick={() => console.log('submitted')}
                     />
                   </div>
                 </form>
               </div>
             </>
           )}
+          {
+            view === "Connections" && (
+              <>
+                <div className="my-2">
+                  <Connections />
+                </div>
+              </>
+            )
+          }
         </div>
       </div>
     </>

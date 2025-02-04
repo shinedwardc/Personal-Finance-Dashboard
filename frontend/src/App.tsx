@@ -5,7 +5,7 @@ import { ToastContainer } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
 import Navbar from "./components/Navbar";
 import Breakdown from "./components/Breakdown";
-import List from "./components/list";
+import List from "./components/List";
 import Calendar from "./components/Calendar";
 import Stats from "./components/Stats";
 import Connections from "./components/Connections";
@@ -148,14 +148,6 @@ function App() {
                 element={
                   <PrivateRoute authState={authState}>
                     <Stats data={data} isLoading={isDataLoading} />
-                  </PrivateRoute>
-                }
-              />
-              <Route
-                path="/connections"
-                element={
-                  <PrivateRoute authState={authState}>
-                    <Connections />
                   </PrivateRoute>
                 }
               />

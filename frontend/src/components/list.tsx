@@ -1,4 +1,4 @@
-import Expense from "./expense";
+import Expense from "./Expense";
 import { ExpenseInterface } from "../interfaces/interface";
 import Form from "./Form";
 import Recurring from "./Recurring";
