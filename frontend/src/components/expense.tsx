@@ -41,7 +41,7 @@ const Expense = ({
         {typeof data.id === "number" ? data.category : "*" + data.category}
       </td>
       <td className="text-base text-center">
-        {data.amount}
+        {data.amount < 0 ? "+" + (data.amount * -1).toString() : data.amount * -1}
         {currencies[data.currency as keyof Currency]}
       </td>
       <td className="text-base text-center">{data.currency.toUpperCase()}</td>

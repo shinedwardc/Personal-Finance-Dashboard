@@ -50,7 +50,8 @@ const Calendar = ({
         const eventDate = new Date(event.start);
         return (
           eventDate.getMonth() === currentMonth &&
-          eventDate.getFullYear() === currentYear
+          eventDate.getFullYear() === currentYear &&
+          event.amount >= 0
         );
       });
       const totalAmount = filteredEvents.reduce(
@@ -89,7 +90,7 @@ const Calendar = ({
                     {info.event.title}
                   </h1>
                   <p className={info.event.start > new Date() ? "bg-red-500" : "bg-teal-800"}>
-                    {info.event.extendedProps.amount}$
+                    {info.event.extendedProps.amount < 0 ? "+" + info.event.extendedProps.amount * -1 : "-" + info.event.extendedProps.amount}$
                   </p>
                 </div>
               )}

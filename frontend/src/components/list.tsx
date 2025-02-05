@@ -96,6 +96,9 @@ const List = ({
       {!isLoading ? (
         data.length > 0 ? (
           <>
+            <div>
+              <h1 className="text-xl antialiased">Full detailed list</h1>
+            </div>
             <div className="mb-2 border-cyan-500 overflow-x-auto">
               {/*<div className="mb-4 flex justify-center">
                 <label className="input input-bordered flex items-center w-64 gap-2">
@@ -112,6 +115,9 @@ const List = ({
                   </svg>
                 </label>
               </div>*/}
+              <div className="mb-1">
+                <h2 className="text-lg">Withdrawals / Deposits</h2>
+              </div>
               <table className="table table-auto bg-green-800 border-collapse border border-slate-400 text-sm text-center">
                 <thead>
                   <tr>
