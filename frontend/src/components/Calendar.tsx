@@ -2,6 +2,7 @@ import { useRef, useEffect, useState } from "react";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import { ExpenseInterface } from "../interfaces/interface";
+import { useSpring, animated } from "@react-spring/web";
 
 const Calendar = ({
   data,
@@ -28,6 +29,13 @@ const Calendar = ({
       console.log(currentYear);
     }
   };
+
+  const spentSpring = useSpring({
+    from: { spent: 0 },
+    to: { spent: monthlySpent },
+    delay: 100,
+    config: {mass: 1, tension: 500, friction: 45}
+  })
 
   useEffect(() => {
     if (data && data.length > 0) {
@@ -69,7 +77,7 @@ const Calendar = ({
           <div className="stats bg-primary shadow">
             <div className="stat place-items-center text-black">
               <div className="stat-title text-black">Monthly spent</div>
-              <div className="stat-value">{monthlySpent}$</div>
+              <animated.div className="stat-value">{spentSpring.spent.to(val => `$${Math.floor(val).toLocaleString()}`)}</animated.div>
               <div className="stat-desc text-black">
                 {month}/{year}
               </div>

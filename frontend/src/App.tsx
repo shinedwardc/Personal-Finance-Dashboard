@@ -8,7 +8,7 @@ import Breakdown from "./components/Breakdown";
 import List from "./components/List";
 import Calendar from "./components/Calendar";
 import Stats from "./components/Stats";
-import Connections from "./components/Connections";
+import Investments from "./components/Investments";
 import Profile from "./components/Profile";
 import PrivateRoute from "./components/privateRoute";
 import Login from "./components/Login";
@@ -128,10 +128,18 @@ function App() {
                 }
               />
               <Route
-                path="/expenses"
+                path="/transactions"
                 element={
                   <PrivateRoute authState={authState}>
                     <List data={data} isLoading={isDataLoading} setData={setData}/>
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/investments"
+                element={
+                  <PrivateRoute authState={authState}>
+                    <Investments />
                   </PrivateRoute>
                 }
               />

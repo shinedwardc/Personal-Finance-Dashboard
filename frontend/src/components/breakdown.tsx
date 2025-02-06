@@ -145,14 +145,8 @@ const Breakdown = ({
           data: Object.values(categoryTotals).map((amount) =>
             parseFloat(amount.toFixed(2)),
           ),
-          backgroundColor: Object.keys(categoryTotals).map(
-            (_, index) =>
-              `rgba(${200 + index * 20}, ${50 + index * 10}, ${100 + index * 15}, 0.6)`,
-          ),
-          borderColor: Object.keys(categoryTotals).map(
-            (_, index) =>
-              `rgba(${220 + index * 10}, ${70 + index * 5}, ${120 + index * 10}, 1)`,
-          ),
+          backgroundColor: '#00cd00',
+          borderColor: '#00cd00',
           borderWidth: 1,
           hoverOffset: 1,
         },
@@ -166,12 +160,12 @@ const Breakdown = ({
         title: {
           display: true,
           text: "Expenses analysis by category",
-          color: "#ff3333",
+          color: "#00cd00",
         },
         legend: {
           position: "top" as const,
           labels: {
-            color: "#ff3333",
+            color: "white",
           },
         },
         tooltip: {
@@ -188,12 +182,12 @@ const Breakdown = ({
       scales: {
         y: {
           ticks: {
-            color: "#ff3333",
+            color: "#00cd00",
           },
         },
         x: {
           ticks: {
-            color: "#ff3333",
+            color: "#00cd00",
           },
         },
       },
