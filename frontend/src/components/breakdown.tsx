@@ -113,11 +113,10 @@ const Breakdown = ({
     setTotal(0);
     console.log("expenses", expenses);
     for (const expense of expenses) {
-      //console.log(new Date(expense.date).toDateString())
-      const categoryName = expense.category;
       const amount = parseFloat(expense.amount.toString());
-      //console.log("amount", amount);
-
+      if (amount < 0) continue;
+      const categoryName = expense.category;
+      
       setTotal((prevTotal) => prevTotal + amount);
 
       totals[categoryName] = (totals[categoryName] || 0) + amount;
@@ -305,7 +304,7 @@ const Breakdown = ({
                 <div className="flex justify-center">
                   <div className="card glass w-60 shadow-md transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
                     <div className="card-body items-center text-center">
-                      <h5 className="text-sm mb-2">Total Expenses</h5>
+                      <h5 className="text-sm mb-2">Total spent</h5>
                       <h1 className="text-3xl font-bold">
                         ${total.toFixed(2)}
                       </h1>
@@ -324,7 +323,7 @@ const Breakdown = ({
                       >
                         {settings.monthlyBudget - Number(total.toFixed(2)) < 0
                           ? `Spent over monthly budget limit by ${Math.abs(settings.monthlyBudget - Number(total.toFixed(2))).toFixed(2)}$`
-                          : `Amount left until budget limit ${settings.monthlyBudget - Number(total.toFixed(2))}$`}
+                          : `Amount left until budget limit ${(settings.monthlyBudget - Number(total.toFixed(2))).toFixed(2)}$`}
                       </h3>
                     </div>
                   </div>
