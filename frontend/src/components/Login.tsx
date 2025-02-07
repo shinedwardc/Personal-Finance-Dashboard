@@ -2,6 +2,7 @@ import { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { AuthState } from "../interfaces/interface";
+import { GoogleLogin } from "@react-oauth/google";
 
 const Login = ({
   authState,
@@ -38,11 +39,37 @@ const Login = ({
     }
   };
 
+  const handleGoogleLogin = async (request) => {
+    console.log('request', request);
+    try {
+      const response = await axios.post("http://localhost:8000/api/auth/google/", {
+        token: request.credential
+      }, {
+        headers: {
+          "Content-Type": "application/json"
+        }
+      })
+      const { access, refresh } = response.data;
+      console.log(access, refresh);
+      localStorage.setItem("accessToken", access);
+      localStorage.setItem("refreshToken", refresh);
+      setAuthState({
+        isLoggedIn: true,
+        isPlaidConnected: authState.isPlaidConnected,
+        isLoading: false,
+      });
+      navigate("/");
+    } catch (error) {
+      console.error("Google login failed", error);
+    }
+  }
+
   const handleSignUpClick = () => {
     navigate("/signup");
   };
 
   return (
+    <>
     <form onSubmit={handleLogin}>
       <div className="text-center mb-4 font-bold font-ubuntu">
         <h1>Login</h1>
@@ -113,6 +140,15 @@ const Login = ({
         </button>
       </div>
     </form>
+    <div className="mt-3">
+      <GoogleLogin
+        onSuccess={(credentialResponse) => handleGoogleLogin(credentialResponse)}
+        onError={() => {
+          console.log('Login Failed');
+        }}
+      />
+    </div>
+    </>
   );
 };
 

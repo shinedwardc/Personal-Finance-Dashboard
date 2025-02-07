@@ -1,12 +1,14 @@
-from django.shortcuts import render
-from .models import Expense, UserProfile
+from .models import Expense, Investment, UserProfile
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
+from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework import status
 from expenseTracker.serializers import ExpenseSerializer, UserSerializer
 from django.contrib.auth.models import User
 from django.contrib.auth.hashers import make_password
 from rest_framework.permissions import AllowAny
+from google.auth.transport.requests import Request
+from google.oauth2 import id_token
 from .decorator import check_authentication
 import environ
 env = environ.Env()
@@ -61,6 +63,27 @@ def get_user(request):
     user = request.user
     serializer = UserSerializer(user)
     return Response(serializer.data)
+
+@api_view(['POST'])
+def google_login(request):
+    token = request.data.get('token')
+    try:
+        id_info = id_token.verify_oauth2_token(token, Request(), env('GOOGLE_CLIENT_ID'))
+        if "sub" not in id_info:
+            return Response({'error': 'Invalid token'}, status=status.HTTP_400_BAD_REQUEST)
+        email = id_info['email']
+        print(email)
+        user = User.objects.filter(email=email).first()
+        if not user:
+            user = User.objects.create_user(email=email, username=email)
+        print(user)
+        refresh = RefreshToken.for_user(user)
+        print("Refresh Token:", str(refresh))
+        return Response({"access": str(refresh.access_token), 
+                         "refresh": str(refresh)}, 
+                         status=status.HTTP_200_OK)
+    except Exception as e:
+        return Response({'Error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['POST'])
 def user_post(request):
