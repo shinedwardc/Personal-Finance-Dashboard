@@ -116,7 +116,7 @@ const Breakdown = ({
       const amount = parseFloat(expense.amount.toString());
       if (amount < 0) continue;
       const categoryName = expense.category;
-      
+
       setTotal((prevTotal) => prevTotal + amount);
 
       totals[categoryName] = (totals[categoryName] || 0) + amount;
@@ -144,8 +144,8 @@ const Breakdown = ({
           data: Object.values(categoryTotals).map((amount) =>
             parseFloat(amount.toFixed(2)),
           ),
-          backgroundColor: '#00cd00',
-          borderColor: '#00cd00',
+          backgroundColor: "#00cd00",
+          borderColor: "#00cd00",
           borderWidth: 1,
           hoverOffset: 1,
         },
@@ -240,106 +240,133 @@ const Breakdown = ({
 
   return (
     <div className="w-2/3 ml-36 modal-open">
-      {!isDataLoading ? (
-        <div className="flex flex-col w-full">
-          <div className="flex justify-start mb-7">
-            <h1 className="text-5xl font-ubuntu text-lime-400">
-              Expense Tracker
-            </h1>
-          </div>
-          {data.length > 0 ? (
-            <div className="flex flex-row justify-between w-full space-x-4">
-              <div className="flex flex-col p-2 justify-start w-1/3 bg-green-800 rounded-xl">
-                <div className="w-full">
-                  <h2 className="text-center mt-3 mb-3 font-ubuntu text-2xl">
-                    Expense overall summary
-                  </h2>
-                  <div className="flex flex-row justify-between text-center">
-                    <div className="flex-1">
-                      <label htmlFor="graph-select">Graph style: </label>
-                      <br />
-                      <select
-                        className="select select-bordered select-sm"
-                        id="graph-select"
-                        value={graphType}
-                        onChange={handleGraphSelect}
-                      >
-                        <option value="bar">Bar graph</option>
-                        <option value="line">Line graph</option>
-                      </select>
+      <div className="flex flex-col w-full">
+        <div className="flex justify-start mb-7">
+          <h1 className="text-5xl font-ubuntu text-lime-400">
+            Expense Tracker
+          </h1>
+        </div>
+        {!isDataLoading ? (
+          data.length > 0 ? (
+            <>
+              <div className="flex flex-row justify-between w-full space-x-4">
+                <div className="flex flex-col p-2 justify-start w-1/3 bg-green-800 rounded-xl">
+                  <div className="w-full">
+                    <h2 className="text-center mt-3 mb-3 font-ubuntu text-2xl">
+                      Expense overall summary
+                    </h2>
+                    <div className="flex flex-row justify-between text-center">
+                      <div className="flex-1">
+                        <label htmlFor="graph-select">Graph style: </label>
+                        <br />
+                        <select
+                          className="select select-bordered select-sm"
+                          id="graph-select"
+                          value={graphType}
+                          onChange={handleGraphSelect}
+                        >
+                          <option value="bar">Bar graph</option>
+                          <option value="line">Line graph</option>
+                        </select>
+                      </div>
+                    </div>
+                    <div className="flex justify-center items-center">
+                      {graph}
                     </div>
                   </div>
-                  <div className="flex justify-center items-center">
-                    {graph}
+                </div>
+                <div className="w-1 bg-slate-300 px-1 mx-2"></div>
+                <div className="overflow-x-auto w-1/3 bg-emerald-800 rounded-xl">
+                  <table className="table">
+                    <thead className="text-center">
+                      <tr>
+                        <th className="border-r">Category</th>
+                        <th>Amount sum</th>
+                      </tr>
+                    </thead>
+                    <tbody className="text-center">
+                      {!categoryLoading &&
+                        categories.length > 0 &&
+                        categories.map((category) => (
+                          <tr key={category}>
+                            <td className="border-r">{category}</td>
+                            <td>
+                              {categoryTotals[category]
+                                ? categoryTotals[category].toFixed(2)
+                                : 0}
+                            </td>
+                          </tr>
+                        ))}
+                    </tbody>
+                  </table>
+                </div>
+                <div className="w-1 bg-slate-300 px-1 mx-2"></div>
+                <div className="w-1/3 bg-teal-800 rounded-xl flex flex-col justify-evenly">
+                  <div className="flex justify-center">
+                    <div className="card glass w-60 shadow-md transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
+                      <div className="card-body items-center text-center">
+                        <h5 className="text-sm mb-2">Total spent</h5>
+                        <h1 className="text-3xl font-bold">
+                          ${total.toFixed(2)}
+                        </h1>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex justify-center">
+                    <div className="card glass w-60 shadow-md transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
+                      <div className="card-body items-center text-center">
+                        <h5 className="text-sm mb-2">Monthly budget</h5>
+                        <h1 className="text-3xl font-bold">
+                          ${settings.monthlyBudget}
+                        </h1>
+                        <h3
+                          className={`text-sm ${settings.monthlyBudget - Number(total.toFixed(2)) < 0 ? "text-red-400" : "text-green-400"}`}
+                        >
+                          {settings.monthlyBudget - Number(total.toFixed(2)) < 0
+                            ? `Spent over monthly budget limit by ${Math.abs(settings.monthlyBudget - Number(total.toFixed(2))).toFixed(2)}$`
+                            : `Amount left until budget limit ${(settings.monthlyBudget - Number(total.toFixed(2))).toFixed(2)}$`}
+                        </h3>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex justify-center">
+                    <div className="card glass w-60 shadow-md transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
+                      <div className="card-body items-center text-center">
+                        <h5 className="text-sm mb-2">
+                          Current total account balance
+                        </h5>
+                        <h1 className="text-3xl font-bold">${balance}</h1>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
-              <div className="w-1 bg-slate-300 px-1 mx-2"></div>
-              <div className="overflow-x-auto w-1/3 bg-emerald-800 rounded-xl">
-                <table className="table">
-                  <thead className="text-center">
-                    <tr>
-                      <th className="border-r">Category</th>
-                      <th>Amount sum</th>
-                    </tr>
-                  </thead>
-                  <tbody className="text-center">
-                    {!categoryLoading &&
-                      categories.length > 0 &&
-                      categories.map((category) => (
-                        <tr key={category}>
-                          <td className="border-r">{category}</td>
-                          <td>
-                            {categoryTotals[category]
-                              ? categoryTotals[category].toFixed(2)
-                              : 0}
-                          </td>
-                        </tr>
-                      ))}
-                  </tbody>
-                </table>
+              <div className="flex justify-center mt-8">
+                {/* Open the modal using document.getElementById('ID').showModal() method */}
+                <button
+                  className="btn btn-success"
+                  onClick={() =>
+                    document.getElementById("my_modal_1").showModal()
+                  }
+                >
+                  Add new expense
+                </button>
+                <dialog id="my_modal_1" className="modal" ref={modalRef}>
+                  <div className="modal-box">
+                    {/* Close Button */}
+                    <form method="dialog">
+                      {/* if there is a button in form, it will close the modal */}
+                      <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">
+                        ✕
+                      </button>
+                    </form>
+                    <div>
+                      <Form onFormSubmit={refetchExpenses} />
+                    </div>
+                  </div>
+                </dialog>
               </div>
-              <div className="w-1 bg-slate-300 px-1 mx-2"></div>
-              <div className="w-1/3 bg-teal-800 rounded-xl flex flex-col justify-evenly">
-                <div className="flex justify-center">
-                  <div className="card glass w-60 shadow-md transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
-                    <div className="card-body items-center text-center">
-                      <h5 className="text-sm mb-2">Total spent</h5>
-                      <h1 className="text-3xl font-bold">
-                        ${total.toFixed(2)}
-                      </h1>
-                    </div>
-                  </div>
-                </div>
-                <div className="flex justify-center">
-                  <div className="card glass w-60 shadow-md transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
-                    <div className="card-body items-center text-center">
-                      <h5 className="text-sm mb-2">Monthly budget</h5>
-                      <h1 className="text-3xl font-bold">
-                        ${settings.monthlyBudget}
-                      </h1>
-                      <h3
-                        className={`text-sm ${settings.monthlyBudget - Number(total.toFixed(2)) < 0 ? "text-red-400" : "text-green-400"}`}
-                      >
-                        {settings.monthlyBudget - Number(total.toFixed(2)) < 0
-                          ? `Spent over monthly budget limit by ${Math.abs(settings.monthlyBudget - Number(total.toFixed(2))).toFixed(2)}$`
-                          : `Amount left until budget limit ${(settings.monthlyBudget - Number(total.toFixed(2))).toFixed(2)}$`}
-                      </h3>
-                    </div>
-                  </div>
-                </div>
-                <div className="flex justify-center">
-                  <div className="card glass w-60 shadow-md transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
-                    <div className="card-body items-center text-center">
-                      <h5 className="text-sm mb-2">
-                        Current total account balance
-                      </h5>
-                      <h1 className="text-3xl font-bold">${balance}</h1>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
+            </>
           ) : (
             <div>
               <h2 className="font-semibold font-ubuntu">
@@ -347,36 +374,15 @@ const Breakdown = ({
                 the Expenses page to add some
               </h2>
             </div>
-          )}
-          <div className="flex justify-center mt-8">
-            {/* Open the modal using document.getElementById('ID').showModal() method */}
-            <button
-              className="btn btn-success"
-              onClick={() => document.getElementById("my_modal_1").showModal()}
-            >
-              Add new expense
-            </button>
-            <dialog id="my_modal_1" className="modal" ref={modalRef}>
-              <div className="modal-box">
-                {/* Close Button */}
-                <form method="dialog">
-                  {/* if there is a button in form, it will close the modal */}
-                  <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">
-                    ✕
-                  </button>
-                </form>
-                <div>
-                  <Form onFormSubmit={refetchExpenses} />
-                </div>
-              </div>
-            </dialog>
+          )
+        ) : (
+          <div className="flex flex-row justify-between items-stretch w-full">
+            <div className="skeleton w-1/3 mr-4 h-[36.5rem]"></div>
+            <div className="skeleton w-1/3 ml-4 mr-4 h-[36.5rem]"></div>
+            <div className="skeleton w-1/3 ml-4 h-[36.5rem]"></div>
           </div>
-        </div>
-      ) : (
-        <div className="flex justify-center items-center">
-          <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-white-900"></div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 };
