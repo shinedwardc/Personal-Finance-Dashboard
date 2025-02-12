@@ -135,7 +135,7 @@ const Stats = ({
   };
 
   return (
-    <div className="w-2/3 ml-24">
+    <div className="w-2/3 ml-24 mt-12">
         <div className="flex flex-row justify-start gap-1">
           {((
             new Date().getFullYear() > currentDate.getFullYear() &&

@@ -96,6 +96,7 @@ const List = ({
       {!isLoading ? (
         data.length > 0 ? (
           <>
+            <div className="mt-16"></div>
             <div>
               <h1 className="text-xl antialiased">Full detailed list</h1>
             </div>

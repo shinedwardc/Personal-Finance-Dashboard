@@ -38,6 +38,19 @@ class Expense(models.Model):
     def __str__(self) -> str:
         return f"User {self.user}, spent {self.amount}, category is {self.category}, this was created at {self.created_at}"
     
+class EmailVerification(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    code = models.CharField(max_length=6)
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+class Investment(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    asset_type = models.CharField(max_length=50, choices=[("Stock", "Stock"), ("Crypto", "Crypto")])
+    symbol = models.CharField(max_length=10)  # e.g., AAPL, TSLA, BTC
+    quantity = models.DecimalField(max_digits=10, decimal_places=4)
+    purchase_price = models.DecimalField(max_digits=10, decimal_places=2)
+    current_price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    purchase_date = models.DateField()
 
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)

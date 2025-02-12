@@ -14,6 +14,7 @@ import PrivateRoute from "./components/privateRoute";
 import Login from "./components/Login";
 import Logout from "./components/Logout";
 import Signup from './components/Signup';
+import PasswordRecovery from "./components/PasswordRecovery";
 import { ExpenseInterface, PlaidResponse, AuthState, Settings } from "./interfaces/interface";
 import { getAuthStatus, getExpense, fetchPlaidTransactions, fetchPlaidBalance, fetchProfileSettings, updateBudgetLimit } from "./api/api";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
@@ -71,6 +72,7 @@ function App() {
   useEffect(() => {
     //console.log("expenseData", expenseData);
     //console.log("plaidData", plaidData);
+    //console.log(import.meta.env.GOOGLE_CLIENT_ID);
     if (expenseData) {
       setData(expenseData);
     }
@@ -108,7 +110,7 @@ function App() {
         <ToastContainer />
         <div>
           <Navbar authState={authState} setAuthState={setAuthState} />
-          <div className="flex-grow flex flex-col items-center justify-center mr-[64px] mt-16">
+          <div className="flex-grow flex flex-col items-center justify-center mr-[64px]">
             <Routes>
               {/* Public routes */}
               <Route
@@ -117,7 +119,7 @@ function App() {
               />
               <Route path="/logout" element={<Logout authState={authState} setAuthState={setAuthState}/>} />
               <Route path="/signup" element={<Signup />} />
-
+              <Route path="/recover" element={<PasswordRecovery />}/>
               {/* Protected routes */}
               <Route
                 path="/"

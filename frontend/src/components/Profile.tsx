@@ -27,7 +27,7 @@ const Profile = ({
 
   return (
     <>
-      <div className="flex w-1/2 flex-row p-4 bg-green-600 gap-x-2 h-86 rounded-xl">
+      <div className="flex w-1/2 flex-row p-4 bg-green-600 gap-x-2 h-86 mt-16 rounded-xl">
         <div className="pr-4">
           <ul className="text-center flex flex-col h-full">
             <li className="font-bold text-4xl mb-2">Settings</li>

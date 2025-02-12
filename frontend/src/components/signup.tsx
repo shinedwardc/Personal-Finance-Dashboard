@@ -39,7 +39,7 @@ const Signup = () => {
   };
 
   return (
-    <form onSubmit={handleFormSubmit}>
+    <form onSubmit={handleFormSubmit} className="mt-16">
       <div className="mb-2">
         <label className="block text-sm font-medium">Username *</label>
         <input

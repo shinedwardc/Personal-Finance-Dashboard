@@ -135,6 +135,12 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+# Email integration (Mailtrap)
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'sandbox.smtp.mailtrap.io'
+EMAIL_HOST_USER = env('EMAIL_HOST_USERNAME')
+EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD')
+EMAIL_PORT = '2525'
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.1/topics/i18n/

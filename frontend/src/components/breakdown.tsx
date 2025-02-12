@@ -239,7 +239,7 @@ const Breakdown = ({
   };
 
   return (
-    <div className="w-2/3 ml-36 modal-open">
+    <div className="w-2/3 ml-36 mt-16 modal-open">
       <div className="flex flex-col w-full">
         <div className="flex justify-start mb-7">
           <h1 className="text-5xl font-ubuntu text-lime-400">

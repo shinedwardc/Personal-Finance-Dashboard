@@ -74,7 +74,7 @@ const Calendar = ({
     <>
       {!isLoading ? (
         <>
-          <div className="stats bg-primary shadow">
+          <div className="stats bg-primary shadow mt-16">
             <div className="stat place-items-center text-black">
               <div className="stat-title text-black">Monthly spent</div>
               <animated.div className="stat-value">{spentSpring.spent.to(val => `$${Math.floor(val).toLocaleString()}`)}</animated.div>

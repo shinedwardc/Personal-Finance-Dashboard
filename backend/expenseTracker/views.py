@@ -1,4 +1,6 @@
-from .models import Expense, Investment, UserProfile
+from .models import Expense, Investment, EmailVerification, UserProfile
+from django.utils import timezone
+from datetime import timedelta
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -7,6 +9,8 @@ from expenseTracker.serializers import ExpenseSerializer, UserSerializer
 from django.contrib.auth.models import User
 from django.contrib.auth.hashers import make_password
 from rest_framework.permissions import AllowAny
+from django.core.mail import send_mail
+import secrets
 from google.auth.transport.requests import Request
 from google.oauth2 import id_token
 from .decorator import check_authentication
@@ -112,6 +116,57 @@ def user_post(request):
     user_profile.save()
 
     return Response({'message': 'User created successfully.'}, status=status.HTTP_201_CREATED)
+
+@api_view(['POST'])
+def reset_password_email(request):
+    email = request.data.get('email')
+    user = User.objects.get(email=email)
+    code = secrets.token_hex(3).upper()
+    send_mail(
+        "Your authentication code",
+        f"Your verification code is: {code}",
+        "514090db0f-53a608@inbox.mailtrap.io",
+        [email],
+        False
+    )
+    verification_object, created = EmailVerification.objects.get_or_create(user=user)
+    verification_object.code = code
+    verification_object.save()
+    print(verification_object.code, verification_object.created_at)
+    return Response({'Email sent successfully to', email}, status=status.HTTP_200_OK)
+
+
+#@api_view(['POST'])
+#def reset_password(request):
+@api_view(['POST'])
+def code_verification(request):
+    code = request.data.get('code')
+    email = request.data.get('email')
+    try:
+        verification_object = EmailVerification.objects.get(user__email=email)
+        print(verification_object.code)
+        print(verification_object.user)
+        print(verification_object.created_at)
+        if verification_object.code == code:
+            time_difference = timezone.now() - verification_object.created_at
+            print(time_difference)
+            if (time_difference < timedelta(minutes=10)):
+                user = verification_object.user
+                password = request.data.get('password')
+                user.set_password(password)
+                user.save()
+                verification_object.delete()
+                return Response({"User verified successfully"},status=status.HTTP_200_OK)
+            else:
+                verification_object.delete()
+                return Response({"Verification code expired"},status=status.HTTP_400_BAD_REQUEST)
+        else:
+            verification_object.delete()
+            return Response({"Incorrect code"},status=status.HTTP_400_BAD_REQUEST)
+    except:
+        if verification_object:
+            verification_object.delete()
+        return Response({"Error: user email not found"},status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET'])
 @check_authentication
