@@ -95,8 +95,6 @@ def user_post(request):
     username = request.data.get('username')
     password = request.data.get('password')
     email = request.data.get('email')
-    first_name = request.data.get('fName')
-    last_name = request.data.get('lName')
     monthly_budget = request.data.get('monthlyBudget')
     # Check if username already exists, prevents duplicate usernames
     if User.objects.filter(username=username).exists():
@@ -105,8 +103,6 @@ def user_post(request):
         username=username,
         password=make_password(password),
         email=email,
-        first_name=first_name,
-        last_name=last_name,
     )
     user.save()
 

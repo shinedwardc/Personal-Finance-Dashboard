@@ -121,8 +121,6 @@ const Breakdown = ({
 
       totals[categoryName] = (totals[categoryName] || 0) + amount;
     }
-    //console.log(Object.keys(categoryTotals));
-    //console.log(Object.values(categoryTotals));
     return totals;
   };
 
@@ -215,11 +213,11 @@ const Breakdown = ({
     }
   }, [categoryTotals, graphType]);
 
-  const handleDateSelect = async (date: Date) => {
+  /*const handleDateSelect = async (date: Date) => {
     setDate(date);
     const filtered = await calculateTotalByCategory(data, date);
     console.log(filtered);
-  };
+  };*/
 
   const refetchExpenses = async (newExpense: ExpenseInterface) => {
     try {
@@ -316,16 +314,24 @@ const Breakdown = ({
                     <div className="card glass w-60 shadow-md transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
                       <div className="card-body items-center text-center">
                         <h5 className="text-sm mb-2">Monthly budget</h5>
-                        <h1 className="text-3xl font-bold">
-                          ${settings.monthlyBudget}
-                        </h1>
-                        <h3
-                          className={`text-sm ${settings.monthlyBudget - Number(total.toFixed(2)) < 0 ? "text-red-400" : "text-green-400"}`}
-                        >
-                          {settings.monthlyBudget - Number(total.toFixed(2)) < 0
-                            ? `Spent over monthly budget limit by ${Math.abs(settings.monthlyBudget - Number(total.toFixed(2))).toFixed(2)}$`
-                            : `Amount left until budget limit ${(settings.monthlyBudget - Number(total.toFixed(2))).toFixed(2)}$`}
-                        </h3>
+                        {settings.monthlyBudget !== null ? (
+                          <>
+                          <h1 className="text-3xl font-bold">
+                            ${settings.monthlyBudget}
+                          </h1>
+                          <h3
+                            className={`text-sm ${settings.monthlyBudget - Number(total.toFixed(2)) < 0 ? "text-red-400" : "text-green-400"}`}
+                          >
+                            {settings.monthlyBudget - Number(total.toFixed(2)) < 0
+                              ? `Spent over monthly budget limit by ${Math.abs(settings.monthlyBudget - Number(total.toFixed(2))).toFixed(2)}$`
+                              : `Amount left until budget limit ${(settings.monthlyBudget - Number(total.toFixed(2))).toFixed(2)}$`}
+                          </h3>
+                          </>
+                        ) : (
+                          <p className="text-sm text-red-400">
+                            Add a budget limit in profile settings
+                          </p>
+                        )}
                       </div>
                     </div>
                   </div>
