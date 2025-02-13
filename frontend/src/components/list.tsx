@@ -2,8 +2,17 @@ import Expense from "./Expense";
 import { ExpenseInterface } from "../interfaces/interface";
 import Form from "./Form";
 import Recurring from "./Recurring";
-import { toast, Bounce } from "react-toastify";
 import axios from "axios";
+import {
+  Table,
+  TableBody,
+  TableCaption,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table"
+import { toast, Bounce } from "react-toastify";
 
 //https://flowbite.com/docs/components/spinner/#progress-spinner
 
@@ -45,7 +54,7 @@ const List = ({
     }
   };
 
-  const handleDeleteTask = async (expenseId: number) => {
+  const handleDeleteTask = async (expenseId: number | string) => {
     const response = await axios.delete(
       `http://localhost:8000/expenses/${expenseId}/`,
       {
@@ -59,7 +68,7 @@ const List = ({
       setData((prevExpenses) =>
         prevExpenses.filter((expense) => expense.id !== expenseId),
       );
-      toast.success(`Successfully deleted expense id ${expenseId}`, {
+      toast.success("Successfully deleted expense", {
         position: "top-center",
         autoClose: 5000,
         hideProgressBar: false,
@@ -97,7 +106,7 @@ const List = ({
         data.length > 0 ? (
           <>
             <div className="mt-16"></div>
-            <div>
+            <div className="mb-2">
               <h1 className="text-xl antialiased">Full detailed list</h1>
             </div>
             <div className="mb-2 border-cyan-500 overflow-x-auto">
@@ -116,12 +125,10 @@ const List = ({
                   </svg>
                 </label>
               </div>*/}
-              <div className="mb-1">
-                <h2 className="text-lg">Withdrawals / Deposits</h2>
-              </div>
-              <table className="table table-auto bg-green-800 border-collapse border border-slate-400 text-sm text-center">
-                <thead>
-                  <tr>
+              <Table>
+                <TableCaption>Withdrawals / Deposits</TableCaption>
+                <TableHeader>
+                  <TableRow>
                     {[
                       "Name",
                       "Category",
@@ -130,25 +137,44 @@ const List = ({
                       "Date",
                       "Delete",
                     ].map((header) => (
-                      <th
+                      <TableHead
                         key={header}
-                        className="border border-slate-300 px-4 py-2"
+                        className="text-center"
                       >
                         {header}
-                      </th>
+                      </TableHead>
                     ))}
-                  </tr>
-                </thead>
-                <tbody>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
                   {data.map((expense, index) => (
-                    <Expense
-                      key={index}
-                      data={expense as ExpenseInterface}
-                      deleteTask={() => handleDeleteTask(expense.id as number)}
-                    />
+                    <TableRow key={index}>
+                      <TableCell className="text-lg font-ubuntu font-bold text-center">{expense.name}</TableCell>
+                      <TableCell className="text-base text-center">
+                        {typeof expense.id === "number" ? expense.category : "*" + expense.category}
+                      </TableCell>
+                      <TableCell className="text-base text-center">
+                        {expense.amount < 0 ? "+" + (expense.amount * -1).toString() : expense.amount * -1}
+                        {/*currencies[expense.currency as keyof Currency]*/}
+                      </TableCell>
+                      <TableCell className="text-base text-center">
+                        {expense.currency.toUpperCase()}
+                      </TableCell>
+                      <TableCell className="text-base text-center">
+                        {expense.date}
+                      </TableCell>
+                      <TableCell>
+                        <button 
+                          className={`btn ${typeof expense.id !== "number" ? "btn-disabled" : "btn-error"} btn-tiny`}
+                          onClick={() => handleDeleteTask(expense.id)}
+                        >
+                          {typeof expense.id !== "number" ? "Plaid" : "Delete"}
+                        </button>
+                      </TableCell>
+                    </TableRow>
                   ))}
-                </tbody>
-              </table>
+                </TableBody>
+              </Table>
             </div>
             <div className="relative right-72">
               <p>*: Expenses made from Plaid</p>
