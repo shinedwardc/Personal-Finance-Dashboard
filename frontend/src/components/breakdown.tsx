@@ -18,7 +18,6 @@ import {
   Settings,
 } from "../interfaces/interface";
 import Form from "./Form";
-import "react-datepicker/dist/react-datepicker.css";
 
 ChartJS.register(
   CategoryScale,

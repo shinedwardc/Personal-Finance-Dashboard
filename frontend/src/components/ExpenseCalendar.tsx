@@ -1,10 +1,11 @@
-import { useRef, useEffect, useState } from "react";
+import React, { useRef, useEffect, useState } from "react";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
+import { Calendar } from "@/components/ui/calendar"
 import { ExpenseInterface } from "../interfaces/interface";
 import { useSpring, animated } from "@react-spring/web";
 
-const Calendar = ({
+const ExpenseCalendar = ({
   data,
   isLoading,
 }: {
@@ -14,9 +15,12 @@ const Calendar = ({
   const calendarRef = useRef(null);
 
   const [events, setEvents] = useState<{ title: string; start: string; amount: number; frequency: string | null; }[]>([]);
+  const [chosenEvents, setChosenEvents] = useState<{ title: string; start: string; amount: number; frequency: string | null; }[]>([]);
   const [month, setMonth] = useState<number>(0);
   const [year, setYear] = useState<number>(0);
   const [monthlySpent, setMonthlySpent] = useState<number>(0);
+
+  const [date, setDate] = React.useState<Date | undefined>(new Date())
 
   const getCurrentMonth = () => {
     if (calendarRef.current) {
@@ -29,13 +33,6 @@ const Calendar = ({
       console.log(currentYear);
     }
   };
-
-  const spentSpring = useSpring({
-    from: { spent: 0 },
-    to: { spent: monthlySpent },
-    delay: 100,
-    config: {mass: 1, tension: 500, friction: 45}
-  })
 
   useEffect(() => {
     if (data && data.length > 0) {
@@ -50,15 +47,14 @@ const Calendar = ({
   }, [data]);
 
   useEffect(() => {
-    if (events.length > 0 && calendarRef.current) {
-      const calendarApi = calendarRef.current.getApi();
-      const currentMonth = calendarApi.getDate().getMonth();
-      const currentYear = calendarApi.getDate().getFullYear();
+    if (events.length > 0 && date) {
+      //const calendarApi = calendarRef.current.getApi();
+      //const currentMonth = calendarApi.getDate().getMonth();
+      //const currentYear = calendarApi.getDate().getFullYear();
       const filteredEvents = events.filter((event) => {
         const eventDate = new Date(event.start);
         return (
-          eventDate.getMonth() === currentMonth &&
-          eventDate.getFullYear() === currentYear &&
+          eventDate.toDateString() === date.toDateString() &&
           event.amount >= 0
         );
       });
@@ -67,9 +63,17 @@ const Calendar = ({
         0,
       );
       setMonthlySpent(totalAmount);
+      setChosenEvents(filteredEvents);
     }
-  }, [events, getCurrentMonth]);
+  }, [events, date, getCurrentMonth]);
 
+  const spentSpring = useSpring({
+    from: { spent: 0 },
+    to: { spent: monthlySpent },
+    delay: 100,
+    config: {mass: 1, tension: 500, friction: 45}
+  });
+  
   return (
     <>
       {!isLoading ? (
@@ -110,6 +114,30 @@ const Calendar = ({
               <p>: Upcoming recurring bill</p>            
             </div>            
           </div>
+          <div className="">
+            <Calendar
+              mode="single"
+              selected={date}
+              onSelect={setDate}
+              onMonthChange={() => setDate(undefined)}
+              defaultMonth={new Date()}
+              className="rounded-md border"
+              footer={
+                date ? `Selected: ${date.toLocaleDateString()}` : "Pick a day."
+              }
+            />
+          </div>
+          <div className="my-10 w-[300px]">
+            <div className="text-2xl">{date?.toLocaleString("en", {weekday: "long", day: "numeric"})}</div>
+            {chosenEvents.length > 0 && chosenEvents.map((event, index) => (
+              <div key={index}>
+                <div className="flex flex-row gap-1">
+                  <p>{event.title}</p>
+                  <p>- {event.amount}$</p>
+                </div>
+              </div>
+            ))}
+          </div>
         </>
       ) : (
         <div>
@@ -120,4 +148,4 @@ const Calendar = ({
   );
 };
 
-export default Calendar;
+export default ExpenseCalendar;

@@ -6,7 +6,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import Navbar from "./components/Navbar";
 import Breakdown from "./components/Breakdown";
 import List from "./components/List";
-import Calendar from "./components/Calendar";
+import Calendar from "./components/ExpenseCalendar";
 import Stats from "./components/Stats";
 import Investments from "./components/Investments";
 import Profile from "./components/Profile";
