@@ -1,10 +1,13 @@
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import "./App.css";
+import { ThemeProvider } from "@/components/theme-provider";
 import { useState, useEffect } from "react";
 import { ToastContainer } from "react-toastify";
-import 'react-toastify/dist/ReactToastify.css';
+import "react-toastify/dist/ReactToastify.css";
+import { ModeToggle } from "./components/modeToggle";
 import Navbar from "./components/Navbar";
 import Breakdown from "./components/Breakdown";
+import Dashboard from "./components/Dashboard";
 import List from "./components/List";
 import Calendar from "./components/ExpenseCalendar";
 import Stats from "./components/Stats";
@@ -13,46 +16,60 @@ import Profile from "./components/Profile";
 import PrivateRoute from "./components/privateRoute";
 import Login from "./components/Login";
 import Logout from "./components/Logout";
-import Signup from './components/Signup';
+import Signup from "./components/Signup";
 import PasswordRecovery from "./components/PasswordRecovery";
-import { ExpenseInterface, PlaidResponse, AuthState, Settings } from "./interfaces/interface";
-import { getAuthStatus, getExpense, fetchPlaidTransactions, fetchPlaidBalance, fetchProfileSettings, updateBudgetLimit } from "./api/api";
+import {
+  ExpenseInterface,
+  PlaidResponse,
+  AuthState,
+  Settings,
+} from "./interfaces/interface";
+import {
+  getAuthStatus,
+  getExpense,
+  fetchPlaidTransactions,
+  fetchPlaidBalance,
+  fetchProfileSettings,
+  updateBudgetLimit,
+} from "./api/api";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
-
-
 
 function App() {
   const queryClient = useQueryClient();
   const [authState, setAuthState] = useState<AuthState>({
     isLoggedIn: false,
     isPlaidConnected: false,
-    isLoading: true
+    isLoading: true,
   });
   const [data, setData] = useState<ExpenseInterface[]>([]);
   const [plaidBalance, setPlaidBalance] = useState<PlaidResponse | null>(null);
 
-  const {data : expenseData , isLoading : expenseLoading} = useQuery({
-    queryKey: ['expenses', authState.isLoggedIn],
+  const { data: expenseData, isLoading: expenseLoading } = useQuery({
+    queryKey: ["expenses", authState.isLoggedIn],
     queryFn: getExpense,
-    enabled: authState.isLoggedIn
+    enabled: authState.isLoggedIn,
   });
-  
-  const {data : plaidData, isLoading : plaidLoading} = useQuery({
-    queryKey: ['plaidData', authState.isLoggedIn, authState.isPlaidConnected],
+
+  const { data: plaidData, isLoading: plaidLoading } = useQuery({
+    queryKey: ["plaidData", authState.isLoggedIn, authState.isPlaidConnected],
     queryFn: fetchPlaidTransactions,
-    enabled: authState.isLoggedIn && authState.isPlaidConnected
+    enabled: authState.isLoggedIn && authState.isPlaidConnected,
   });
 
-  const {data : plaidBalanceData, isLoading : plaidBalanceLoading} = useQuery({
-    queryKey: ['plaidBalance', authState.isLoggedIn, authState.isPlaidConnected],
+  const { data: plaidBalanceData, isLoading: plaidBalanceLoading } = useQuery({
+    queryKey: [
+      "plaidBalance",
+      authState.isLoggedIn,
+      authState.isPlaidConnected,
+    ],
     queryFn: fetchPlaidBalance,
-    enabled: authState.isLoggedIn && authState.isPlaidConnected
+    enabled: authState.isLoggedIn && authState.isPlaidConnected,
   });
 
-  const {data: settingsData, isLoading: settingsLoading} = useQuery({
-    queryKey: ['settings', authState.isLoggedIn],
+  const { data: settingsData, isLoading: settingsLoading } = useQuery({
+    queryKey: ["settings", authState.isLoggedIn],
     queryFn: fetchProfileSettings,
-    enabled: authState.isLoggedIn
+    enabled: authState.isLoggedIn,
   });
 
   const mutation = useMutation({
@@ -60,14 +77,16 @@ function App() {
       return updateBudgetLimit(data);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({queryKey: ['settings',authState.isLoggedIn]});
-    }
-  })
+      queryClient.invalidateQueries({
+        queryKey: ["settings", authState.isLoggedIn],
+      });
+    },
+  });
 
-  const handleSettingsForm = (data: Settings) : void => {
+  const handleSettingsForm = (data: Settings): void => {
     //updateBudgetLimit(data);
     mutation.mutate(data);
-  }
+  };
 
   useEffect(() => {
     //console.log("expenseData", expenseData);
@@ -77,12 +96,14 @@ function App() {
       setData(expenseData);
     }
     if (plaidData) {
-      setData(prevData => {
+      setData((prevData) => {
         const combinedData = [...prevData, ...plaidData];
-        return combinedData.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+        return combinedData.sort(
+          (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
+        );
       });
     }
-  },[expenseData, plaidData])
+  }, [expenseData, plaidData]);
 
   useEffect(() => {
     if (plaidBalanceData) {
@@ -90,7 +111,12 @@ function App() {
     }
   }, [plaidBalanceData]);
 
-  const isDataLoading = authState.isLoading || expenseLoading || plaidLoading || plaidBalanceLoading || settingsLoading;
+  const isDataLoading =
+    authState.isLoading ||
+    expenseLoading ||
+    plaidLoading ||
+    plaidBalanceLoading ||
+    settingsLoading;
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -99,33 +125,59 @@ function App() {
       setAuthState({
         isLoggedIn: response.authenticated,
         isPlaidConnected: Boolean(plaidToken),
-        isLoading: false
+        isLoading: false,
       });
     };
     checkAuth();
   }, []);
 
   return (
-      <Router>
-        <ToastContainer />
-        <div>
-          <Navbar authState={authState} setAuthState={setAuthState} />
+    <Router>
+      <ToastContainer />
+      <ThemeProvider storageKey="vite-ui-theme">
+        <div className="min-h-screen dark:bg-black overflow-auto">
+          <div className="flex flex-row gap-5">
+            <Navbar authState={authState} setAuthState={setAuthState} />
+            <ModeToggle />
+          </div>
+
           <div className="flex-grow flex flex-col items-center justify-center mr-[64px]">
             <Routes>
               {/* Public routes */}
               <Route
                 path="/login"
-                element={<Login authState={authState} setAuthState={setAuthState} />}
+                element={
+                  <Login authState={authState} setAuthState={setAuthState} />
+                }
               />
-              <Route path="/logout" element={<Logout authState={authState} setAuthState={setAuthState}/>} />
+              <Route
+                path="/logout"
+                element={
+                  <Logout authState={authState} setAuthState={setAuthState} />
+                }
+              />
               <Route path="/signup" element={<Signup />} />
-              <Route path="/recover" element={<PasswordRecovery />}/>
+              <Route path="/recover" element={<PasswordRecovery />} />
               {/* Protected routes */}
               <Route
                 path="/"
                 element={
                   <PrivateRoute authState={authState}>
-                    <Breakdown data={data} settings={settingsData} setData={setData} isDataLoading={isDataLoading} plaidBalance={plaidBalance as PlaidResponse}/>
+                    <Breakdown
+                      data={data}
+                      settings={settingsData}
+                      setData={setData}
+                      isDataLoading={isDataLoading}
+                      plaidBalance={plaidBalance as PlaidResponse}
+                    />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/dashboard"
+                element={
+                  <PrivateRoute authState={authState}>
+                    <Dashboard />
                   </PrivateRoute>
                 }
               />
@@ -133,7 +185,11 @@ function App() {
                 path="/transactions"
                 element={
                   <PrivateRoute authState={authState}>
-                    <List data={data} isLoading={isDataLoading} setData={setData}/>
+                    <List
+                      data={data}
+                      isLoading={isDataLoading}
+                      setData={setData}
+                    />
                   </PrivateRoute>
                 }
               />
@@ -165,14 +221,19 @@ function App() {
                 path="/profile"
                 element={
                   <PrivateRoute authState={authState}>
-                    <Profile settings={settingsData} isLoading={settingsLoading} onFormSubmit={handleSettingsForm}/>
+                    <Profile
+                      settings={settingsData}
+                      isLoading={settingsLoading}
+                      onFormSubmit={handleSettingsForm}
+                    />
                   </PrivateRoute>
                 }
               />
             </Routes>
           </div>
         </div>
-      </Router>
+      </ThemeProvider>
+    </Router>
   );
 }
 
