@@ -1,4 +1,5 @@
 import Expense from "./Expense";
+import { useData } from "@/App";
 import { ExpenseInterface } from "../interfaces/interface";
 import Form from "./Form";
 import Recurring from "./Recurring";
@@ -16,18 +17,20 @@ import { toast, Bounce } from "react-toastify";
 
 //https://flowbite.com/docs/components/spinner/#progress-spinner
 
-const List = ({
-  data,
-  isLoading,
-  setData,
+const List = (/*{
+  //data,
+  //isLoading,
+  //setData,
 }: {
-  data: ExpenseInterface[];
-  isLoading: boolean;
-  setData: React.Dispatch<React.SetStateAction<ExpenseInterface[]>>;
-}) => {
+  //data: ExpenseInterface[];
+  //isLoading: boolean;
+  //setData: React.Dispatch<React.SetStateAction<ExpenseInterface[]>>;
+}*/) => {
   //const [search, setSearch] = useState<string>("");
   //const [useFilteredData, setUseFilteredData] = useState<boolean>(false);
   //const [filteredData, setFilteredData] = useState<ExpenseInterface[]>([]);
+
+  const { data, setData, isDataLoading } = useData();
 
   const refetchExpenses = async (newExpense: ExpenseInterface) => {
     try {
@@ -102,7 +105,7 @@ const List = ({
 
   return (
     <>
-      {!isLoading ? (
+      {!isDataLoading ? (
         data.length > 0 ? (
           <>
             <div className="mt-16"></div>
@@ -182,10 +185,10 @@ const List = ({
             <div className="my-4 p-4 border border-green-800 w-1/3">
               <Form onFormSubmit={refetchExpenses} />
             </div>
-            <div>
+            <div className="dark:text-slate-200">
               --- OR ---
             </div>
-            <div className="my-4 p-4 border border-green-800">
+            <div className="my-4 p-4 border border-green-800 dark:text-white">
               <Recurring onFormSubmit={refetchExpenses} />
             </div>
           </>

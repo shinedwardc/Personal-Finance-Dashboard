@@ -1,3 +1,5 @@
+import { useEffect, useState, useMemo, useRef } from "react";
+import { useData } from "@/App";
 import { Bar, Line } from "react-chartjs-2";
 import {
   Chart as ChartJS,
@@ -11,7 +13,7 @@ import {
   Legend,
   RadialLinearScale,
 } from "chart.js";
-import { useEffect, useState, useMemo, useRef } from "react";
+import Modal from "react-modal";
 import {
   ExpenseInterface,
   PlaidResponse,
@@ -32,18 +34,19 @@ ChartJS.register(
 );
 
 const Breakdown = ({
-  data,
-  setData,
+  //data,
+  //setData,
   settings,
-  isDataLoading,
+  //isDataLoading,
   plaidBalance,
 }: {
-  data: ExpenseInterface[];
+  //data: ExpenseInterface[];
   settings: Settings;
-  setData: React.Dispatch<React.SetStateAction<ExpenseInterface[]>>;
-  isDataLoading: boolean;
+  //setData: React.Dispatch<React.SetStateAction<ExpenseInterface[]>>;
+  //isDataLoading: boolean;
   plaidBalance: PlaidResponse;
 }) => {
+  const { data, setData, isDataLoading } = useData();
   const [categoryTotals, setCategoryTotals] = useState<Record<string, number>>(
     {},
   );
@@ -53,8 +56,10 @@ const Breakdown = ({
   const [categories, setCategories] = useState<string[]>([]);
   const [categoryLoading, setCategoryLoading] = useState<boolean>(true);
   const [graphType, setGraphType] = useState<string>("bar");
+  const [modalIsOpen, setIsOpen] = useState<boolean>(false);
 
-  const modalRef = useRef<HTMLDialogElement>(null);
+  //const modalRef = useRef<HTMLDialogElement>(null);
+  Modal.setAppElement("#root"); 
 
   useEffect(() => {
     const initialize = async () => {
@@ -230,13 +235,14 @@ const Breakdown = ({
     } catch (error) {
       console.error("Failed to refetch expenses:", error);
     }
-    if (modalRef.current) {
+    /*if (modalRef.current) {
       modalRef.current.close();
-    }
+    }*/
+   setIsOpen(false);
   };
 
   return (
-    <div className="w-2/3 ml-36 mt-16 modal-open">
+    <div className="w-2/3 ml-36 mt-16">
       <div className="flex flex-col w-full">
         <div className="flex justify-start mb-7">
           <h1 className="text-5xl font-ubuntu text-lime-400">
@@ -245,7 +251,7 @@ const Breakdown = ({
         </div>
         {!isDataLoading ? (
           data.length > 0 ? (
-            <>
+            <div>
               <div className="flex flex-row justify-between w-full space-x-4">
                 <div className="flex flex-col p-2 justify-start w-1/3 bg-green-800 rounded-xl">
                   <div className="w-full">
@@ -350,28 +356,26 @@ const Breakdown = ({
                 {/* Open the modal using document.getElementById('ID').showModal() method */}
                 <button
                   className="btn btn-success"
-                  onClick={() =>
-                    document.getElementById("my_modal_1").showModal()
-                  }
+                  onClick={() => setIsOpen(true)}
                 >
                   Add new expense
                 </button>
-                <dialog id="my_modal_1" className="modal" ref={modalRef}>
-                  <div className="modal-box">
-                    {/* Close Button */}
-                    <form method="dialog">
-                      {/* if there is a button in form, it will close the modal */}
-                      <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">
-                        ✕
-                      </button>
-                    </form>
+                <Modal
+                  isOpen={modalIsOpen}
+                  onRequestClose={() => setIsOpen(false)}
+                  className="modal-box absolute top-[35%] left-[38.7%] dark:bg-black"
+                >
+                  <div className="">
+                    <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2" onClick={() => setIsOpen(false)}>
+                      ✕
+                    </button>
                     <div>
                       <Form onFormSubmit={refetchExpenses} />
                     </div>
-                  </div>
-                </dialog>
+                  </div>                 
+                </Modal>
               </div>
-            </>
+            </div>
           ) : (
             <div>
               <h2 className="font-semibold font-ubuntu">
