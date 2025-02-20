@@ -189,7 +189,10 @@ function App() {
                   path="/dashboard"
                   element={
                     <PrivateRoute authState={authState}>
-                      <Dashboard />
+                      <Dashboard 
+                        plaidBalance={plaidBalance as PlaidResponse}
+                        settings={settingsData}
+                      />
                     </PrivateRoute>
                   }
                 />
