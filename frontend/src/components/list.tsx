@@ -107,9 +107,9 @@ const List = ({
           <>
             <div className="mt-16"></div>
             <div className="mb-2">
-              <h1 className="text-xl antialiased">Full detailed list</h1>
+              <h1 className="text-xl antialiased dark:text-white">Full detailed list</h1>
             </div>
-            <div className="mb-2 border-cyan-500 overflow-x-auto">
+            <div className="mb-2 border-cyan-500 overflow-x-auto dark:text-white">
               {/*<div className="mb-4 flex justify-center">
                 <label className="input input-bordered flex items-center w-64 gap-2">
                   <input type="text" className="grow" placeholder="Search" value={search} onChange={handleSearch}/>
@@ -176,10 +176,10 @@ const List = ({
                 </TableBody>
               </Table>
             </div>
-            <div className="relative right-72">
+            <div className="relative right-64 text-sm dark:text-white">
               <p>*: Expenses made from Plaid</p>
             </div>
-            <div className="my-4 p-4 border border-green-800">
+            <div className="my-4 p-4 border border-green-800 w-1/3">
               <Form onFormSubmit={refetchExpenses} />
             </div>
             <div>
