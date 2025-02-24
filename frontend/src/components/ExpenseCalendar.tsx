@@ -14,13 +14,7 @@ import {
 import { useSpring, animated } from "@react-spring/web";
 import { motion, AnimatePresence } from "motion/react";
 
-const ExpenseCalendar = (/*{
-  data,
-  isLoading,
-}: {
-  data: ExpenseInterface[];
-  isLoading: boolean;
-}*/) => {
+const ExpenseCalendar = () => {
   const { data, isDataLoading } = useExpenseContext();
 
   const calendarRef = useRef<FullCalendar | null>(null);

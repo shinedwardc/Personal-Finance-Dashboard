@@ -1,6 +1,6 @@
 import Expense from "./Expense";
 import { useExpenseContext } from "@/hooks/useExpenseContext";
-import { ExpenseInterface } from "../interfaces/interface";
+import { ExpenseInterface } from "../interfaces/expenses";
 import Form from "./Form";
 import Recurring from "./Recurring";
 import axios from "axios";
@@ -12,7 +12,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table"
+} from "../components/ui/table"
 import { toast, Bounce } from "react-toastify";
 
 //https://flowbite.com/docs/components/spinner/#progress-spinner

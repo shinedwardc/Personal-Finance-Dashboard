@@ -1,18 +1,6 @@
 import { useEffect, useState, useMemo, useRef } from "react";
 import { useExpenseContext } from "@/hooks/useExpenseContext";
-import { Bar, Line } from "react-chartjs-2";
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  PointElement,
-  LineElement,
-  ArcElement,
-  Tooltip,
-  Legend,
-  RadialLinearScale,
-} from "chart.js";
+import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts";
 import Modal from "react-modal";
 import {
     Card,
@@ -22,23 +10,10 @@ import {
     CardHeader,
     CardTitle,
 } from "./ui/card";
-import {
-  ExpenseInterface,
-  PlaidResponse,
-  Settings,
-} from "../interfaces/interface";
-
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  PointElement,
-  LineElement,
-  ArcElement,
-  Tooltip,
-  Legend,
-  RadialLinearScale,
-);
+import { type ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart"
+import { ExpenseInterface } from "../interfaces/expenses";
+import { PlaidResponse } from "../interfaces/plaid";
+import { Settings } from "../interfaces/settings";
 
 const Dashboard = ({
     plaidBalance,
@@ -56,6 +31,7 @@ const Dashboard = ({
   //const [date, setDate] = useState(new Date());
   const [categories, setCategories] = useState<string[]>([]);
   const [categoryLoading, setCategoryLoading] = useState<boolean>(true);
+  const [graphData, setGraphData] = useState<Array<{Category: string, Total: number}>>([]);
   const [graphType, setGraphType] = useState<string>("bar");
   const [modalIsOpen, setIsOpen] = useState<boolean>(false);
 
@@ -126,6 +102,16 @@ const Dashboard = ({
 
       totals[categoryName] = (totals[categoryName] || 0) + amount;
     }
+    const graphData = [];
+    for (const category in totals) {
+      const totalObj = {
+        "Category": category,
+        "Total": totals[category],
+      }
+      graphData.push(totalObj);
+    }
+    //console.log(graphData);
+    setGraphData(graphData);
     return totals;
   };
 
@@ -134,89 +120,12 @@ const Dashboard = ({
     setGraphType(element.value);
   };
 
-  const graph = useMemo(() => {
-    if (Object.keys(categoryTotals).length === 0) {
-      return null;
-    }
-    const chartData = {
-      labels: Object.keys(categoryTotals),
-      maintainAspectRatio: false,
-      datasets: [
-        {
-          label: "Total expense of category",
-          data: Object.values(categoryTotals).map((amount) =>
-            parseFloat(amount.toFixed(2)),
-          ),
-          backgroundColor: "#00cd00",
-          borderColor: "#00cd00",
-          borderWidth: 1,
-          hoverOffset: 1,
-        },
-      ],
-    };
-
-    const options = {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        title: {
-          display: true,
-          text: "Expenses analysis by category",
-          color: "#00cd00",
-        },
-        legend: {
-          position: "top" as const,
-          labels: {
-            color: "white",
-          },
-        },
-        tooltip: {
-          callbacks: {
-            label: (tooltipItem: any) => {
-              const dataset = tooltipItem.dataset;
-              const label = dataset.label || "";
-              const value = dataset.data[tooltipItem.dataIndex];
-              return `${label}: $${value.toFixed(2)}`;
-            },
-          },
-        },
-      },
-      scales: {
-        y: {
-          ticks: {
-            color: "#00cd00",
-          },
-        },
-        x: {
-          ticks: {
-            color: "#00cd00",
-          },
-        },
-      },
-    };
-    //console.log(graphType);
-
-    switch (graphType) {
-      case "bar":
-        return (
-          <Bar
-            className="mt-6 p-1 h-[400px]"
-            data={chartData}
-            options={options}
-          />
-        );
-      case "line":
-        return (
-          <Line
-            className="mt-6 p-1 h-[400px]"
-            data={chartData}
-            options={options}
-          />
-        );
-      default:
-        return null;
-    }
-  }, [categoryTotals, graphType]);
+  const chartConfig = {
+    desktop: {
+      label: "Desktop",
+      color: "hsl(var(--chart-2))",
+    },
+  } satisfies ChartConfig
 
   /*const handleDateSelect = async (date: Date) => {
     setDate(date);
@@ -243,7 +152,8 @@ const Dashboard = ({
   };
 
   return (
-    <div className="mt-5 ml-2">
+    <div className="mt-10 ml-2">
+      <h1 className="text-[#6abeb4] text-5xl mb-6">Expense Tracker</h1>
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card className="rounded-xl h-[150px]">
           <CardHeader>
@@ -282,7 +192,7 @@ const Dashboard = ({
         )}
           </CardContent>
         </Card>
-        <Card>
+        <Card className="rounded-xl">
             <CardHeader>
                 <CardTitle>Current balance</CardTitle>
                 <CardDescription>View your current account balance</CardDescription>
@@ -293,10 +203,65 @@ const Dashboard = ({
         </Card>
         <Card>
           <CardHeader>
-            <CardTitle>Most used category</CardTitle>
+            <CardTitle>Top spending category</CardTitle>
             <CardDescription></CardDescription>
           </CardHeader>
         </Card>
+      </div>
+      <div className="mt-4 p-5 rounded-xl border border-neutral-200 bg-white dark:border-neutral-800 dark:bg-neutral-950 dark:text-neutral-50">
+        <div>
+          <h1 className="text-2xl font-semibold text-black dark:text-white ml-4">Overview</h1>
+        </div>
+        <div className="flex flex-row gap-4 mt-4">
+          <Card className="w-1/2 rounded-xl">
+            <CardHeader>
+              <CardTitle className="font-normal">Spent by category</CardTitle>
+            </CardHeader>
+            <CardDescription>
+              <ChartContainer config={chartConfig}>
+                <BarChart accessibilityLayer data={graphData} >
+                  <XAxis
+                    dataKey="Category"
+                    tickLine={false}
+                    tickMargin={10}
+                    axisLine={false}
+                  />
+                  <YAxis
+                    scale="auto"
+                    tickCount={5}
+                    unit={"$"}
+                  />
+                  <ChartTooltip cursor={false} content={<ChartTooltipContent />} />
+                  <Bar dataKey="Total" fill="var(--color-desktop)" radius={8} />            
+                </BarChart>
+              </ChartContainer>
+            </CardDescription>
+          </Card>
+          <Card className="w-1/2 rounded-xl">
+            <CardHeader>
+              <CardTitle className="font-normal">Placeholder</CardTitle>
+            </CardHeader>
+            <CardDescription>
+              <ChartContainer config={chartConfig}>
+                <BarChart accessibilityLayer data={graphData} >
+                  <XAxis
+                    dataKey="Category"
+                    tickLine={false}
+                    tickMargin={10}
+                    axisLine={false}
+                  />
+                  <YAxis
+                    scale="auto"
+                    tickCount={5}
+                    unit={"$"}
+                  />
+                  <ChartTooltip cursor={false} content={<ChartTooltipContent />} />
+                  <Bar dataKey="Total" fill="var(--color-desktop)" radius={8} />            
+                </BarChart>
+              </ChartContainer>
+            </CardDescription>
+          </Card>
+        </div>
       </div>
     </div>
   );

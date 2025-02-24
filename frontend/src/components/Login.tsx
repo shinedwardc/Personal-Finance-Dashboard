@@ -2,7 +2,7 @@ import { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import LoginForm from "./LoginForm";
-import { AuthState } from "../interfaces/interface";
+import { AuthState } from "../interfaces/userAuth";
 
 const Login = ({
   authState,

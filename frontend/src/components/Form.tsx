@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { getCategories } from "../api/api";
 import axios from "axios";
-import { ExpenseInterface } from "../interfaces/interface";
+import { ExpenseInterface } from "../interfaces/expenses";
 import { Input } from "./ui/input";
 import {   
   Select,

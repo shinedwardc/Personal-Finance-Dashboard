@@ -1,5 +1,5 @@
 import { Navigate } from "react-router-dom";
-import { AuthState } from "../interfaces/interface";
+import { AuthState } from "../interfaces/userAuth";
 
 const PrivateRoute = ({
   authState,

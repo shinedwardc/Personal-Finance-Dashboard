@@ -1,4 +1,4 @@
-import { ExpenseInterface } from "../interfaces/interface";
+import { ExpenseInterface } from "../interfaces/expenses";
 
 interface Currency {
   usd: string;

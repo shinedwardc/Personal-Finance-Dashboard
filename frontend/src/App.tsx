@@ -19,12 +19,10 @@ import Login from "./components/Login";
 import Logout from "./components/Logout";
 import Signup from "./components/Signup";
 import PasswordRecovery from "./components/PasswordRecovery";
-import {
-  ExpenseInterface,
-  PlaidResponse,
-  AuthState,
-  Settings,
-} from "./interfaces/interface";
+import { ExpenseInterface } from "./interfaces/expenses";
+import { AuthState } from "./interfaces/userAuth";
+import { PlaidResponse } from "./interfaces/plaid";
+import { Settings } from "./interfaces/settings";
 import {
   getAuthStatus,
   getExpense,
@@ -136,7 +134,7 @@ function App() {
     <Router>
       <ToastContainer />
       <ThemeProvider storageKey="vite-ui-theme">
-        <div className="min-h-screen dark:bg-black overflow-auto">
+        <div className="min-h-screen dark:bg-black overflow-auto font-inter">
           <div className="flex flex-row gap-5">
             <Navbar authState={authState} setAuthState={setAuthState} />
             <ModeToggle />

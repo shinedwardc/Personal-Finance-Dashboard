@@ -13,11 +13,9 @@ import {
   RadialLinearScale,
 } from "chart.js";
 import Modal from "react-modal";
-import {
-  ExpenseInterface,
-  PlaidResponse,
-  Settings,
-} from "../interfaces/interface";
+import { ExpenseInterface } from "../interfaces/expenses";
+import { PlaidResponse } from "../interfaces/plaid";
+import { Settings } from "../interfaces/settings";
 import Form from "./Form";
 import { useExpenseContext } from "@/hooks/useExpenseContext";
 
@@ -245,7 +243,7 @@ const Breakdown = ({
     <div className="w-2/3 ml-36 mt-16">
       <div className="flex flex-col w-full">
         <div className="flex justify-start mb-7">
-          <h1 className="text-5xl font-ubuntu text-lime-400">
+          <h1 className="text-5xl ">
             Expense Tracker
           </h1>
         </div>
@@ -255,7 +253,7 @@ const Breakdown = ({
               <div className="flex flex-row justify-between w-full space-x-4">
                 <div className="flex flex-col p-2 justify-start w-1/3 bg-green-800 rounded-xl">
                   <div className="w-full">
-                    <h2 className="text-center mt-3 mb-3 font-ubuntu text-2xl">
+                    <h2 className="text-center mt-3 mb-3 text-2xl">
                       Expense overall summary
                     </h2>
                     <div className="flex flex-row justify-between text-center">
@@ -378,7 +376,7 @@ const Breakdown = ({
             </div>
           ) : (
             <div>
-              <h2 className="font-semibold font-ubuntu">
+              <h2 className="font-semibold">
                 Welcome to Expense Tracker! Add some new expenses below or go to
                 the Expenses page to add some
               </h2>

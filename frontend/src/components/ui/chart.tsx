@@ -67,7 +67,7 @@ ChartContainer.displayName = "Chart"
 
 const ChartStyle = ({ id, config }: { id: string; config: ChartConfig }) => {
   const colorConfig = Object.entries(config).filter(
-    ([_, config]) => config.theme || config.color
+    ([, config]) => config.theme || config.color
   )
 
   if (!colorConfig.length) {
@@ -146,7 +146,7 @@ const ChartTooltipContent = React.forwardRef<
 
       if (labelFormatter) {
         return (
-          <div className={cn("font-medium text-black", labelClassName)}>
+          <div className={cn("font-medium", labelClassName)}>
             {labelFormatter(value, payload)}
           </div>
         )
@@ -156,7 +156,7 @@ const ChartTooltipContent = React.forwardRef<
         return null
       }
 
-      return <div className={cn("font-medium text-black", labelClassName)}>Spent by day {value}</div>
+      return <div className={cn("font-medium", labelClassName)}>{value}</div>
     }, [
       label,
       labelFormatter,
@@ -236,9 +236,9 @@ const ChartTooltipContent = React.forwardRef<
                           {itemConfig?.label || item.name}
                         </span>
                       </div>
-                      {typeof item.value !== "undefined" && (
+                      {item.value && (
                         <span className="font-mono font-medium tabular-nums text-neutral-950 dark:text-neutral-50">
-                          {item.value.toLocaleString() + "$"}
+                          {item.value.toLocaleString()}
                         </span>
                       )}
                     </div>

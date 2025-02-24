@@ -7,8 +7,7 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        roboto: ["Roboto", "sans-serif"],
-        ubuntu: ["Ubuntu", "sans-serif"],
+        inter: ['Inter', 'sans-serif'],
       },
       borderRadius: {
         lg: "var(--radius)",
@@ -30,15 +29,4 @@ export default {
     },
   },
   plugins: [daisyui, tailwindcssAnimate],
-  daisyui: {
-    themes: [
-      "light",
-      "dark",
-      "forest",
-      "lemonade",
-      "aqua",
-      "synthwave",
-      "night",
-    ],
-  },
 };

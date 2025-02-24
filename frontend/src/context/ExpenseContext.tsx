@@ -1,5 +1,5 @@
 import { createContext, ReactNode } from "react";
-import { ExpenseInterface } from "../interfaces/interface";
+import { ExpenseInterface } from "../interfaces/expenses";
 
 export const ExpenseContext = createContext<{
     data : ExpenseInterface[], 

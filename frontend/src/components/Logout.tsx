@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { AuthState } from "../interfaces/interface";
+import { AuthState } from "../interfaces/userAuth";
 
 interface LogoutProps {
   authState: AuthState;

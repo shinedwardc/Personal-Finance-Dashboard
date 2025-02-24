@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
-import { Settings } from "../interfaces/interface";
+import { Settings } from "../interfaces/settings";
 import Connections from "./Connections";
 
 const Profile = ({
