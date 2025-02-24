@@ -1,5 +1,5 @@
 import React, { useRef, useEffect, useState } from "react";
-import { useData } from "@/App";
+import { useExpenseContext } from "@/hooks/useExpenseContext";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import { Calendar } from "./ui/calendar"
@@ -21,7 +21,7 @@ const ExpenseCalendar = (/*{
   data: ExpenseInterface[];
   isLoading: boolean;
 }*/) => {
-  const { data, isDataLoading } = useData();
+  const { data, isDataLoading } = useExpenseContext();
 
   const calendarRef = useRef<FullCalendar | null>(null);
 

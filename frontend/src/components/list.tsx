@@ -1,5 +1,5 @@
 import Expense from "./Expense";
-import { useData } from "@/App";
+import { useExpenseContext } from "@/hooks/useExpenseContext";
 import { ExpenseInterface } from "../interfaces/interface";
 import Form from "./Form";
 import Recurring from "./Recurring";
@@ -30,7 +30,7 @@ const List = (/*{
   //const [useFilteredData, setUseFilteredData] = useState<boolean>(false);
   //const [filteredData, setFilteredData] = useState<ExpenseInterface[]>([]);
 
-  const { data, setData, isDataLoading } = useData();
+  const { data, setData, isDataLoading } = useExpenseContext();
 
   const refetchExpenses = async (newExpense: ExpenseInterface) => {
     try {

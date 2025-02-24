@@ -1,4 +1,5 @@
-import { useState, useEffect, createContext, useContext } from "react";
+import { useState, useEffect } from "react";
+import { ExpenseProvider } from "./context/ExpenseContext";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import "./App.css";
 import { ThemeProvider } from "@/components/theme-provider";
@@ -34,18 +35,6 @@ import {
 } from "./api/api";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 
-const DataContext = createContext<{
-  data : ExpenseInterface[], 
-  setData : React.Dispatch<React.SetStateAction<ExpenseInterface[]>>,
-  isDataLoading : boolean
-} | undefined>(undefined);
-export const useData = () => {
-  const context = useContext(DataContext);
-  if (!context) {
-    throw new Error("useData must be used within a DataProvider");
-  }
-  return context;
-};
 
 function App() {
   const queryClient = useQueryClient();
@@ -152,7 +141,7 @@ function App() {
             <Navbar authState={authState} setAuthState={setAuthState} />
             <ModeToggle />
           </div>
-          <DataContext.Provider value={{data, setData, isDataLoading}}>
+          <ExpenseProvider data={data} setData={setData} isDataLoading={isDataLoading}>
             <div className="flex-grow flex flex-col items-center justify-center mr-[64px]">
               <Routes>
                 {/* Public routes */}
@@ -249,7 +238,7 @@ function App() {
                 />
               </Routes>
             </div>
-          </DataContext.Provider>
+          </ExpenseProvider>
         </div>
       </ThemeProvider>
     </Router>

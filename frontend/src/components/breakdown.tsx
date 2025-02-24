@@ -1,5 +1,4 @@
 import { useEffect, useState, useMemo, useRef } from "react";
-import { useData } from "@/App";
 import { Bar, Line } from "react-chartjs-2";
 import {
   Chart as ChartJS,
@@ -20,6 +19,7 @@ import {
   Settings,
 } from "../interfaces/interface";
 import Form from "./Form";
+import { useExpenseContext } from "@/hooks/useExpenseContext";
 
 ChartJS.register(
   CategoryScale,
@@ -46,7 +46,7 @@ const Breakdown = ({
   //isDataLoading: boolean;
   plaidBalance: PlaidResponse;
 }) => {
-  const { data, setData, isDataLoading } = useData();
+  const { data, setData, isDataLoading } = useExpenseContext();
   const [categoryTotals, setCategoryTotals] = useState<Record<string, number>>(
     {},
   );

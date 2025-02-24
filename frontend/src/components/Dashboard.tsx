@@ -1,5 +1,5 @@
 import { useEffect, useState, useMemo, useRef } from "react";
-import { useData } from "@/App";
+import { useExpenseContext } from "@/hooks/useExpenseContext";
 import { Bar, Line } from "react-chartjs-2";
 import {
   Chart as ChartJS,
@@ -47,7 +47,7 @@ const Dashboard = ({
     plaidBalance: PlaidResponse;
     settings: Settings;
 }) => {
-  const { data, setData, isDataLoading } = useData();
+  const { data, setData, isDataLoading } = useExpenseContext();
   const [categoryTotals, setCategoryTotals] = useState<Record<string, number>>(
     {},
   );
@@ -290,6 +290,12 @@ const Dashboard = ({
             <CardContent>
                 <p>${balance.toFixed(2)}</p>
             </CardContent>
+        </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle>Most used category</CardTitle>
+            <CardDescription></CardDescription>
+          </CardHeader>
         </Card>
       </div>
     </div>
