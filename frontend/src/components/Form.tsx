@@ -16,35 +16,34 @@ interface formProps {
 }
 
 const Form = ({ onFormSubmit }: formProps) => {
-  const [categoryNames, setCategoryNames] = useState<string[]>([]);
+  const categoryNames = [
+    "Bank Fees",
+    "Cash Advance",
+    "Community",
+    "Food and Drink",
+    "Healthcare",
+    "Interest",
+    "Loan Payments",
+    "Other",
+    "Payment",
+    "Recreation",
+    "Service",
+    "Shops",
+    "Tax",
+    "Transfer",
+    "Travel",
+    "Utilities"
+  ]
   const [selectedCategory, setSelectedCategory] = useState<string>("");
-  const [customCategory, setCustomCategory] = useState<string>("");
   const [amount, setAmount] = useState<string>("");
   const [currency, setCurrency] = useState<string>("usd");
   const [name, setName] = useState<string>("");
 
-  useEffect(() => {
-    const fetchCategories = async () => {
-      try {
-        const categories = await getCategories();
-        console.log("categories: ", categories);
-        setCategoryNames(categories);
-      } catch (error) {
-        console.error(error);
-      }
-    };
-    fetchCategories();
-  }, []);
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const categoryToSubmit = selectedCategory
-      ? selectedCategory
-      : customCategory;
-    console.log(categoryToSubmit);
     const newExpense = {
       name,
-      category: categoryToSubmit.toString(),
+      category: selectedCategory,
       amount: parseFloat(amount),
       currency,
       date: new Date().toISOString().split("T")[0], // Current date in YYYY-MM-DD format
@@ -70,7 +69,6 @@ const Form = ({ onFormSubmit }: formProps) => {
         console.log("Error message:", error.message);
       }
     }
-    setCategoryNames((prev) => [...prev, categoryToSubmit]);
   };
 
   return (
@@ -90,8 +88,6 @@ const Form = ({ onFormSubmit }: formProps) => {
         <label htmlFor="category" className="block dark:text-white">
           Category
         </label>
-        {categoryNames.length > 0 && 
-        customCategory.length === 0 &&
         <div className="flex items-center space-x-4">
           <Select onValueChange={(value) => setSelectedCategory(value)}>
             <SelectTrigger>
@@ -105,16 +101,7 @@ const Form = ({ onFormSubmit }: formProps) => {
               ))}
             </SelectContent>
           </Select>
-        </div>}
-        {selectedCategory.length <= 0 && 
-        <div className="mt-3">
-          <Input
-            type="text"
-            placeholder="New custom category"
-            value={customCategory}
-            onChange={(e) => setCustomCategory(e.target.value)}
-          />
-        </div>}
+        </div>
       </div>
       <div className="mt-2 mb-2">
         <div className="mb-2 dark:text-white">
