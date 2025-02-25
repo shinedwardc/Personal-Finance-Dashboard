@@ -1,26 +1,32 @@
-import { useEffect, useState, useMemo, useRef } from "react";
+import { useEffect, useState } from "react";
 import { useExpenseContext } from "@/hooks/useExpenseContext";
-import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts";
+import { Bar, BarChart, XAxis, YAxis } from "recharts";
 import Modal from "react-modal";
 import {
-    Card,
-    CardContent,
-    CardDescription,
-    CardFooter,
-    CardHeader,
-    CardTitle,
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
 } from "./ui/card";
-import { type ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart"
+import { Skeleton } from "./ui/skeleton";
+import {
+  type ChartConfig,
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+} from "@/components/ui/chart";
 import { ExpenseInterface } from "../interfaces/expenses";
 import { PlaidResponse } from "../interfaces/plaid";
 import { Settings } from "../interfaces/settings";
 
 const Dashboard = ({
-    plaidBalance,
-    settings,
+  plaidBalance,
+  settings,
 }: {
-    plaidBalance: PlaidResponse;
-    settings: Settings;
+  plaidBalance: PlaidResponse;
+  settings: Settings;
 }) => {
   const { data, setData, isDataLoading } = useExpenseContext();
   const [categoryTotals, setCategoryTotals] = useState<Record<string, number>>(
@@ -31,12 +37,15 @@ const Dashboard = ({
   //const [date, setDate] = useState(new Date());
   const [categories, setCategories] = useState<string[]>([]);
   const [categoryLoading, setCategoryLoading] = useState<boolean>(true);
-  const [graphData, setGraphData] = useState<Array<{Category: string, Total: number}>>([]);
+  const [graphData, setGraphData] = useState<
+    Array<{ Category: string; Total: number }>
+  >([]);
   const [graphType, setGraphType] = useState<string>("bar");
   const [modalIsOpen, setIsOpen] = useState<boolean>(false);
 
   //const modalRef = useRef<HTMLDialogElement>(null);
   Modal.setAppElement("#root");
+  console.log(settings);
 
   useEffect(() => {
     const initialize = async () => {
@@ -105,9 +114,9 @@ const Dashboard = ({
     const graphData = [];
     for (const category in totals) {
       const totalObj = {
-        "Category": category,
-        "Total": totals[category],
-      }
+        Category: category,
+        Total: totals[category],
+      };
       graphData.push(totalObj);
     }
     //console.log(graphData);
@@ -125,7 +134,7 @@ const Dashboard = ({
       label: "Desktop",
       color: "hsl(var(--chart-2))",
     },
-  } satisfies ChartConfig
+  } satisfies ChartConfig;
 
   /*const handleDateSelect = async (date: Date) => {
     setDate(date);
@@ -152,118 +161,146 @@ const Dashboard = ({
   };
 
   return (
-    <div className="mt-10 ml-2">
-      <h1 className="text-[#6abeb4] text-5xl mb-6">Expense Tracker</h1>
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card className="rounded-xl h-[150px]">
-          <CardHeader>
-            <CardTitle>Total spent</CardTitle>
-            <CardDescription>
-              Total amount spent in transactions (USD $)
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="bt-[-6]">
-            <p>${total.toFixed(2)}</p>
-          </CardContent>
-        </Card>
-        <Card className="rounded-xl h-[150px]">
-          <CardHeader>
-            <CardTitle>Monthly budget</CardTitle>
-            <CardDescription>Manage your spending by setting a limit</CardDescription>
-          </CardHeader>
-          <CardContent>
-          {settings.monthlyBudget !== null ? (
-                <>
-                <h1 className="text-3xl font-bold">
-                ${settings.monthlyBudget}
-                </h1>
-                <h3
-                className={`text-sm ${settings.monthlyBudget - Number(total.toFixed(2)) < 0 ? "text-red-400" : "text-green-400"}`}
-                >
-                {settings.monthlyBudget - Number(total.toFixed(2)) < 0
-                    ? `Spent over monthly budget limit by ${Math.abs(settings.monthlyBudget - Number(total.toFixed(2))).toFixed(2)}$`
-                    : `Amount left until budget limit ${(settings.monthlyBudget - Number(total.toFixed(2))).toFixed(2)}$`}
-                </h3>
-                </>
-            ) : (
-                <p className="text-sm text-red-400">
-                Add a budget limit in profile settings
-                </p>
-        )}
-          </CardContent>
-        </Card>
-        <Card className="rounded-xl">
-            <CardHeader>
+    <>
+      {!isDataLoading ? (
+        <div className="mt-10 ml-2">
+          <h1 className="text-[#6abeb4] text-5xl mb-6">Expense Tracker</h1>
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+            <Card className="rounded-xl h-[150px] w-[330px]">
+              <CardHeader>
+                <CardTitle>Total spent</CardTitle>
+                <CardDescription>
+                  Total amount spent in transactions $
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="bt-[-6]">
+                <p>${total.toFixed(2)}</p>
+              </CardContent>
+            </Card>
+            <Card className="rounded-xl h-[150px] w-[330px]">
+              <CardHeader>
+                <CardTitle>Monthly budget</CardTitle>
+                <CardDescription>
+                  Manage your spending by setting a limit
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                {settings.monthlyBudget !== null ? (
+                  <>
+                    <h1 className="text-3xl font-bold">
+                      ${settings.monthlyBudget}
+                    </h1>
+                    <h3
+                      className={`text-sm ${settings.monthlyBudget - Number(total.toFixed(2)) < 0 ? "text-red-400" : "text-green-400"}`}
+                    >
+                      {settings.monthlyBudget - Number(total.toFixed(2)) < 0
+                        ? `Spent over monthly budget limit by ${Math.abs(settings.monthlyBudget - Number(total.toFixed(2))).toFixed(2)}$`
+                        : `Amount left until budget limit ${(settings.monthlyBudget - Number(total.toFixed(2))).toFixed(2)}$`}
+                    </h3>
+                  </>
+                ) : (
+                  <p className="text-sm text-red-400">
+                    Add a budget limit in profile settings
+                  </p>
+                )}
+              </CardContent>
+            </Card>
+            <Card className="rounded-xl h-[150px] w-[330px]">
+              <CardHeader>
                 <CardTitle>Current balance</CardTitle>
-                <CardDescription>View your current account balance</CardDescription>
-            </CardHeader>
-            <CardContent>
+                <CardDescription>
+                  View your current account balance
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
                 <p>${balance.toFixed(2)}</p>
-            </CardContent>
-        </Card>
-        <Card>
-          <CardHeader>
-            <CardTitle>Top spending category</CardTitle>
-            <CardDescription></CardDescription>
-          </CardHeader>
-        </Card>
-      </div>
-      <div className="mt-4 p-5 rounded-xl border border-neutral-200 bg-white dark:border-neutral-800 dark:bg-neutral-950 dark:text-neutral-50">
-        <div>
-          <h1 className="text-2xl font-semibold text-black dark:text-white ml-4">Overview</h1>
+              </CardContent>
+            </Card>
+            <Card className="rounded-xl h-[150px] w-[330px]">
+              <CardHeader>
+                <CardTitle>Top spending category</CardTitle>
+                <CardDescription></CardDescription>
+              </CardHeader>
+            </Card>
+          </div>
+          <div className="mt-4 p-5 rounded-xl border border-neutral-200 bg-white dark:border-neutral-800 dark:bg-neutral-950 dark:text-neutral-50">
+            <div>
+              <h1 className="text-2xl font-semibold text-black dark:text-white ml-4">
+                Overview
+              </h1>
+            </div>
+            <div className="flex flex-row gap-4 mt-4">
+              <Card className="w-1/2 rounded-xl">
+                <CardHeader>
+                  <CardTitle className="font-normal">
+                    Spent by category
+                  </CardTitle>
+                </CardHeader>
+                <CardDescription>
+                  <ChartContainer config={chartConfig}>
+                    <BarChart accessibilityLayer data={graphData}>
+                      <XAxis
+                        dataKey="Category"
+                        tickLine={false}
+                        tickMargin={10}
+                        axisLine={false}
+                      />
+                      <YAxis scale="auto" tickCount={5} unit={"$"} />
+                      <ChartTooltip
+                        cursor={false}
+                        content={<ChartTooltipContent />}
+                      />
+                      <Bar
+                        dataKey="Total"
+                        fill="var(--color-desktop)"
+                        radius={8}
+                      />
+                    </BarChart>
+                  </ChartContainer>
+                </CardDescription>
+              </Card>
+              <Card className="w-1/2 rounded-xl">
+                <CardHeader>
+                  <CardTitle className="font-normal">Placeholder</CardTitle>
+                </CardHeader>
+                <CardDescription>
+                  <ChartContainer config={chartConfig}>
+                    <BarChart accessibilityLayer data={graphData}>
+                      <XAxis
+                        dataKey="Category"
+                        tickLine={false}
+                        tickMargin={10}
+                        axisLine={false}
+                      />
+                      <YAxis scale="auto" tickCount={5} unit={"$"} />
+                      <ChartTooltip
+                        cursor={false}
+                        content={<ChartTooltipContent />}
+                      />
+                      <Bar
+                        dataKey="Total"
+                        fill="var(--color-desktop)"
+                        radius={8}
+                      />
+                    </BarChart>
+                  </ChartContainer>
+                </CardDescription>
+              </Card>
+            </div>
+          </div>
         </div>
-        <div className="flex flex-row gap-4 mt-4">
-          <Card className="w-1/2 rounded-xl">
-            <CardHeader>
-              <CardTitle className="font-normal">Spent by category</CardTitle>
-            </CardHeader>
-            <CardDescription>
-              <ChartContainer config={chartConfig}>
-                <BarChart accessibilityLayer data={graphData} >
-                  <XAxis
-                    dataKey="Category"
-                    tickLine={false}
-                    tickMargin={10}
-                    axisLine={false}
-                  />
-                  <YAxis
-                    scale="auto"
-                    tickCount={5}
-                    unit={"$"}
-                  />
-                  <ChartTooltip cursor={false} content={<ChartTooltipContent />} />
-                  <Bar dataKey="Total" fill="var(--color-desktop)" radius={8} />            
-                </BarChart>
-              </ChartContainer>
-            </CardDescription>
-          </Card>
-          <Card className="w-1/2 rounded-xl">
-            <CardHeader>
-              <CardTitle className="font-normal">Placeholder</CardTitle>
-            </CardHeader>
-            <CardDescription>
-              <ChartContainer config={chartConfig}>
-                <BarChart accessibilityLayer data={graphData} >
-                  <XAxis
-                    dataKey="Category"
-                    tickLine={false}
-                    tickMargin={10}
-                    axisLine={false}
-                  />
-                  <YAxis
-                    scale="auto"
-                    tickCount={5}
-                    unit={"$"}
-                  />
-                  <ChartTooltip cursor={false} content={<ChartTooltipContent />} />
-                  <Bar dataKey="Total" fill="var(--color-desktop)" radius={8} />            
-                </BarChart>
-              </ChartContainer>
-            </CardDescription>
-          </Card>
+      ) : (
+        <div className="rounded-xl mt-10 ml-2">
+          <Skeleton className="h-[48px] w-[350px] mb-6"/>
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+            {[...Array(4)].map((index) => (
+                <Skeleton key={index} className="rounded-xl h-[150px] w-[330px]"/>
+            ))}
+          </div>
+          <Skeleton className="mt-4 rounded-xl h-[531px] w-[1368px]"/>
         </div>
-      </div>
-    </div>
+      )}
+    </>
   );
 };
 export default Dashboard;
