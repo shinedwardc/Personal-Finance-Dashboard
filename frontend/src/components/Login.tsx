@@ -32,7 +32,7 @@ const Login = ({
         isPlaidConnected: authState.isPlaidConnected,
         isLoading: false,
       });
-      navigate("/"); // Redirect to homepage after login
+      navigate("/dashboard"); // Redirect to homepage after login
     } catch (error) {
       setError("Invalid username or password");
       console.error(error);

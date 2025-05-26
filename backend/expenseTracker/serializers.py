@@ -5,7 +5,7 @@ from .models import Expense,User,Investment
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['id','username','first_name']
+        fields = ['id','username','email']
 
 class ExpenseSerializer(serializers.ModelSerializer):
     user = UserSerializer(read_only=True)  # Make user read-only since it will be set in the create method

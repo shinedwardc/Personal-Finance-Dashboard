@@ -7,6 +7,7 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { ModeToggle } from "./components/modeToggle";
 import Navbar from "./components/Navbar";
+import Introduction from "./components/Introduction";
 import Breakdown from "./components/Breakdown";
 import Dashboard from "./components/Dashboard";
 import List from "./components/List";
@@ -137,12 +138,16 @@ function App() {
         <div className="min-h-screen dark:bg-black overflow-auto font-inter">
           <div className="flex flex-row gap-5">
             <Navbar authState={authState} setAuthState={setAuthState} />
-            <ModeToggle />
+            {/*<ModeToggle />*/}
           </div>
           <ExpenseProvider data={data} setData={setData} isDataLoading={isDataLoading}>
             <div className="flex-grow flex flex-col items-center justify-center mr-[64px]">
               <Routes>
                 {/* Public routes */}
+                <Route
+                  path="/about"
+                  element={<Introduction authState={authState} />}
+                />
                 <Route
                   path="/login"
                   element={

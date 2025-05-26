@@ -1,5 +1,6 @@
 import axios, {AxiosInstance} from "axios";
-import { ExpenseInterface, Settings } from "../interfaces/interface";
+import { Settings } from "../interfaces/settings";
+import { ExpenseInterface } from "@/interfaces/expenses";
 
 const api: AxiosInstance = axios.create({
   baseURL: 'http://localhost:8000',
@@ -52,7 +53,6 @@ api.interceptors.response.use(
 export const getExpense = async (): Promise<ExpenseInterface[]> => {
   try {
     const response = await api.get("/expenses/");
-    console.log(response.data.expenses);
     return response.data.expenses;
   } catch (error) {
     console.error(error);
@@ -142,6 +142,26 @@ export const fetchPlaidBalance = async () => {
     console.error(error);
   }
 };
+
+export const fetchInvestments = async () => {
+  try {
+    const response = await api.get("/get-investments/");
+    console.log(response.data);
+    const data = response.data.map((investment : any) => {
+      return {
+        id: investment.id,
+        symbol: investment.symbol,
+        quantity: investment.quantity,
+        purchasePrice: investment.purchase_price,
+        currentPrice: investment.current_price,
+        purchaseDate: investment.purchase_date,
+      };
+    })
+    return data;
+  } catch (error) {
+    console.error(error);
+  }
+}
 
 export const fetchProfileSettings = async () => {
   try {

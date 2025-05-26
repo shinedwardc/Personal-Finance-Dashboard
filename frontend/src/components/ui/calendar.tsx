@@ -5,14 +5,36 @@ import { DayPicker } from "react-day-picker"
 import { cn } from "@/lib/utils"
 import { buttonVariants } from "@/components/ui/button"
 
-export type CalendarProps = React.ComponentProps<typeof DayPicker>
+export type CalendarProps = React.ComponentProps<typeof DayPicker> & {
+  //eventData?: { title: string; start: string; amount: number; frequency: string | null; }[];  // Add custom props
+};
 
 function Calendar({
   className,
   classNames,
   showOutsideDays = true,
+  //eventData = [],
   ...props
 }: CalendarProps) {
+
+  /*const renderDayContent = (date : Date) => {
+    const filteredEvents = eventData.filter((event) => new Date(event.start).getDate() === date.getDate());
+    console.log(filteredEvents);
+    console.log(date.toISOString().split('T')[0]);
+    const totalAmount = filteredEvents.reduce(
+      (sum, event) => sum + event.amount,
+      0,
+    );
+    console.log(totalAmount);
+    console.log(date.getDate());
+    return (
+      <div className="flex flex-col items-center">
+        <span className="text-lg font-semibold">{date.getDate()}</span>
+        <span>{totalAmount > 0 ? totalAmount : null}</span>
+      </div>
+    )
+  }*/
+
   return (
     <DayPicker
       showOutsideDays={showOutsideDays}
@@ -63,6 +85,7 @@ function Calendar({
         IconRight: ({ className, ...props }) => (
           <ChevronRight className={cn("h-4 w-4", className)} {...props} />
         ),
+        //DayContent: ({ date }) => renderDayContent(date),
       }}
       {...props}
     />
