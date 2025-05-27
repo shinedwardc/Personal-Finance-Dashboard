@@ -380,6 +380,29 @@ const Breakdown = ({
                 Welcome to Expense Tracker! Add some new expenses below or go to
                 the Expenses page to add some
               </h2>
+              <div className="flex justify-center mt-8">
+                {/* Open the modal using document.getElementById('ID').showModal() method */}
+                <button
+                  className="btn btn-success"
+                  onClick={() => setIsOpen(true)}
+                >
+                  Add new expense
+                </button>
+                <Modal
+                  isOpen={modalIsOpen}
+                  onRequestClose={() => setIsOpen(false)}
+                  className="modal-box absolute top-[35%] left-[38.7%] dark:bg-black"
+                >
+                  <div className="">
+                    <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2" onClick={() => setIsOpen(false)}>
+                      ✕
+                    </button>
+                    <div>
+                      <Form onFormSubmit={refetchExpenses} />
+                    </div>
+                  </div>                 
+                </Modal>
+              </div>
             </div>
           )
         ) : (

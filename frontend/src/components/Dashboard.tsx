@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useExpenseContext } from "@/hooks/useExpenseContext";
+import { useCalendarContext } from "@/hooks/useCalendarContext";
 import { Bar, BarChart, XAxis, YAxis } from "recharts";
 import Modal from "react-modal";
 import {
@@ -17,9 +18,11 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
+import Form from "./Form";
 import { ExpenseInterface } from "../interfaces/expenses";
 import { PlaidResponse } from "../interfaces/plaid";
 import { Settings } from "../interfaces/settings";
+import { stringify } from "querystring";
 
 const Dashboard = ({
   plaidBalance,
@@ -29,6 +32,7 @@ const Dashboard = ({
   settings: Settings;
 }) => {
   const { data, setData, isDataLoading } = useExpenseContext();
+  const { monthlySpent } = useCalendarContext();
   const [categoryTotals, setCategoryTotals] = useState<Record<string, number>>(
     {},
   );
@@ -37,6 +41,7 @@ const Dashboard = ({
   //const [date, setDate] = useState(new Date());
   const [categories, setCategories] = useState<string[]>([]);
   const [categoryLoading, setCategoryLoading] = useState<boolean>(true);
+  const [topSpendingCategories, setTopSpendingCategories] = useState<string[]>([]);
   const [graphData, setGraphData] = useState<
     Array<{ Category: string; Total: number }>
   >([]);
@@ -45,7 +50,7 @@ const Dashboard = ({
 
   //const modalRef = useRef<HTMLDialogElement>(null);
   Modal.setAppElement("#root");
-  console.log(settings);
+  //console.log(settings);
 
   useEffect(() => {
     const initialize = async () => {
@@ -92,7 +97,7 @@ const Dashboard = ({
       const categoryName = expense.category;
       newCategories.add(categoryName);
     }
-    console.log("newCategories: ", newCategories);
+    //console.log("newCategories: ", newCategories);
     setCategories(Array.from(newCategories));
   };
 
@@ -111,8 +116,24 @@ const Dashboard = ({
 
       totals[categoryName] = (totals[categoryName] || 0) + amount;
     }
+    const sortedCategoryTotals = Object.entries(totals).sort(
+      ([,a], [,b]) => b - a,
+    )
+    const topSpenders: string[] = [];
+    if (sortedCategoryTotals.length > 0) {
+      const topValue = sortedCategoryTotals[0][1];
+      for (const [category, value] of sortedCategoryTotals) {
+        if (value === topValue) {
+          topSpenders.push(category);
+        } else {
+          break;
+        }
+      }
+      setTopSpendingCategories(topSpenders); 
+    }
+    
     const graphData = [];
-    for (const category in totals) {
+    for (const category of Object.keys(totals).sort()) {
       const totalObj = {
         Category: category,
         Total: totals[category],
@@ -121,6 +142,7 @@ const Dashboard = ({
     }
     //console.log(graphData);
     setGraphData(graphData);
+    
     return totals;
   };
 
@@ -164,140 +186,217 @@ const Dashboard = ({
     <>
       {!isDataLoading ? (
         <div className="mt-10 ml-2">
-          <h1 className="text-[#6abeb4] text-5xl mb-6">Expense Tracker</h1>
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-            <Card className="rounded-xl h-[150px] w-[330px]">
-              <CardHeader>
-                <CardTitle>Total spent</CardTitle>
-                <CardDescription>
-                  Total amount spent in transactions $
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="bt-[-6]">
-                <p>${total.toFixed(2)}</p>
-              </CardContent>
-            </Card>
-            <Card className="rounded-xl h-[150px] w-[330px]">
-              <CardHeader>
-                <CardTitle>Monthly budget</CardTitle>
-                <CardDescription>
-                  Manage your spending by setting a limit
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                {settings.monthlyBudget !== null ? (
-                  <>
-                    <h1 className="text-3xl font-bold">
-                      ${settings.monthlyBudget}
-                    </h1>
-                    <h3
-                      className={`text-sm ${settings.monthlyBudget - Number(total.toFixed(2)) < 0 ? "text-red-400" : "text-green-400"}`}
-                    >
-                      {settings.monthlyBudget - Number(total.toFixed(2)) < 0
-                        ? `Spent over monthly budget limit by ${Math.abs(settings.monthlyBudget - Number(total.toFixed(2))).toFixed(2)}$`
-                        : `Amount left until budget limit ${(settings.monthlyBudget - Number(total.toFixed(2))).toFixed(2)}$`}
-                    </h3>
-                  </>
-                ) : (
-                  <p className="text-sm text-red-400">
-                    Add a budget limit in profile settings
-                  </p>
-                )}
-              </CardContent>
-            </Card>
-            <Card className="rounded-xl h-[150px] w-[330px]">
-              <CardHeader>
-                <CardTitle>Current balance</CardTitle>
-                <CardDescription>
-                  View your current account balance
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p>${balance.toFixed(2)}</p>
-              </CardContent>
-            </Card>
-            <Card className="rounded-xl h-[150px] w-[330px]">
-              <CardHeader>
-                <CardTitle>Top spending category</CardTitle>
-                <CardDescription></CardDescription>
-              </CardHeader>
-            </Card>
-          </div>
-          <div className="mt-4 p-5 rounded-xl border border-neutral-200 bg-white dark:border-neutral-800 dark:bg-neutral-950 dark:text-neutral-50">
-            <div>
-              <h1 className="text-2xl font-semibold text-black dark:text-white ml-4">
-                Overview
-              </h1>
+          <h1 className="text-[#6abeb4] text-5xl mb-6">Overview</h1>
+          <p className="text-gray-300 mb-2">
+            Start money management with a birds-eye view of your expenses
+          </p>
+          {data.length > 0 ? (
+            <>
+              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+                <Card className="rounded-xl h-[150px] w-[330px]">
+                  <CardHeader>
+                    <CardTitle>This Month's Spending</CardTitle>
+                    <CardDescription>
+                      Total monthly spent amount
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="bt-[-6]">
+                    <h1 className="font-bold">${monthlySpent}</h1>
+                  </CardContent>
+                </Card>
+                <Card className="rounded-xl h-[150px] w-[330px]">
+                  <CardHeader>
+                    <CardTitle>Top spending categories</CardTitle>
+                    <CardDescription>
+                    View your top spending categories
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    {topSpendingCategories.length > 0 ? (
+                      <p className="text-sm text-yellow-200">
+                        {topSpendingCategories.join(", ")}
+                      </p>
+                    ) : (
+                      <p className="text-sm">No spending data available</p>
+                    )}                    
+                  </CardContent>
+                </Card>
+                <Card className="rounded-xl h-[150px] w-[330px]">
+                  <CardHeader>
+                    <CardTitle>Current balance</CardTitle>
+                    <CardDescription>
+                      View your current account balance
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <p>${balance.toFixed(2)}</p>
+                  </CardContent>
+                </Card>
+                <Card className="rounded-xl h-[150px] w-[330px]">
+                  <CardHeader>
+                    <CardTitle>Remaining budget</CardTitle>
+                    <CardDescription>
+                      Monthly spent so far / Set monthly budget
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    {settings.monthlyBudget !== null ? (
+                      <>
+                        <h1 className={`text-sm font-semibold ${settings.monthlyBudget - Number(total.toFixed(2)) < 0 ? "text-red-400" : "text-green-200"}`}>
+                          ${monthlySpent} / ${settings.monthlyBudget}
+                        </h1>
+                        <h3
+                          className={`text-sm ${settings.monthlyBudget - Number(total.toFixed(2)) < 0 ? "text-red-400" : "text-yellow-200"}`}
+                        >
+                          {settings.monthlyBudget - Number(total.toFixed(2)) < 0
+                            ? `Spent over monthly budget limit by ${Math.abs(settings.monthlyBudget - Number(total.toFixed(2))).toFixed(2)}$`
+                            : `You have ${(settings.monthlyBudget - Number(total.toFixed(2))).toFixed(2)}$ left until budget limit`}
+                        </h3>
+                      </>
+                    ) : (
+                      <p className="text-sm text-red-400">
+                        Add a budget limit in profile settings
+                      </p>
+                    )}
+                  </CardContent>
+                </Card>
+                {/*<Card>
+                  <CardHeader>
+                    <CardTitle>
+                      Largest Expense
+                    </CardTitle>
+                  </CardHeader>
+                </Card>
+                <Card>
+                  <CardHeader>
+                    <CardTitle>
+                      Average daily spending
+                    </CardTitle>
+                  </CardHeader>
+                </Card>
+                <Card>
+                  <CardHeader>
+                    <CardTitle>
+                      Total expenses
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p>${total.toFixed(2)}</p>
+                  </CardContent>
+                </Card>*/}
+              </div>
+              <div className="mt-4 p-5 rounded-xl border border-neutral-200 bg-white dark:border-neutral-800 dark:bg-neutral-950 dark:text-neutral-50">
+                <div>
+                  <h1 className="text-2xl font-semibold text-black dark:text-white ml-4">
+                    Overview
+                  </h1>
+                </div>
+                <div className="flex flex-row gap-4 mt-4">
+                  <Card className="w-1/2 rounded-xl">
+                    <CardHeader>
+                      <CardTitle className="font-normal">
+                        Spent by category
+                      </CardTitle>
+                    </CardHeader>
+                    <CardDescription>
+                      <ChartContainer config={chartConfig}>
+                        <BarChart accessibilityLayer data={graphData}>
+                          <XAxis
+                            dataKey="Category"
+                            tickLine={false}
+                            tickMargin={10}
+                            axisLine={false}
+                          />
+                          <YAxis scale="auto" tickCount={5} unit={"$"} />
+                          <ChartTooltip
+                            cursor={false}
+                            content={<ChartTooltipContent />}
+                          />
+                          <Bar
+                            dataKey="Total"
+                            fill="var(--color-desktop)"
+                            radius={8}
+                          />
+                        </BarChart>
+                      </ChartContainer>
+                    </CardDescription>
+                  </Card>
+                  <Card className="w-1/2 rounded-xl">
+                    <CardHeader>
+                      <CardTitle className="font-normal">Placeholder</CardTitle>
+                    </CardHeader>
+                    <CardDescription>
+                      <ChartContainer config={chartConfig}>
+                        <BarChart accessibilityLayer data={graphData}>
+                          <XAxis
+                            dataKey="Category"
+                            tickLine={false}
+                            tickMargin={10}
+                            axisLine={false}
+                          />
+                          <YAxis scale="auto" tickCount={5} unit={"$"} />
+                          <ChartTooltip
+                            cursor={false}
+                            content={<ChartTooltipContent />}
+                          />
+                          <Bar
+                            dataKey="Total"
+                            fill="var(--color-desktop)"
+                            radius={8}
+                          />
+                        </BarChart>
+                      </ChartContainer>
+                    </CardDescription>
+                  </Card>
+                </div>
+              </div>
+            </>
+          ) : (
+            <div className="text-center mt-10">
+              <h2 className="text-2xl font-semibold text-gray-700 dark:text-gray-300">
+                No expenses found
+              </h2>
+              <p className="text-gray-500 dark:text-gray-400">
+                Start adding your expenses below or at the transactions page to see the overview.
+              </p>
+              <div className="flex justify-center mt-8">
+                {/* Open the modal using document.getElementById('ID').showModal() method */}
+                <button
+                  className="btn btn-success"
+                  onClick={() => setIsOpen(true)}
+                >
+                  Add new expense
+                </button>
+                <Modal
+                  isOpen={modalIsOpen}
+                  onRequestClose={() => setIsOpen(false)}
+                  className="modal-box absolute top-[35%] left-[38.7%] dark:bg-black"
+                >
+                  <div className="">
+                    <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2" onClick={() => setIsOpen(false)}>
+                      ✕
+                    </button>
+                    <div>
+                      <Form onFormSubmit={refetchExpenses} />
+                    </div>
+                  </div>                 
+                </Modal>
+              </div>
             </div>
-            <div className="flex flex-row gap-4 mt-4">
-              <Card className="w-1/2 rounded-xl">
-                <CardHeader>
-                  <CardTitle className="font-normal">
-                    Spent by category
-                  </CardTitle>
-                </CardHeader>
-                <CardDescription>
-                  <ChartContainer config={chartConfig}>
-                    <BarChart accessibilityLayer data={graphData}>
-                      <XAxis
-                        dataKey="Category"
-                        tickLine={false}
-                        tickMargin={10}
-                        axisLine={false}
-                      />
-                      <YAxis scale="auto" tickCount={5} unit={"$"} />
-                      <ChartTooltip
-                        cursor={false}
-                        content={<ChartTooltipContent />}
-                      />
-                      <Bar
-                        dataKey="Total"
-                        fill="var(--color-desktop)"
-                        radius={8}
-                      />
-                    </BarChart>
-                  </ChartContainer>
-                </CardDescription>
-              </Card>
-              <Card className="w-1/2 rounded-xl">
-                <CardHeader>
-                  <CardTitle className="font-normal">Placeholder</CardTitle>
-                </CardHeader>
-                <CardDescription>
-                  <ChartContainer config={chartConfig}>
-                    <BarChart accessibilityLayer data={graphData}>
-                      <XAxis
-                        dataKey="Category"
-                        tickLine={false}
-                        tickMargin={10}
-                        axisLine={false}
-                      />
-                      <YAxis scale="auto" tickCount={5} unit={"$"} />
-                      <ChartTooltip
-                        cursor={false}
-                        content={<ChartTooltipContent />}
-                      />
-                      <Bar
-                        dataKey="Total"
-                        fill="var(--color-desktop)"
-                        radius={8}
-                      />
-                    </BarChart>
-                  </ChartContainer>
-                </CardDescription>
-              </Card>
-            </div>
-          </div>
+          )}
         </div>
       ) : (
         <div className="rounded-xl mt-10 ml-2">
-          <Skeleton className="h-[48px] w-[350px] mb-6"/>
+          <Skeleton className="h-[48px] w-[350px] mb-6" />
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
             {[...Array(4)].map((index) => (
-                <Skeleton key={index} className="rounded-xl h-[150px] w-[330px]"/>
+              <Skeleton
+                key={index}
+                className="rounded-xl h-[150px] w-[330px]"
+              />
             ))}
           </div>
-          <Skeleton className="mt-4 rounded-xl h-[531px] w-[1368px]"/>
+          <Skeleton className="mt-4 rounded-xl h-[531px] w-[1368px]" />
         </div>
       )}
     </>

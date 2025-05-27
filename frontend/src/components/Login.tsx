@@ -32,7 +32,7 @@ const Login = ({
         isPlaidConnected: authState.isPlaidConnected,
         isLoading: false,
       });
-      navigate("/dashboard"); // Redirect to homepage after login
+      navigate("/dashboard");
     } catch (error) {
       setError("Invalid username or password");
       console.error(error);
@@ -58,7 +58,7 @@ const Login = ({
         isPlaidConnected: authState.isPlaidConnected,
         isLoading: false,
       });
-      navigate("/");
+      navigate("/dashboard");
     } catch (error) {
       console.error("Google login failed", error);
     }

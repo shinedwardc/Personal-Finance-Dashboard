@@ -1,11 +1,12 @@
 import { useState, useEffect } from "react";
 import { ExpenseProvider } from "./context/ExpenseContext";
+import { CalendarProvider } from "./context/CalendarContext";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import "./App.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { ModeToggle } from "./components/modeToggle";
+//import { ModeToggle } from "./components/modeToggle";
 import Navbar from "./components/Navbar";
 import Introduction from "./components/Introduction";
 import Breakdown from "./components/Breakdown";
@@ -31,7 +32,7 @@ import {
   fetchPlaidBalance,
   fetchProfileSettings,
   updateBudgetLimit,
-} from "./api/api";
+} from "./utils/api";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 
 
@@ -135,7 +136,7 @@ function App() {
     <Router>
       <ToastContainer />
       <ThemeProvider storageKey="vite-ui-theme">
-        <div className="min-h-screen dark:bg-black overflow-auto font-inter">
+        <div className="min-h-screen dark:bg-black dark:text-white overflow-auto font-inter">
           <div className="flex flex-row gap-5">
             <Navbar authState={authState} setAuthState={setAuthState} />
             {/*<ModeToggle />*/}
@@ -181,10 +182,12 @@ function App() {
                   path="/dashboard"
                   element={
                     <PrivateRoute authState={authState}>
-                      <Dashboard 
-                        plaidBalance={plaidBalance as PlaidResponse}
-                        settings={settingsData}
-                      />
+                      <CalendarProvider>
+                        <Dashboard 
+                          plaidBalance={plaidBalance as PlaidResponse}
+                          settings={settingsData}
+                        />
+                      </CalendarProvider>
                     </PrivateRoute>
                   }
                 />
@@ -212,10 +215,9 @@ function App() {
                   path="/calendar"
                   element={
                     <PrivateRoute authState={authState}>
-                      <Calendar 
-                        //data={data} 
-                        //isLoading={isDataLoading} 
-                      />
+                      <CalendarProvider>
+                        <Calendar/>
+                      </CalendarProvider>
                     </PrivateRoute>
                   }
                 />

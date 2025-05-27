@@ -30,7 +30,7 @@ const Navbar = ({
 
   return (
     <div className="container mx-auto">
-      <nav className="flex flex-row w-full justify-between items-center gap-x-2 md:mt-5">
+      {!authState.isLoading && <nav className="flex flex-row w-full justify-between items-center gap-x-2 md:mt-5">
         <div
           className={`${authState.isLoggedIn ? "min-w-max" : "w-1/2 text-center mt-5"}`}
         >
@@ -40,7 +40,7 @@ const Navbar = ({
           <>
             <div className="min-w-max text-center break-words">
               <ul className="flex flex-row gap-x-4">
-                <li className="font-sans p-4 text-center">
+                {/*<li className="font-sans p-4 text-center">
                   <Link to="/">
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -58,7 +58,7 @@ const Navbar = ({
                     </svg>
                     Summary
                   </Link>
-                </li>
+                </li>*/}
                 <li className="font-sans p-4 text-center">
                   <Link to="/dashboard">
                     <svg
@@ -174,7 +174,7 @@ const Navbar = ({
             </Link>
           </div>
         )}
-      </nav>
+      </nav>}
     </div>
   );
 };
