@@ -1,9 +1,11 @@
 import Expense from "./Expense";
+import { useState, useEffect } from "react";
 import { useExpenseContext } from "@/hooks/useExpenseContext";
 import { ExpenseInterface } from "../interfaces/expenses";
 import Form from "./Form";
 import Recurring from "./Recurring";
 import axios from "axios";
+import { format, compareAsc } from "date-fns";
 import {
   Table,
   TableBody,
@@ -13,6 +15,7 @@ import {
   TableHeader,
   TableRow,
 } from "../components/ui/table"
+import MonthPicker from "./ui/month-picker";
 import { toast, Bounce } from "react-toastify";
 
 //https://flowbite.com/docs/components/spinner/#progress-spinner
@@ -31,14 +34,25 @@ const List = (/*{
   //const [filteredData, setFilteredData] = useState<ExpenseInterface[]>([]);
 
   const { data, setData, isDataLoading } = useExpenseContext();
+  const [month, setMonth] = useState<Date>(new Date());
+
+  useEffect(() => {
+    console.log(data.filter((expense) => {
+      const expenseDate = new Date(expense.date);
+      return (
+        expenseDate.getFullYear() === month.getFullYear() &&
+        expenseDate.getMonth() === month.getMonth()
+      );
+    }))
+  },[month]);
 
   const refetchExpenses = async (newExpense: ExpenseInterface) => {
     try {
-      //console.log("newExpense", newExpense);
+      console.log(newExpense);
       setData((prevData) => {
         const combinedData = [...prevData, newExpense];
         return combinedData.sort(
-          (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
+          (a, b) => compareAsc(new Date(a.date), new Date(b.date)),
         );
       });
       toast.success(`Added monthly expense`, {
@@ -112,6 +126,16 @@ const List = (/*{
             <div className="mb-2">
               <h1 className="text-xl antialiased dark:text-white">Full detailed list</h1>
             </div>
+            <div>
+              <MonthPicker
+                currentMonth={month}
+                onMonthChange={(newMonth) => {
+                  setMonth(newMonth);
+                  console.log("Selected month:", format(newMonth, "MMMM yyyy"));
+                  // refetchExpenses();
+                }}
+              />
+            </div>
             <div className="mb-2 border-cyan-500 overflow-x-auto dark:text-white">
               {/*<div className="mb-4 flex justify-center">
                 <label className="input input-bordered flex items-center w-64 gap-2">
@@ -164,7 +188,7 @@ const List = (/*{
                         {expense.currency.toUpperCase()}
                       </TableCell>
                       <TableCell className="text-base text-center">
-                        {expense.date}
+                        {expense.date.toString().substring(0,10)}
                       </TableCell>
                       <TableCell>
                         <button 

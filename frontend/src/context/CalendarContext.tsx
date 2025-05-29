@@ -45,10 +45,8 @@ export const CalendarContext = createContext<{
     >
   >;
   getCurrentMonth: () => void;
-  month: number;
-  setMonth: Dispatch<SetStateAction<number>>;
-  year: number;
-  setYear: Dispatch<SetStateAction<number>>;
+  monthAndYear: Date,
+  setMonthAndYear: Dispatch<SetStateAction<Date>>,
   monthlySpent: number;
   setMonthlySpent: Dispatch<SetStateAction<number>>;
   date: Date | undefined;
@@ -70,8 +68,7 @@ export const CalendarProvider = ({
   const [chosenEvents, setChosenEvents] = useState<
     { title: string; start: string; amount: number; frequency: string | null }[]
   >([]);
-  const [month, setMonth] = useState<number>(0);
-  const [year, setYear] = useState<number>(0);
+  const [monthAndYear, setMonthAndYear] = useState<Date>(new Date());
   const [monthlySpent, setMonthlySpent] = useState<number>(0);
 
   const [date, setDate] = useState<Date | undefined>(new Date());
@@ -81,8 +78,7 @@ export const CalendarProvider = ({
       const calendarApi = calendarRef.current.getApi();
       const currentMonth = calendarApi.getDate().getMonth();
       const currentYear = calendarApi.getDate().getFullYear();
-      setMonth(currentMonth + 1);
-      setYear(currentYear);
+      setMonthAndYear(new Date(currentYear, currentMonth, 1));
       console.log(currentMonth + 1);
       console.log(currentYear);
     }
@@ -96,7 +92,7 @@ export const CalendarProvider = ({
         amount: expense.amount,
         frequency: expense.frequency,
       }));
-      console.log(formattedEvents);
+      //console.log(formattedEvents);
       const calculateDayExpenses = new Map();
       for (const event of formattedEvents) {
         if (calculateDayExpenses.has(event.start)) {
@@ -132,7 +128,7 @@ export const CalendarProvider = ({
       );
       setMonthlySpent(totalAmount);
     }
-    //Dashboard
+    //For the case when no FullCalendar reference (e.g., to filter events for current month)
     else if (!calendarRef.current){
       const currentMonth = new Date().getMonth();
       const currentYear = new Date().getFullYear();
@@ -171,10 +167,8 @@ export const CalendarProvider = ({
       chosenEvents,
       setChosenEvents,
       getCurrentMonth,
-      month,
-      setMonth,
-      year,
-      setYear,
+      monthAndYear,
+      setMonthAndYear,
       monthlySpent,
       setMonthlySpent,
       date,

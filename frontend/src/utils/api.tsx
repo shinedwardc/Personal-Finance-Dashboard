@@ -52,7 +52,21 @@ api.interceptors.response.use(
 
 export const getExpense = async (): Promise<ExpenseInterface[]> => {
   try {
+    console.log('get expenses called');
     const response = await api.get("/expenses/");
+    return response.data.expenses;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+};
+
+export const getExpensesByMonth = async (month: number, year: number): Promise<ExpenseInterface[]> => {
+  try {
+    console.log('get expenses by month called');
+    const response = await api.get("/expenses/", {
+      params: { month, year }
+    });
     return response.data.expenses;
   } catch (error) {
     console.error(error);

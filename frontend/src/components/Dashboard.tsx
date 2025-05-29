@@ -22,7 +22,6 @@ import Form from "./Form";
 import { ExpenseInterface } from "../interfaces/expenses";
 import { PlaidResponse } from "../interfaces/plaid";
 import { Settings } from "../interfaces/settings";
-import { stringify } from "querystring";
 
 const Dashboard = ({
   plaidBalance,
@@ -67,7 +66,7 @@ const Dashboard = ({
 
   useEffect(() => {
     if (plaidBalance) {
-      console.log("plaidBalance", plaidBalance);
+      //console.log("plaidBalance", plaidBalance);
       let balance = 0;
       for (const account of plaidBalance.accounts) {
         balance += account.balances.available;
@@ -106,7 +105,7 @@ const Dashboard = ({
   ): Promise<Record<string, number>> => {
     const totals: Record<string, number> = {};
     setTotal(0);
-    console.log("expenses", expenses);
+    //console.log("expenses", expenses);
     for (const expense of expenses) {
       const amount = parseFloat(expense.amount.toString());
       if (amount < 0) continue;
@@ -295,7 +294,7 @@ const Dashboard = ({
                   <Card className="w-1/2 rounded-xl">
                     <CardHeader>
                       <CardTitle className="font-normal">
-                        Spent by category
+                        Spending by category
                       </CardTitle>
                     </CardHeader>
                     <CardDescription>
@@ -323,7 +322,7 @@ const Dashboard = ({
                   </Card>
                   <Card className="w-1/2 rounded-xl">
                     <CardHeader>
-                      <CardTitle className="font-normal">Placeholder</CardTitle>
+                      <CardTitle className="font-normal"></CardTitle>
                     </CardHeader>
                     <CardDescription>
                       <ChartContainer config={chartConfig}>
@@ -389,7 +388,7 @@ const Dashboard = ({
         <div className="rounded-xl mt-10 ml-2">
           <Skeleton className="h-[48px] w-[350px] mb-6" />
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-            {[...Array(4)].map((index) => (
+            {[...Array(4)].map((_,index) => (
               <Skeleton
                 key={index}
                 className="rounded-xl h-[150px] w-[330px]"

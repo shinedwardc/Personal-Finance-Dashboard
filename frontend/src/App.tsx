@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
-import { ExpenseProvider } from "./context/ExpenseContext";
+//import { ExpenseProvider } from "./context/ExpenseContext";
+import { useExpenseContext } from "./hooks/useExpenseContext";
 import { CalendarProvider } from "./context/CalendarContext";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import "./App.css";
@@ -28,6 +29,7 @@ import { Settings } from "./interfaces/settings";
 import {
   getAuthStatus,
   getExpense,
+  getExpensesByMonth,
   fetchPlaidTransactions,
   fetchPlaidBalance,
   fetchProfileSettings,
@@ -37,100 +39,8 @@ import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 
 
 function App() {
-  const queryClient = useQueryClient();
-  const [authState, setAuthState] = useState<AuthState>({
-    isLoggedIn: false,
-    isPlaidConnected: false,
-    isLoading: true,
-  });
-  const [data, setData] = useState<ExpenseInterface[]>([]);
-  const [plaidBalance, setPlaidBalance] = useState<PlaidResponse | null>(null);
 
-  const { data: expenseData, isLoading: expenseLoading } = useQuery({
-    queryKey: ["expenses", authState.isLoggedIn],
-    queryFn: getExpense,
-    enabled: authState.isLoggedIn,
-  });
-
-  const { data: plaidData, isLoading: plaidLoading } = useQuery({
-    queryKey: ["plaidData", authState.isLoggedIn, authState.isPlaidConnected],
-    queryFn: fetchPlaidTransactions,
-    enabled: authState.isLoggedIn && authState.isPlaidConnected,
-  });
-
-  const { data: plaidBalanceData, isLoading: plaidBalanceLoading } = useQuery({
-    queryKey: [
-      "plaidBalance",
-      authState.isLoggedIn,
-      authState.isPlaidConnected,
-    ],
-    queryFn: fetchPlaidBalance,
-    enabled: authState.isLoggedIn && authState.isPlaidConnected,
-  });
-
-  const { data: settingsData, isLoading: settingsLoading } = useQuery({
-    queryKey: ["settings", authState.isLoggedIn],
-    queryFn: fetchProfileSettings,
-    enabled: authState.isLoggedIn,
-  });
-
-  const mutation = useMutation({
-    mutationFn: (data: Settings) => {
-      return updateBudgetLimit(data);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ["settings", authState.isLoggedIn],
-      });
-    },
-  });
-
-  const handleSettingsForm = (data: Settings): void => {
-    //updateBudgetLimit(data);
-    mutation.mutate(data);
-  };
-
-  useEffect(() => {
-    //console.log("expenseData", expenseData);
-    //console.log("plaidData", plaidData);
-    if (expenseData) {
-      setData(expenseData);
-    }
-    if (plaidData) {
-      setData((prevData) => {
-        const combinedData = [...prevData, ...plaidData];
-        return combinedData.sort(
-          (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
-        );
-      });
-    }
-  }, [expenseData, plaidData]);
-
-  useEffect(() => {
-    if (plaidBalanceData) {
-      setPlaidBalance(plaidBalanceData);
-    }
-  }, [plaidBalanceData]);
-
-  const isDataLoading =
-    authState.isLoading ||
-    expenseLoading ||
-    plaidLoading ||
-    plaidBalanceLoading ||
-    settingsLoading;
-
-  useEffect(() => {
-    const checkAuth = async () => {
-      const response = await getAuthStatus();
-      const plaidToken = localStorage.getItem("plaidAccessToken");
-      setAuthState({
-        isLoggedIn: response.authenticated,
-        isPlaidConnected: Boolean(plaidToken),
-        isLoading: false,
-      });
-    };
-    checkAuth();
-  }, []);
+  const { data, authState, setAuthState, isDataLoading, settingsData, handleSettingsForm, plaidBalance, settingsLoading } = useExpenseContext();
 
   return (
     <Router>
@@ -141,7 +51,8 @@ function App() {
             <Navbar authState={authState} setAuthState={setAuthState} />
             {/*<ModeToggle />*/}
           </div>
-          <ExpenseProvider data={data} setData={setData} isDataLoading={isDataLoading}>
+          <CalendarProvider>
+          {/*<ExpenseProvider data={data} setData={setData} isDataLoading={isDataLoading}>*/}
             <div className="flex-grow flex flex-col items-center justify-center mr-[64px]">
               <Routes>
                 {/* Public routes */}
@@ -168,11 +79,8 @@ function App() {
                   path="/"
                   element={
                     <PrivateRoute authState={authState}>
-                      <Breakdown
-                        //data={data}
+                      <Dashboard
                         settings={settingsData}
-                        //setData={setData}
-                        //isDataLoading={isDataLoading}
                         plaidBalance={plaidBalance as PlaidResponse}
                       />
                     </PrivateRoute>
@@ -182,12 +90,10 @@ function App() {
                   path="/dashboard"
                   element={
                     <PrivateRoute authState={authState}>
-                      <CalendarProvider>
-                        <Dashboard 
-                          plaidBalance={plaidBalance as PlaidResponse}
-                          settings={settingsData}
-                        />
-                      </CalendarProvider>
+                      <Dashboard 
+                        plaidBalance={plaidBalance as PlaidResponse}
+                        settings={settingsData}
+                      />
                     </PrivateRoute>
                   }
                 />
@@ -195,11 +101,7 @@ function App() {
                   path="/transactions"
                   element={
                     <PrivateRoute authState={authState}>
-                      <List
-                        //data={data}
-                        //isLoading={isDataLoading}
-                        //setData={setData}
-                      />
+                      <List/>
                     </PrivateRoute>
                   }
                 />
@@ -215,9 +117,7 @@ function App() {
                   path="/calendar"
                   element={
                     <PrivateRoute authState={authState}>
-                      <CalendarProvider>
-                        <Calendar/>
-                      </CalendarProvider>
+                      <Calendar/>
                     </PrivateRoute>
                   }
                 />
@@ -243,7 +143,8 @@ function App() {
                 />
               </Routes>
             </div>
-          </ExpenseProvider>
+          </CalendarProvider>
+          {/*</ExpenseProvider>*/}
         </div>
       </ThemeProvider>
     </Router>

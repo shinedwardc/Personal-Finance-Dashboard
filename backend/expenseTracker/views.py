@@ -41,7 +41,12 @@ def expense_list(request,id=None):
                 return Response(status=status.HTTP_404_NOT_FOUND)
     else:
         if request.method == 'GET':
-            expenses = Expense.objects.filter(user=request.user)
+            if request.query_params.get('month') and request.query_params.get('year'):
+                month = int(request.query_params.get('month'))
+                year = int(request.query_params.get('year'))
+                expenses = Expense.objects.filter(user=request.user, date__month=month, date__year=year).order_by('date')
+            else:
+                expenses = Expense.objects.filter(user=request.user).order_by('date')
             serializer = ExpenseSerializer(expenses, many=True)
             return Response({'expenses': serializer.data})
         elif request.method == 'POST':

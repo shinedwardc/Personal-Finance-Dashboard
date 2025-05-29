@@ -4,6 +4,7 @@ import { useCalendarContext } from "@/hooks/useCalendarContext";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import { Calendar } from "./ui/calendar";
+import { format } from "date-fns";
 import {
   Card,
   CardContent,
@@ -96,8 +97,7 @@ const ExpenseCalendar = () => {
     events,
     chosenEvents,
     getCurrentMonth,
-    month,
-    year,
+    monthAndYear,
     monthlySpent,
     date,
     setDate,
@@ -141,7 +141,7 @@ const ExpenseCalendar = () => {
                 </svg>
               </div>
               <p className="text-xs text-slate-400">
-                {month}/{year}
+                {format(monthAndYear, "MMMM yyyy")}
               </p>
             </CardContent>
           </Card>

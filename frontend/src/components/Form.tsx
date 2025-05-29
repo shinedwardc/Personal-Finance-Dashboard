@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { getCategories } from "../utils/api";
 import axios from "axios";
 import { ExpenseInterface } from "../interfaces/expenses";
+import { cn } from "@/lib/utils";
+import { format } from "date-fns";
 import { Input } from "./ui/input";
 import {   
   Select,
@@ -10,6 +12,10 @@ import {
   SelectTrigger,
   SelectValue, 
 } from "./ui/select";
+import { Button } from "./ui/button";
+import { Calendar } from "../components/ui/calendar";
+import { Popover, PopoverTrigger, PopoverContent } from "../components/ui/popover";
+import { LuCalendarDays } from "react-icons/lu";
 
 interface formProps {
   onFormSubmit: (newExpense: ExpenseInterface) => void;
@@ -38,15 +44,17 @@ const Form = ({ onFormSubmit }: formProps) => {
   const [amount, setAmount] = useState<string>("");
   const [currency, setCurrency] = useState<string>("usd");
   const [name, setName] = useState<string>("");
+  const [date, setDate] = useState<Date>(new Date());
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    //console.log(date ? format(date,"yyyy-MM-dd") : "No date selected");
     const newExpense = {
       name,
       category: selectedCategory,
       amount: parseFloat(amount),
       currency,
-      date: new Date().toISOString().split("T")[0], // Current date in YYYY-MM-DD format
+      date: format(date,"yyyy-MM-dd"),
       updated_at: new Date().toISOString(),
     };
     try {
@@ -112,6 +120,7 @@ const Form = ({ onFormSubmit }: formProps) => {
               id="amount"
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
+              className="w-[340px]"
             />
             <Select onValueChange={(value) => setCurrency(value)}>
               <SelectTrigger className="w-[100px]">
@@ -130,7 +139,35 @@ const Form = ({ onFormSubmit }: formProps) => {
             </Select>
           </div>
         </div>
-
+      </div>
+      <div>
+        <div className="mb-2 dark:text-white">
+          Date
+          <div className="flex justify-row gap-x-1 ">
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant={"outline"}
+                  className={cn(
+                    "w-[240px] justify-start text-left font-normal",
+                    !date && "text-muted-foreground"
+                  )}
+                >
+                  <LuCalendarDays className="mr-2 h-4 w-4" />
+                  {format(date, "PPP")}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <Calendar
+                  mode="single"
+                  selected={date}
+                  onSelect={setDate}
+                  initialFocus
+                />
+              </PopoverContent>
+            </Popover>
+          </div>
+        </div>
       </div>
       <div>
         <button type="submit" className="btn btn-accent rounded mt-3">
