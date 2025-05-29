@@ -57,7 +57,7 @@ const Breakdown = ({
   const [modalIsOpen, setIsOpen] = useState<boolean>(false);
 
   //const modalRef = useRef<HTMLDialogElement>(null);
-  Modal.setAppElement("#root"); 
+  Modal.setAppElement("#root");
 
   useEffect(() => {
     const initialize = async () => {
@@ -236,16 +236,14 @@ const Breakdown = ({
     /*if (modalRef.current) {
       modalRef.current.close();
     }*/
-   setIsOpen(false);
+    setIsOpen(false);
   };
 
   return (
     <div className="w-2/3 ml-36 mt-16">
       <div className="flex flex-col w-full">
         <div className="flex justify-start mb-7">
-          <h1 className="text-5xl ">
-            Expense Tracker
-          </h1>
+          <h1 className="text-5xl ">Expense Tracker</h1>
         </div>
         {!isDataLoading ? (
           data.length > 0 ? (
@@ -319,16 +317,18 @@ const Breakdown = ({
                         <h5 className="text-sm mb-2">Monthly budget</h5>
                         {settings.monthlyBudget !== null ? (
                           <>
-                          <h1 className="text-3xl font-bold">
-                            ${settings.monthlyBudget}
-                          </h1>
-                          <h3
-                            className={`text-sm ${settings.monthlyBudget - Number(total.toFixed(2)) < 0 ? "text-red-400" : "text-green-400"}`}
-                          >
-                            {settings.monthlyBudget - Number(total.toFixed(2)) < 0
-                              ? `Spent over monthly budget limit by ${Math.abs(settings.monthlyBudget - Number(total.toFixed(2))).toFixed(2)}$`
-                              : `Amount left until budget limit ${(settings.monthlyBudget - Number(total.toFixed(2))).toFixed(2)}$`}
-                          </h3>
+                            <h1 className="text-3xl font-bold">
+                              ${settings.monthlyBudget}
+                            </h1>
+                            <h3
+                              className={`text-sm ${settings.monthlyBudget - Number(total.toFixed(2)) < 0 ? "text-red-400" : "text-green-400"}`}
+                            >
+                              {settings.monthlyBudget -
+                                Number(total.toFixed(2)) <
+                              0
+                                ? `Spent over monthly budget limit by ${Math.abs(settings.monthlyBudget - Number(total.toFixed(2))).toFixed(2)}$`
+                                : `Amount left until budget limit ${(settings.monthlyBudget - Number(total.toFixed(2))).toFixed(2)}$`}
+                            </h3>
                           </>
                         ) : (
                           <p className="text-sm text-red-400">
@@ -364,13 +364,16 @@ const Breakdown = ({
                   className="modal-box absolute top-[35%] left-[38.7%] dark:bg-black"
                 >
                   <div className="">
-                    <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2" onClick={() => setIsOpen(false)}>
+                    <button
+                      className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"
+                      onClick={() => setIsOpen(false)}
+                    >
                       ✕
                     </button>
                     <div>
                       <Form onFormSubmit={refetchExpenses} />
                     </div>
-                  </div>                 
+                  </div>
                 </Modal>
               </div>
             </div>
@@ -394,13 +397,16 @@ const Breakdown = ({
                   className="modal-box absolute top-[35%] left-[38.7%] dark:bg-black"
                 >
                   <div className="">
-                    <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2" onClick={() => setIsOpen(false)}>
+                    <button
+                      className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"
+                      onClick={() => setIsOpen(false)}
+                    >
                       ✕
                     </button>
                     <div>
                       <Form onFormSubmit={refetchExpenses} />
                     </div>
-                  </div>                 
+                  </div>
                 </Modal>
               </div>
             </div>

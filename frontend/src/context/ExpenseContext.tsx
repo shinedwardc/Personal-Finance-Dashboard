@@ -14,24 +14,22 @@ import {
 } from "../utils/api";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 
-export const ExpenseContext = createContext<{
-    data : ExpenseInterface[], 
-    setData : React.Dispatch<React.SetStateAction<ExpenseInterface[]>>,
-    authState: AuthState,
-    setAuthState: React.Dispatch<React.SetStateAction<AuthState>>,
-    filteredData: ExpenseInterface[],
-    isDataLoading : boolean,
-    settingsData: Settings,
-    handleSettingsForm: (data: Settings) => void,
-    settingsLoading: boolean,
-} | undefined>(undefined);
+export const ExpenseContext = createContext<
+  | {
+      data: ExpenseInterface[];
+      setData: React.Dispatch<React.SetStateAction<ExpenseInterface[]>>;
+      authState: AuthState;
+      setAuthState: React.Dispatch<React.SetStateAction<AuthState>>;
+      filteredData: ExpenseInterface[];
+      isDataLoading: boolean;
+      settingsData: Settings;
+      handleSettingsForm: (data: Settings) => void;
+      settingsLoading: boolean;
+    }
+  | undefined
+>(undefined);
 
-export const ExpenseProvider = ({ 
-  children, 
-} : { 
-  children: ReactNode, 
-}) => {
-
+export const ExpenseProvider = ({ children }: { children: ReactNode }) => {
   const queryClient = useQueryClient();
   const [authState, setAuthState] = useState<AuthState>({
     isLoggedIn: false,
@@ -47,7 +45,7 @@ export const ExpenseProvider = ({
     enabled: authState.isLoggedIn,
   });
 
-  /*const { data: filteredData, isLoading: filteredDataLoading } = useQuery({
+  /*const { data: filteredByMonth, isLoading: filteredDataLoading } = useQuery({
     queryKey: ["expenses", authState.isLoggedIn, "filtered", monthAndYear],
     queryFn: () => getExpensesByMonth(monthAndYear.getMonth(), monthAndYear.getFullYear()),
     enabled: authState.isLoggedIn && !!monthAndYear,
@@ -132,11 +130,23 @@ export const ExpenseProvider = ({
       });
     };
     checkAuth();
-  }, []);  
+  }, []);
 
   return (
-    <ExpenseContext.Provider value={{data, setData, authState, setAuthState, settingsData, handleSettingsForm, plaidBalance, isDataLoading, settingsLoading}}>
+    <ExpenseContext.Provider
+      value={{
+        data,
+        setData,
+        authState,
+        setAuthState,
+        settingsData,
+        handleSettingsForm,
+        plaidBalance,
+        isDataLoading,
+        settingsLoading,
+      }}
+    >
       {children}
-    </ExpenseContext.Provider>  
-  ) 
-}
+    </ExpenseContext.Provider>
+  );
+};

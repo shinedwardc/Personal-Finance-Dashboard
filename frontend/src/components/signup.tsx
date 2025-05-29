@@ -31,7 +31,7 @@ const Signup = () => {
         toast.success("Sign up successful!", {
           position: "top-center",
           autoClose: 5000,
-        })
+        });
         navigate("/login", { state: { success: true } });
       }
     } catch (error) {
@@ -42,17 +42,18 @@ const Signup = () => {
   return (
     <div className="flex min-h-svh flex-col items-center justify-center bg-muted p-6 md:p-10">
       <div className="w-full max-w-sm md:max-w-3xl">
-        <SignupForm username={username}
-                    email={email}
-                    password={password}
-                    confirmPassword={confirmPassword}
-                    monthlyBudget={monthlyBudget}
-                    setUsername={setUsername}
-                    setEmail={setEmail}
-                    setPassword={setPassword}
-                    setConfirmPassword={setConfirmPassword}
-                    setMonthlyBudget={setMonthlyBudget}
-                    onSignupFormSubmit={handleFormSubmit}
+        <SignupForm
+          username={username}
+          email={email}
+          password={password}
+          confirmPassword={confirmPassword}
+          monthlyBudget={monthlyBudget}
+          setUsername={setUsername}
+          setEmail={setEmail}
+          setPassword={setPassword}
+          setConfirmPassword={setConfirmPassword}
+          setMonthlyBudget={setMonthlyBudget}
+          onSignupFormSubmit={handleFormSubmit}
         />
       </div>
     </div>

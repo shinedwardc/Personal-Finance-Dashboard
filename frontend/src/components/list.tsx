@@ -14,7 +14,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "../components/ui/table"
+} from "../components/ui/table";
 import MonthPicker from "./ui/month-picker";
 import { toast, Bounce } from "react-toastify";
 
@@ -37,22 +37,24 @@ const List = (/*{
   const [month, setMonth] = useState<Date>(new Date());
 
   useEffect(() => {
-    console.log(data.filter((expense) => {
-      const expenseDate = new Date(expense.date);
-      return (
-        expenseDate.getFullYear() === month.getFullYear() &&
-        expenseDate.getMonth() === month.getMonth()
-      );
-    }))
-  },[month]);
+    console.log(
+      data.filter((expense) => {
+        const expenseDate = new Date(expense.date);
+        return (
+          expenseDate.getFullYear() === month.getFullYear() &&
+          expenseDate.getMonth() === month.getMonth()
+        );
+      }),
+    );
+  }, [month]);
 
   const refetchExpenses = async (newExpense: ExpenseInterface) => {
     try {
       console.log(newExpense);
       setData((prevData) => {
         const combinedData = [...prevData, newExpense];
-        return combinedData.sort(
-          (a, b) => compareAsc(new Date(a.date), new Date(b.date)),
+        return combinedData.sort((a, b) =>
+          compareAsc(new Date(a.date), new Date(b.date)),
         );
       });
       toast.success(`Added monthly expense`, {
@@ -124,7 +126,9 @@ const List = (/*{
           <>
             <div className="mt-16"></div>
             <div className="mb-2">
-              <h1 className="text-xl antialiased dark:text-white">Full detailed list</h1>
+              <h1 className="text-xl antialiased dark:text-white">
+                Full detailed list
+              </h1>
             </div>
             <div>
               <MonthPicker
@@ -164,10 +168,7 @@ const List = (/*{
                       "Date",
                       "Delete",
                     ].map((header) => (
-                      <TableHead
-                        key={header}
-                        className="text-center"
-                      >
+                      <TableHead key={header} className="text-center">
                         {header}
                       </TableHead>
                     ))}
@@ -176,22 +177,28 @@ const List = (/*{
                 <TableBody>
                   {data.map((expense, index) => (
                     <TableRow key={index}>
-                      <TableCell className="text-lg font-ubuntu font-bold text-center">{expense.name}</TableCell>
-                      <TableCell className="text-base text-center">
-                        {typeof expense.id === "number" ? expense.category : "*" + expense.category}
+                      <TableCell className="text-lg font-ubuntu font-bold text-center">
+                        {expense.name}
                       </TableCell>
                       <TableCell className="text-base text-center">
-                        {expense.amount < 0 ? "+" + (expense.amount * -1).toString() : expense.amount * -1}
+                        {typeof expense.id === "number"
+                          ? expense.category
+                          : "*" + expense.category}
+                      </TableCell>
+                      <TableCell className="text-base text-center">
+                        {expense.amount < 0
+                          ? "+" + (expense.amount * -1).toString()
+                          : expense.amount * -1}
                         {/*currencies[expense.currency as keyof Currency]*/}
                       </TableCell>
                       <TableCell className="text-base text-center">
                         {expense.currency.toUpperCase()}
                       </TableCell>
                       <TableCell className="text-base text-center">
-                        {expense.date.toString().substring(0,10)}
+                        {expense.date.toString().substring(0, 10)}
                       </TableCell>
                       <TableCell>
-                        <button 
+                        <button
                           className={`btn ${typeof expense.id !== "number" ? "btn-disabled" : "btn-error"} btn-tiny`}
                           onClick={() => handleDeleteTask(expense.id)}
                         >
@@ -209,9 +216,7 @@ const List = (/*{
             <div className="my-4 p-4 border border-green-800 w-1/3">
               <Form onFormSubmit={refetchExpenses} />
             </div>
-            <div className="dark:text-slate-200">
-              --- OR ---
-            </div>
+            <div className="dark:text-slate-200">--- OR ---</div>
             <div className="my-4 p-4 border border-green-800 dark:text-white">
               <Recurring onFormSubmit={refetchExpenses} />
             </div>

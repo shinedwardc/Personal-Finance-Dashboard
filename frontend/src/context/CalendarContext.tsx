@@ -10,48 +10,51 @@ import {
 import { useExpenseContext } from "../hooks/useExpenseContext";
 import FullCalendar from "@fullcalendar/react";
 
-export const CalendarContext = createContext<{
-  calendarRef: RefObject<FullCalendar | null>;
-  events: {
-    title: string;
-    start: string;
-    amount: number;
-    frequency: string | null;
-  }[];
-  setEvents: Dispatch<
-    SetStateAction<
-      {
+export const CalendarContext = createContext<
+  | {
+      calendarRef: RefObject<FullCalendar | null>;
+      events: {
         title: string;
         start: string;
         amount: number;
         frequency: string | null;
-      }[]
-    >
-  >;
-  chosenEvents: {
-    title: string;
-    start: string;
-    amount: number;
-    frequency: string | null;
-  }[];
-  setChosenEvents: Dispatch<
-    SetStateAction<
-      {
+      }[];
+      setEvents: Dispatch<
+        SetStateAction<
+          {
+            title: string;
+            start: string;
+            amount: number;
+            frequency: string | null;
+          }[]
+        >
+      >;
+      chosenEvents: {
         title: string;
         start: string;
         amount: number;
         frequency: string | null;
-      }[]
-    >
-  >;
-  getCurrentMonth: () => void;
-  monthAndYear: Date,
-  setMonthAndYear: Dispatch<SetStateAction<Date>>,
-  monthlySpent: number;
-  setMonthlySpent: Dispatch<SetStateAction<number>>;
-  date: Date | undefined;
-  setDate: Dispatch<SetStateAction<Date | undefined>>;
-} | undefined>(undefined);
+      }[];
+      setChosenEvents: Dispatch<
+        SetStateAction<
+          {
+            title: string;
+            start: string;
+            amount: number;
+            frequency: string | null;
+          }[]
+        >
+      >;
+      getCurrentMonth: () => void;
+      monthAndYear: Date;
+      setMonthAndYear: Dispatch<SetStateAction<Date>>;
+      monthlySpent: number;
+      setMonthlySpent: Dispatch<SetStateAction<number>>;
+      date: Date | undefined;
+      setDate: Dispatch<SetStateAction<Date | undefined>>;
+    }
+  | undefined
+>(undefined);
 
 export const CalendarProvider = ({
   children,
@@ -129,7 +132,7 @@ export const CalendarProvider = ({
       setMonthlySpent(totalAmount);
     }
     //For the case when no FullCalendar reference (e.g., to filter events for current month)
-    else if (!calendarRef.current){
+    else if (!calendarRef.current) {
       const currentMonth = new Date().getMonth();
       const currentYear = new Date().getFullYear();
       const filteredEvents = events.filter((event) => {
@@ -139,8 +142,7 @@ export const CalendarProvider = ({
           eventDate.getFullYear() === currentYear &&
           event.amount >= 0
         );
-      }
-      );
+      });
       const totalAmount = filteredEvents.reduce(
         (sum, event) => sum + event.amount,
         0,
@@ -160,20 +162,22 @@ export const CalendarProvider = ({
   }, [events, date]);
 
   return (
-    <CalendarContext.Provider value={{ 
-      calendarRef,
-      events,
-      setEvents,
-      chosenEvents,
-      setChosenEvents,
-      getCurrentMonth,
-      monthAndYear,
-      setMonthAndYear,
-      monthlySpent,
-      setMonthlySpent,
-      date,
-      setDate,
-     }}>
+    <CalendarContext.Provider
+      value={{
+        calendarRef,
+        events,
+        setEvents,
+        chosenEvents,
+        setChosenEvents,
+        getCurrentMonth,
+        monthAndYear,
+        setMonthAndYear,
+        monthlySpent,
+        setMonthlySpent,
+        date,
+        setDate,
+      }}
+    >
       {children}
     </CalendarContext.Provider>
   );

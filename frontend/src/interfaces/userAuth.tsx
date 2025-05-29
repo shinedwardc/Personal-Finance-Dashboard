@@ -1,5 +1,5 @@
 export interface AuthState {
-    isLoggedIn: boolean;
-    isPlaidConnected: boolean;
-    isLoading: boolean;
+  isLoggedIn: boolean;
+  isPlaidConnected: boolean;
+  isLoading: boolean;
 }

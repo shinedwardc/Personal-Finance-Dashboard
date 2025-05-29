@@ -1,15 +1,15 @@
-import { Button } from "@/components/ui/button"
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Dispatch, SetStateAction } from "react"
-import { GoogleLogin } from "@react-oauth/google"
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Dispatch, SetStateAction } from "react";
+import { GoogleLogin } from "@react-oauth/google";
 
 const LoginForm = ({
   username,
@@ -20,13 +20,13 @@ const LoginForm = ({
   onGoogleLogin,
   error,
 }: {
-  username: string,
-  password: string,
-  setUsername: Dispatch<SetStateAction<string>>,
-  setPassword: Dispatch<SetStateAction<string>>,
-  onLoginFormSubmit: (e: React.FormEvent<HTMLFormElement>) => void,
-  onGoogleLogin: (credentialResponse: any) => void,
-  error: string,
+  username: string;
+  password: string;
+  setUsername: Dispatch<SetStateAction<string>>;
+  setPassword: Dispatch<SetStateAction<string>>;
+  onLoginFormSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
+  onGoogleLogin: (credentialResponse: any) => void;
+  error: string;
 }) => {
   return (
     <div className="flex flex-col gap-6">
@@ -61,21 +61,24 @@ const LoginForm = ({
                     Forgot your password?
                   </a>
                 </div>
-                <Input 
-                  id="password" 
+                <Input
+                  id="password"
                   type="password"
                   value={password}
-                  onChange={(e) => setPassword(e.target.value)} 
-                  required />
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                />
               </div>
               <p className="text-red-600">{error}</p>
               <Button type="submit" className="w-full">
                 Login
               </Button>
               <GoogleLogin
-                onSuccess={(credentialResponse) => onGoogleLogin(credentialResponse)}
+                onSuccess={(credentialResponse) =>
+                  onGoogleLogin(credentialResponse)
+                }
                 onError={() => {
-                  console.log('Login Failed');
+                  console.log("Login Failed");
                 }}
                 useOneTap
                 ux_mode="popup"
@@ -83,10 +86,7 @@ const LoginForm = ({
             </div>
             <div className="mt-4 text-center text-sm">
               Don&apos;t have an account?{""}
-              <a
-                className="pl-1 hover:underline"
-                href="/signup"
-              >
+              <a className="pl-1 hover:underline" href="/signup">
                 Sign up
               </a>
             </div>
@@ -94,7 +94,7 @@ const LoginForm = ({
         </CardContent>
       </Card>
     </div>
-  )
-}
+  );
+};
 
 export default LoginForm;

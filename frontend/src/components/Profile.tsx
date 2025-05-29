@@ -72,22 +72,20 @@ const Profile = ({
                       className="btn btn-accent"
                       type="submit"
                       value="Submit"
-                      onClick={() => console.log('submitted')}
+                      onClick={() => console.log("submitted")}
                     />
                   </div>
                 </form>
               </div>
             </>
           )}
-          {
-            view === "Connections" && (
-              <>
-                <div className="my-2">
-                  <Connections />
-                </div>
-              </>
-            )
-          }
+          {view === "Connections" && (
+            <>
+              <div className="my-2">
+                <Connections />
+              </div>
+            </>
+          )}
         </div>
       </div>
     </>

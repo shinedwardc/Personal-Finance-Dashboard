@@ -5,16 +5,20 @@ import { ExpenseInterface } from "../interfaces/expenses";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { Input } from "./ui/input";
-import {   
+import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue, 
+  SelectValue,
 } from "./ui/select";
 import { Button } from "./ui/button";
 import { Calendar } from "../components/ui/calendar";
-import { Popover, PopoverTrigger, PopoverContent } from "../components/ui/popover";
+import {
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+} from "../components/ui/popover";
 import { LuCalendarDays } from "react-icons/lu";
 
 interface formProps {
@@ -38,8 +42,8 @@ const Form = ({ onFormSubmit }: formProps) => {
     "Tax",
     "Transfer",
     "Travel",
-    "Utilities"
-  ]
+    "Utilities",
+  ];
   const [selectedCategory, setSelectedCategory] = useState<string>("");
   const [amount, setAmount] = useState<string>("");
   const [currency, setCurrency] = useState<string>("usd");
@@ -54,7 +58,7 @@ const Form = ({ onFormSubmit }: formProps) => {
       category: selectedCategory,
       amount: parseFloat(amount),
       currency,
-      date: format(date,"yyyy-MM-dd"),
+      date: format(date, "yyyy-MM-dd"),
       updated_at: new Date().toISOString(),
     };
     try {
@@ -135,7 +139,7 @@ const Form = ({ onFormSubmit }: formProps) => {
                 <SelectItem value="cad">CAD $</SelectItem>
                 <SelectItem value="krw">KRW ₩</SelectItem>
                 <SelectItem value="inr">INR ₹</SelectItem>
-              </SelectContent>  
+              </SelectContent>
             </Select>
           </div>
         </div>
@@ -150,7 +154,7 @@ const Form = ({ onFormSubmit }: formProps) => {
                   variant={"outline"}
                   className={cn(
                     "w-[240px] justify-start text-left font-normal",
-                    !date && "text-muted-foreground"
+                    !date && "text-muted-foreground",
                   )}
                 >
                   <LuCalendarDays className="mr-2 h-4 w-4" />

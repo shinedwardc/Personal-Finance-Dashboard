@@ -40,7 +40,9 @@ const Dashboard = ({
   //const [date, setDate] = useState(new Date());
   const [categories, setCategories] = useState<string[]>([]);
   const [categoryLoading, setCategoryLoading] = useState<boolean>(true);
-  const [topSpendingCategories, setTopSpendingCategories] = useState<string[]>([]);
+  const [topSpendingCategories, setTopSpendingCategories] = useState<string[]>(
+    [],
+  );
   const [graphData, setGraphData] = useState<
     Array<{ Category: string; Total: number }>
   >([]);
@@ -116,8 +118,8 @@ const Dashboard = ({
       totals[categoryName] = (totals[categoryName] || 0) + amount;
     }
     const sortedCategoryTotals = Object.entries(totals).sort(
-      ([,a], [,b]) => b - a,
-    )
+      ([, a], [, b]) => b - a,
+    );
     const topSpenders: string[] = [];
     if (sortedCategoryTotals.length > 0) {
       const topValue = sortedCategoryTotals[0][1];
@@ -128,9 +130,9 @@ const Dashboard = ({
           break;
         }
       }
-      setTopSpendingCategories(topSpenders); 
+      setTopSpendingCategories(topSpenders);
     }
-    
+
     const graphData = [];
     for (const category of Object.keys(totals).sort()) {
       const totalObj = {
@@ -141,7 +143,7 @@ const Dashboard = ({
     }
     //console.log(graphData);
     setGraphData(graphData);
-    
+
     return totals;
   };
 
@@ -207,7 +209,7 @@ const Dashboard = ({
                   <CardHeader>
                     <CardTitle>Top spending categories</CardTitle>
                     <CardDescription>
-                    View your top spending categories
+                      View your top spending categories
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
@@ -217,7 +219,7 @@ const Dashboard = ({
                       </p>
                     ) : (
                       <p className="text-sm">No spending data available</p>
-                    )}                    
+                    )}
                   </CardContent>
                 </Card>
                 <Card className="rounded-xl h-[150px] w-[330px]">
@@ -241,7 +243,9 @@ const Dashboard = ({
                   <CardContent>
                     {settings.monthlyBudget !== null ? (
                       <>
-                        <h1 className={`text-sm font-semibold ${settings.monthlyBudget - Number(total.toFixed(2)) < 0 ? "text-red-400" : "text-green-200"}`}>
+                        <h1
+                          className={`text-sm font-semibold ${settings.monthlyBudget - Number(total.toFixed(2)) < 0 ? "text-red-400" : "text-green-200"}`}
+                        >
                           ${monthlySpent} / ${settings.monthlyBudget}
                         </h1>
                         <h3
@@ -356,7 +360,8 @@ const Dashboard = ({
                 No expenses found
               </h2>
               <p className="text-gray-500 dark:text-gray-400">
-                Start adding your expenses below or at the transactions page to see the overview.
+                Start adding your expenses below or at the transactions page to
+                see the overview.
               </p>
               <div className="flex justify-center mt-8">
                 {/* Open the modal using document.getElementById('ID').showModal() method */}
@@ -372,13 +377,16 @@ const Dashboard = ({
                   className="modal-box absolute top-[35%] left-[38.7%] dark:bg-black"
                 >
                   <div className="">
-                    <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2" onClick={() => setIsOpen(false)}>
+                    <button
+                      className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"
+                      onClick={() => setIsOpen(false)}
+                    >
                       ✕
                     </button>
                     <div>
                       <Form onFormSubmit={refetchExpenses} />
                     </div>
-                  </div>                 
+                  </div>
                 </Modal>
               </div>
             </div>
@@ -388,7 +396,7 @@ const Dashboard = ({
         <div className="rounded-xl mt-10 ml-2">
           <Skeleton className="h-[48px] w-[350px] mb-6" />
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-            {[...Array(4)].map((_,index) => (
+            {[...Array(4)].map((_, index) => (
               <Skeleton
                 key={index}
                 className="rounded-xl h-[150px] w-[330px]"

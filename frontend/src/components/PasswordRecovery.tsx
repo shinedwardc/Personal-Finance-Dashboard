@@ -13,7 +13,6 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
 const PasswordRecovery = () => {
-
   const navigate = useNavigate();
 
   const [email, setEmail] = useState<string>("");
@@ -40,29 +39,32 @@ const PasswordRecovery = () => {
 
   const handleNewPassword = async (e) => {
     e.preventDefault();
-    console.log(code, code.length)
-    console.log(email)
-    console.log(password)
+    console.log(code, code.length);
+    console.log(email);
+    console.log(password);
     if (code.length === 6) {
       try {
-        const response = await axios.post("http://localhost:8000/code-verification/", {
-          code: code,
-          email: email,
-          password: password,
-        })
-        console.log(response.data)
-        response.data[0] === "User verified successfully" ? navigate('/login') : console.error('error')
+        const response = await axios.post(
+          "http://localhost:8000/code-verification/",
+          {
+            code: code,
+            email: email,
+            password: password,
+          },
+        );
+        console.log(response.data);
+        response.data[0] === "User verified successfully"
+          ? navigate("/login")
+          : console.error("error");
+      } catch (error) {
+        console.error("code verification error: ", error);
+        setCodeError("Invalid code");
       }
-      catch (error) {
-        console.error('code verification error: ', error);
-        setCodeError("Invalid code")
-      }
-    }
-    else {
+    } else {
       setCodeError("Invalid code");
     }
     setPassword("");
-  }
+  };
 
   return (
     <div className="flex items-center justify-center bg-muted p-6">
@@ -76,7 +78,11 @@ const PasswordRecovery = () => {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <form onSubmit={!emailSent ? handleVerificationRequest : handleNewPassword}>
+            <form
+              onSubmit={
+                !emailSent ? handleVerificationRequest : handleNewPassword
+              }
+            >
               <div className="flex flex-col gap-6 mb-3">
                 {!emailSent ? (
                   <div className="grid gap-2">
@@ -111,10 +117,7 @@ const PasswordRecovery = () => {
                   </div>
                 )}
               </div>
-              <Button
-                type="submit"
-                className="w-full"
-              >
+              <Button type="submit" className="w-full">
                 Submit
               </Button>
             </form>

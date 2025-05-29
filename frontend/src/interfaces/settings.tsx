@@ -1,3 +1,3 @@
 export interface Settings {
-    monthlyBudget: number;
+  monthlyBudget: number;
 }

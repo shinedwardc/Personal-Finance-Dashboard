@@ -39,16 +39,20 @@ const Login = ({
     }
   };
 
-  const handleGoogleLogin = async (request : any) => {
-    console.log('request', request);
+  const handleGoogleLogin = async (request: any) => {
+    console.log("request", request);
     try {
-      const response = await axios.post("http://localhost:8000/api/auth/google/", {
-        token: request.credential
-      }, {
-        headers: {
-          "Content-Type": "application/json"
-        }
-      })
+      const response = await axios.post(
+        "http://localhost:8000/api/auth/google/",
+        {
+          token: request.credential,
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        },
+      );
       const { access, refresh } = response.data;
       console.log(access, refresh);
       localStorage.setItem("accessToken", access);
@@ -62,19 +66,19 @@ const Login = ({
     } catch (error) {
       console.error("Google login failed", error);
     }
-  }
-
+  };
 
   return (
     <div className="flex min-h-svh flex-col items-center justify-center bg-muted p-6 md:p-10">
       <div className="w-full max-w-sm md:max-w-3xl">
-        <LoginForm username={username} 
-                  password={password}
-                  setUsername={setUsername}
-                  setPassword={setPassword} 
-                  onLoginFormSubmit={handleLogin} 
-                  onGoogleLogin={handleGoogleLogin}
-                  error={error}
+        <LoginForm
+          username={username}
+          password={password}
+          setUsername={setUsername}
+          setPassword={setPassword}
+          onLoginFormSubmit={handleLogin}
+          onGoogleLogin={handleGoogleLogin}
+          error={error}
         />
       </div>
     </div>
