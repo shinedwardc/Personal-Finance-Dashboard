@@ -1,17 +1,13 @@
 import { useState } from "react";
+import { useProfileContext } from "@/hooks/useProfileContext";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { Settings } from "../interfaces/settings";
 import Connections from "./Connections";
 
-const Profile = ({
-  settings,
-  isLoading,
-  onFormSubmit,
-}: {
-  settings: Settings;
-  isLoading: boolean;
-  onFormSubmit: (data: Settings) => void;
-}) => {
+const Profile = () => {
+
+  const { handleSettingsForm } = useProfileContext();
+
   const [view, setView] = useState<string>("Profile");
 
   const {
@@ -22,7 +18,7 @@ const Profile = ({
   } = useForm<Settings>();
 
   const onSubmit: SubmitHandler<Settings> = (data: Settings) => {
-    onFormSubmit(data);
+    handleSettingsForm(data);
   };
 
   return (

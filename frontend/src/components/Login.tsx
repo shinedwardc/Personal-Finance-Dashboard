@@ -2,15 +2,12 @@ import { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import LoginForm from "./LoginForm";
-import { AuthState } from "../interfaces/userAuth";
+import { useProfileContext } from "@/hooks/useProfileContext";
 
-const Login = ({
-  authState,
-  setAuthState,
-}: {
-  authState: AuthState;
-  setAuthState: React.Dispatch<React.SetStateAction<AuthState>>;
-}) => {
+const Login = () => {
+
+  const { authState, setAuthState } = useProfileContext();
+
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");

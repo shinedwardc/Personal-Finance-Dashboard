@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
-import { useExpenseContext } from "@/hooks/useExpenseContext";
-import { useCalendarContext } from "@/hooks/useCalendarContext";
+import { useEffect, useState, useMemo } from "react";
+import { useProfileContext } from "@/hooks/useProfileContext";
+import { useMonthlyExpenses } from "@/hooks/useMonthlyExpenses";
 import { Bar, BarChart, XAxis, YAxis } from "recharts";
 import Modal from "react-modal";
 import {
@@ -21,23 +21,21 @@ import {
 import Form from "./Form";
 import { ExpenseInterface } from "../interfaces/expenses";
 import { PlaidResponse } from "../interfaces/plaid";
-import { Settings } from "../interfaces/settings";
 
 const Dashboard = ({
   plaidBalance,
-  settings,
 }: {
   plaidBalance: PlaidResponse;
-  settings: Settings;
 }) => {
-  const { data, setData, isDataLoading } = useExpenseContext();
-  const { monthlySpent } = useCalendarContext();
+  //const { data, setData, isDataLoading } = useExpenseContext();
+  const today = useMemo(() => new Date(),[]);
+  const { data, isLoading: isDataLoading } = useMonthlyExpenses(today);
+  const { profileSettings, isProfileLoading } = useProfileContext();
+  const [monthlySpent, setMonthlySpent] = useState<number>(0);
   const [categoryTotals, setCategoryTotals] = useState<Record<string, number>>(
     {},
   );
-  const [total, setTotal] = useState<number>(0);
   const [balance, setBalance] = useState<number>(0);
-  //const [date, setDate] = useState(new Date());
   const [categories, setCategories] = useState<string[]>([]);
   const [categoryLoading, setCategoryLoading] = useState<boolean>(true);
   const [topSpendingCategories, setTopSpendingCategories] = useState<string[]>(
@@ -53,16 +51,38 @@ const Dashboard = ({
   Modal.setAppElement("#root");
   //console.log(settings);
 
+  const chartConfig = {
+    desktop: {
+      label: "Desktop",
+      color: "hsl(var(--chart-2))",
+    },
+  } satisfies ChartConfig;
+
   useEffect(() => {
     const initialize = async () => {
       try {
-        await calculateTotals();
-        fetchCategories();
+        const totalAmount = data.reduce((sum, event) => {
+          if (event.amount >= 0) {
+            return sum + event.amount;
+          }
+          return sum;
+        }, 0);
+        setMonthlySpent(totalAmount);
+        const totals = await calculateTotalByCategory(data);
+        setCategoryTotals(totals);
+        const newCategories = new Set<string>();
+        for (const expense of data) {
+          const categoryName = expense.category;
+          newCategories.add(categoryName);
+        }
+        //console.log("newCategories: ", newCategories);
+        setCategories(Array.from(newCategories));
         setCategoryLoading(false);
       } catch (error) {
         console.error("Error initializing data:", error);
       }
     };
+    if (!data) return;
     initialize();
   }, [data]);
 
@@ -78,42 +98,16 @@ const Dashboard = ({
     }
   }, [plaidBalance]);
 
-  const calculateTotals = async () => {
-    try {
-      const totals = await calculateTotalByCategory(data);
-      setCategoryTotals(totals);
-      const totalCost = Object.values(totals).reduce(
-        (sum, cost) => sum + cost,
-        0,
-      );
-      setTotal(totalCost);
-    } catch (error) {
-      console.error("Error calculating totals:", error);
-    }
-  };
-
-  const fetchCategories = () => {
-    const newCategories = new Set<string>();
-    for (const expense of data) {
-      const categoryName = expense.category;
-      newCategories.add(categoryName);
-    }
-    //console.log("newCategories: ", newCategories);
-    setCategories(Array.from(newCategories));
-  };
-
   const calculateTotalByCategory = async (
     expenses: ExpenseInterface[],
   ): Promise<Record<string, number>> => {
     const totals: Record<string, number> = {};
-    setTotal(0);
+    //setTotal(0);
     //console.log("expenses", expenses);
     for (const expense of expenses) {
       const amount = parseFloat(expense.amount.toString());
       if (amount < 0) continue;
       const categoryName = expense.category;
-
-      setTotal((prevTotal) => prevTotal + amount);
 
       totals[categoryName] = (totals[categoryName] || 0) + amount;
     }
@@ -143,27 +137,8 @@ const Dashboard = ({
     }
     //console.log(graphData);
     setGraphData(graphData);
-
     return totals;
   };
-
-  const handleGraphSelect = (e: React.FormEvent) => {
-    const element = e.target as HTMLInputElement;
-    setGraphType(element.value);
-  };
-
-  const chartConfig = {
-    desktop: {
-      label: "Desktop",
-      color: "hsl(var(--chart-2))",
-    },
-  } satisfies ChartConfig;
-
-  /*const handleDateSelect = async (date: Date) => {
-    setDate(date);
-    const filtered = await calculateTotalByCategory(data, date);
-    console.log(filtered);
-  };*/
 
   const refetchExpenses = async (newExpense: ExpenseInterface) => {
     try {
@@ -177,21 +152,18 @@ const Dashboard = ({
     } catch (error) {
       console.error("Failed to refetch expenses:", error);
     }
-    /*if (modalRef.current) {
-      modalRef.current.close();
-    }*/
     setIsOpen(false);
   };
 
   return (
     <>
-      {!isDataLoading ? (
+      {!isDataLoading && !isProfileLoading ? (
         <div className="mt-10 ml-2">
           <h1 className="text-[#6abeb4] text-5xl mb-6">Overview</h1>
           <p className="text-gray-300 mb-2">
             Start money management with a birds-eye view of your expenses
           </p>
-          {data.length > 0 ? (
+          {data && data.length > 0 ? (
             <>
               <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
                 <Card className="rounded-xl h-[150px] w-[330px]">
@@ -241,19 +213,19 @@ const Dashboard = ({
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
-                    {settings.monthlyBudget !== null ? (
+                    {profileSettings.monthlyBudget !== null ? (
                       <>
                         <h1
-                          className={`text-sm font-semibold ${settings.monthlyBudget - Number(total.toFixed(2)) < 0 ? "text-red-400" : "text-green-200"}`}
+                          className={`text-sm font-semibold ${profileSettings.monthlyBudget - Number(monthlySpent.toFixed(2)) < 0 ? "text-red-400" : "text-green-200"}`}
                         >
-                          ${monthlySpent} / ${settings.monthlyBudget}
+                          ${monthlySpent} / ${profileSettings.monthlyBudget}
                         </h1>
                         <h3
-                          className={`text-sm ${settings.monthlyBudget - Number(total.toFixed(2)) < 0 ? "text-red-400" : "text-yellow-200"}`}
+                          className={`text-sm ${profileSettings.monthlyBudget - Number(monthlySpent.toFixed(2)) < 0 ? "text-red-400" : "text-yellow-200"}`}
                         >
-                          {settings.monthlyBudget - Number(total.toFixed(2)) < 0
-                            ? `Spent over monthly budget limit by ${Math.abs(settings.monthlyBudget - Number(total.toFixed(2))).toFixed(2)}$`
-                            : `You have ${(settings.monthlyBudget - Number(total.toFixed(2))).toFixed(2)}$ left until budget limit`}
+                          {profileSettings.monthlyBudget - Number(monthlySpent.toFixed(2)) < 0
+                            ? `Spent over monthly budget limit by ${Math.abs(profileSettings.monthlyBudget - Number(monthlySpent.toFixed(2))).toFixed(2)}$`
+                            : `You have ${(profileSettings.monthlyBudget - Number(monthlySpent.toFixed(2))).toFixed(2)}$ left until budget limit`}
                         </h3>
                       </>
                     ) : (

@@ -1,15 +1,13 @@
 import { useEffect, useState, createContext, ReactNode } from "react";
+import { useProfileContext } from "@/hooks/useProfileContext";
 import { ExpenseInterface } from "../interfaces/expenses";
 import { AuthState } from "../interfaces/userAuth";
 import { PlaidResponse } from "../interfaces/plaid";
 import { Settings } from "../interfaces/settings";
 import {
-  getAuthStatus,
   getExpense,
-  getExpensesByMonth,
   fetchPlaidTransactions,
   fetchPlaidBalance,
-  fetchProfileSettings,
   updateBudgetLimit,
 } from "../utils/api";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
@@ -31,11 +29,7 @@ export const ExpenseContext = createContext<
 
 export const ExpenseProvider = ({ children }: { children: ReactNode }) => {
   const queryClient = useQueryClient();
-  const [authState, setAuthState] = useState<AuthState>({
-    isLoggedIn: false,
-    isPlaidConnected: false,
-    isLoading: true,
-  });
+  const { authState, setAuthState, isLoading : isProfileLoading } = useProfileContext();
   const [data, setData] = useState<ExpenseInterface[]>([]);
   const [plaidBalance, setPlaidBalance] = useState<PlaidResponse | null>(null);
 
@@ -65,12 +59,6 @@ export const ExpenseProvider = ({ children }: { children: ReactNode }) => {
     ],
     queryFn: fetchPlaidBalance,
     enabled: authState.isLoggedIn && authState.isPlaidConnected,
-  });
-
-  const { data: settingsData, isLoading: settingsLoading } = useQuery({
-    queryKey: ["settings", authState.isLoggedIn],
-    queryFn: fetchProfileSettings,
-    enabled: authState.isLoggedIn,
   });
 
   const mutation = useMutation({
@@ -117,33 +105,17 @@ export const ExpenseProvider = ({ children }: { children: ReactNode }) => {
     //filteredDataLoading ||
     plaidLoading ||
     plaidBalanceLoading ||
-    settingsLoading;
-
-  useEffect(() => {
-    const checkAuth = async () => {
-      const response = await getAuthStatus();
-      const plaidToken = localStorage.getItem("plaidAccessToken");
-      setAuthState({
-        isLoggedIn: response.authenticated,
-        isPlaidConnected: Boolean(plaidToken),
-        isLoading: false,
-      });
-    };
-    checkAuth();
-  }, []);
+    isProfileLoading;
+    //settingsLoading;
 
   return (
     <ExpenseContext.Provider
       value={{
         data,
         setData,
-        authState,
-        setAuthState,
-        settingsData,
         handleSettingsForm,
         plaidBalance,
         isDataLoading,
-        settingsLoading,
       }}
     >
       {children}

@@ -1,7 +1,5 @@
-import { useState, useEffect } from "react";
-//import { ExpenseProvider } from "./context/ExpenseContext";
 import { useExpenseContext } from "./hooks/useExpenseContext";
-import { CalendarProvider } from "./context/CalendarContext";
+import { useProfileContext } from "./hooks/useProfileContext";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import "./App.css";
 import { ThemeProvider } from "@/components/theme-provider";
@@ -22,32 +20,22 @@ import Login from "./components/Login";
 import Logout from "./components/Logout";
 import Signup from "./components/Signup";
 import PasswordRecovery from "./components/PasswordRecovery";
-import { ExpenseInterface } from "./interfaces/expenses";
-import { AuthState } from "./interfaces/userAuth";
 import { PlaidResponse } from "./interfaces/plaid";
-import { Settings } from "./interfaces/settings";
-import {
-  getAuthStatus,
-  getExpense,
-  getExpensesByMonth,
-  fetchPlaidTransactions,
-  fetchPlaidBalance,
-  fetchProfileSettings,
-  updateBudgetLimit,
-} from "./utils/api";
-import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 
 function App() {
   const {
     data,
-    authState,
-    setAuthState,
     isDataLoading,
-    settingsData,
     handleSettingsForm,
     plaidBalance,
-    settingsLoading,
   } = useExpenseContext();
+
+  const {
+    authState,
+    setAuthState,
+    profileSettings,
+    isProfileLoading,
+  } = useProfileContext();
 
   return (
     <Router>
@@ -55,7 +43,7 @@ function App() {
       <ThemeProvider storageKey="vite-ui-theme">
         <div className="min-h-screen dark:bg-black dark:text-white overflow-auto font-inter">
           <div className="flex flex-row gap-5">
-            <Navbar authState={authState} setAuthState={setAuthState} />
+            <Navbar />
             {/*<ModeToggle />*/}
           </div>
           {/*<ExpenseProvider data={data} setData={setData} isDataLoading={isDataLoading}>*/}
@@ -64,18 +52,18 @@ function App() {
               {/* Public routes */}
               <Route
                 path="/about"
-                element={<Introduction authState={authState} />}
+                element={<Introduction/>}
               />
               <Route
                 path="/login"
                 element={
-                  <Login authState={authState} setAuthState={setAuthState} />
+                  <Login/>
                 }
               />
               <Route
                 path="/logout"
                 element={
-                  <Logout authState={authState} setAuthState={setAuthState} />
+                  <Logout/>
                 }
               />
               <Route path="/signup" element={<Signup />} />
@@ -84,9 +72,8 @@ function App() {
               <Route
                 path="/"
                 element={
-                  <PrivateRoute authState={authState}>
+                  <PrivateRoute>
                     <Dashboard
-                      settings={settingsData}
                       plaidBalance={plaidBalance as PlaidResponse}
                     />
                   </PrivateRoute>
@@ -95,10 +82,9 @@ function App() {
               <Route
                 path="/dashboard"
                 element={
-                  <PrivateRoute authState={authState}>
+                  <PrivateRoute>
                     <Dashboard
                       plaidBalance={plaidBalance as PlaidResponse}
-                      settings={settingsData}
                     />
                   </PrivateRoute>
                 }
@@ -106,7 +92,7 @@ function App() {
               <Route
                 path="/transactions"
                 element={
-                  <PrivateRoute authState={authState}>
+                  <PrivateRoute>
                     <List />
                   </PrivateRoute>
                 }
@@ -114,7 +100,7 @@ function App() {
               <Route
                 path="/investments"
                 element={
-                  <PrivateRoute authState={authState}>
+                  <PrivateRoute>
                     <Investments />
                   </PrivateRoute>
                 }
@@ -122,7 +108,7 @@ function App() {
               <Route
                 path="/calendar"
                 element={
-                  <PrivateRoute authState={authState}>
+                  <PrivateRoute>
                     <Calendar />
                   </PrivateRoute>
                 }
@@ -130,7 +116,7 @@ function App() {
               <Route
                 path="/stats"
                 element={
-                  <PrivateRoute authState={authState}>
+                  <PrivateRoute>
                     <Stats data={data} isLoading={isDataLoading} />
                   </PrivateRoute>
                 }
@@ -138,12 +124,8 @@ function App() {
               <Route
                 path="/profile"
                 element={
-                  <PrivateRoute authState={authState}>
-                    <Profile
-                      settings={settingsData}
-                      isLoading={settingsLoading}
-                      onFormSubmit={handleSettingsForm}
-                    />
+                  <PrivateRoute>
+                    <Profile/>
                   </PrivateRoute>
                 }
               />

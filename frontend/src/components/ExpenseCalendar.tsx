@@ -1,4 +1,5 @@
-//import React, { useRef, useEffect, useState } from "react";
+import { useRef, useEffect, useState } from "react";
+import { useMonthlyExpenses } from "@/hooks/useMonthlyExpenses";
 import { useExpenseContext } from "@/hooks/useExpenseContext";
 import { useCalendarContext } from "@/hooks/useCalendarContext";
 import FullCalendar from "@fullcalendar/react";
@@ -17,39 +18,45 @@ import { useSpring, animated } from "@react-spring/web";
 import { motion, AnimatePresence } from "motion/react";
 
 const ExpenseCalendar = () => {
-  const { isDataLoading } = useExpenseContext();
 
-  /*const calendarRef = useRef<FullCalendar | null>(null);
+  //const calendarRef = useRef<FullCalendar | null>(null);
 
   const [events, setEvents] = useState<{ title: string; start: string; amount: number; frequency: string | null; }[]>([]);
   const [chosenEvents, setChosenEvents] = useState<{ title: string; start: string; amount: number; frequency: string | null; }[]>([]);
-  const [month, setMonth] = useState<number>(0);
-  const [year, setYear] = useState<number>(0);
+  const [monthAndYear, setMonthAndYear] = useState<Date>(new Date());
   const [monthlySpent, setMonthlySpent] = useState<number>(0);
 
-  const [date, setDate] = React.useState<Date | undefined>(new Date())
+  const [date, setDate] = useState<Date | undefined>(new Date())
 
-  const getCurrentMonth = () => {
+  const { data, isLoading: isDataLoading } = useMonthlyExpenses(monthAndYear);
+
+  /*const getCurrentMonth = () => {
     if (calendarRef.current) {
       const calendarApi = calendarRef.current.getApi();
       const currentMonth = calendarApi.getDate().getMonth();
       const currentYear = calendarApi.getDate().getFullYear();
-      setMonth(currentMonth + 1);
-      setYear(currentYear);
-      console.log(currentMonth + 1);
-      console.log(currentYear);
+      setMonthAndYear(new Date(currentYear, currentMonth, 1));
+      console.log("Current Month and Year: ", currentMonth + 1, currentYear);
     }
-  };
+  };*/
 
   useEffect(() => {
     if (data && data.length > 0) {
+      console.log("data: ", data);
+      const totalAmount = data.reduce((sum, event) => {
+        if (event.amount >= 0) {
+          return sum + event.amount;
+        }
+        return sum;
+      }, 0);
+      setMonthlySpent(totalAmount);
       const formattedEvents = data.map((expense) => ({
           title: expense.name,
           start: expense.date,
           amount: expense.amount,
           frequency: expense.frequency,
         }));
-      console.log(formattedEvents)
+      console.log(formattedEvents);
       const calculateDayExpenses = new Map();
       for (const event of formattedEvents) {
         if (calculateDayExpenses.has(event.start)) {
@@ -60,9 +67,14 @@ const ExpenseCalendar = () => {
       }
       setEvents(formattedEvents);
     }
-  }, [data]);
+    else {
+      setMonthlySpent(0);
+      setEvents([]);
+    }
+  }, [monthAndYear, data]);
 
-  useEffect(() => {
+  /*useEffect(() => {
+    console.log("events: ", events);
     if (events.length > 0 && calendarRef.current) {
       const calendarApi = calendarRef.current.getApi();
       const currentMonth = calendarApi.getDate().getMonth();
@@ -79,9 +91,7 @@ const ExpenseCalendar = () => {
         (sum, event) => sum + event.amount,
         0,
       );
-      setMonthlySpent(totalAmount);
-    }
-  }, [events, getCurrentMonth]);
+  }, [events, getCurrentMonth]);*/
 
   useEffect(() => {
     if (events.length > 0 && date instanceof Date) {
@@ -91,8 +101,8 @@ const ExpenseCalendar = () => {
       });
       setChosenEvents(chosenEvents);
     }
-  }, [events, date]);*/
-  const {
+  }, [events, date]);
+  /*const {
     calendarRef,
     events,
     chosenEvents,
@@ -101,7 +111,13 @@ const ExpenseCalendar = () => {
     monthlySpent,
     date,
     setDate,
-  } = useCalendarContext();
+  } = useCalendarContext();*/
+   
+  const handleDateChange = (arg: { start: Date }) => {
+    const newDate = new Date(arg.start);
+    console.log(newDate);
+    setMonthAndYear(new Date(newDate.getFullYear(),newDate.getMonth(), 1));
+  }
 
   const spentSpring = useSpring({
     from: { spent: 0 },
@@ -118,7 +134,7 @@ const ExpenseCalendar = () => {
             <CardHeader className="pb-2">
               <CardTitle className="text-sm">Monthly spent</CardTitle>
             </CardHeader>
-            <CardContent className="">
+            <CardContent>
               <div className="flex justify-row justify-between items-center space-y-0">
                 <animated.div className="text-center text-2xl">
                   {spentSpring.spent.to(
@@ -151,8 +167,8 @@ const ExpenseCalendar = () => {
               initialView="dayGridMonth"
               showNonCurrentDates={false}
               fixedWeekCount={false}
-              ref={calendarRef}
-              datesSet={() => getCurrentMonth()}
+              //ref={calendarRef}
+              datesSet={handleDateChange}
               events={events}
               eventContent={(info) => (
                 <div className="text-center">

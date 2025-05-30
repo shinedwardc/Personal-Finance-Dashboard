@@ -1,21 +1,10 @@
 import { Link, useNavigate } from "react-router-dom";
+import { useProfileContext } from "@/hooks/useProfileContext";
 
-const Navbar = ({
-  authState,
-  setAuthState,
-}: {
-  authState: {
-    isLoggedIn: boolean;
-    isPlaidConnected: boolean;
-    isLoading: boolean;
-  };
-  setAuthState: (authState: {
-    isLoggedIn: boolean;
-    isPlaidConnected: boolean;
-    isLoading: boolean;
-  }) => void;
-}) => {
-  const navigate = useNavigate();
+const Navbar = () => {
+  //const navigate = useNavigate();
+
+  const { authState, setAuthState } = useProfileContext();
 
   const handleLogout = () => {
     localStorage.removeItem("accessToken");

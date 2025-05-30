@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
-import { getCategories } from "../utils/api";
-import axios from "axios";
+import { useState } from "react";
+import { useQueryClient, useMutation } from "@tanstack/react-query";
+import { addExpense } from "../utils/api";
 import { ExpenseInterface } from "../interfaces/expenses";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
@@ -22,7 +22,7 @@ import {
 import { LuCalendarDays } from "react-icons/lu";
 
 interface formProps {
-  onFormSubmit: (newExpense: ExpenseInterface) => void;
+  onFormSubmit: () => void;
 }
 
 const Form = ({ onFormSubmit }: formProps) => {
@@ -50,7 +50,27 @@ const Form = ({ onFormSubmit }: formProps) => {
   const [name, setName] = useState<string>("");
   const [date, setDate] = useState<Date>(new Date());
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const queryClient = useQueryClient();
+
+  const { mutate: addExpenseMutate, isLoading } = useMutation({
+    mutationFn: (newExpense: {
+      name: string;
+      category: string;
+      amount: number;
+      currency: string;
+      date: string;
+      updated_at: string;
+    }) => addExpense(newExpense),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["monthlyExpenses"] });
+    },
+    onError: (error) => {
+      console.error("Error adding expense:", error);
+      //toast.error();
+    },
+  })
+
+  const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     //console.log(date ? format(date,"yyyy-MM-dd") : "No date selected");
     const newExpense = {
@@ -61,30 +81,12 @@ const Form = ({ onFormSubmit }: formProps) => {
       date: format(date, "yyyy-MM-dd"),
       updated_at: new Date().toISOString(),
     };
-    try {
-      const response = await axios.post(
-        "http://localhost:8000/expenses/",
-        newExpense,
-        {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-          },
-        },
-      );
-      console.log("Expense created:", response.data);
-      onFormSubmit(response.data as ExpenseInterface);
-    } catch (error: any) {
-      if (error.response) {
-        console.log("Error response:", error.response.data);
-      } else {
-        console.log("Error message:", error.message);
-      }
-    }
+    addExpenseMutate(newExpense);
+    onFormSubmit();
   };
 
   return (
-    <form onSubmit={handleSubmit}>
+    <form onSubmit={handleFormSubmit}>
       <div>
         <label htmlFor="name" className="block w-full dark:text-white">
           Name

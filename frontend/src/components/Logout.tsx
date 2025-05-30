@@ -1,13 +1,11 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { AuthState } from "../interfaces/userAuth";
+import { useProfileContext } from "@/hooks/useProfileContext";
 
-interface LogoutProps {
-  authState: AuthState;
-  setAuthState: React.Dispatch<React.SetStateAction<AuthState>>;
-}
+const Logout = () => {
 
-const Logout = ({ authState, setAuthState }: LogoutProps) => {
+  const { authState, setAuthState } = useProfileContext();
+
   const navigate = useNavigate();
 
   useEffect(() => {

@@ -1,11 +1,10 @@
-import Expense from "./Expense";
-import { useState, useEffect } from "react";
-import { useExpenseContext } from "@/hooks/useExpenseContext";
-import { ExpenseInterface } from "../interfaces/expenses";
+import { useState } from "react";
+import { useQueryClient, useMutation } from "@tanstack/react-query";
+import { useMonthlyExpenses } from "@/hooks/useMonthlyExpenses";
 import Form from "./Form";
 import Recurring from "./Recurring";
-import axios from "axios";
-import { format, compareAsc } from "date-fns";
+import { deleteExpense } from "../utils/api";
+import { format } from "date-fns";
 import {
   Table,
   TableBody,
@@ -20,44 +19,32 @@ import { toast, Bounce } from "react-toastify";
 
 //https://flowbite.com/docs/components/spinner/#progress-spinner
 
-const List = (/*{
-  //data,
-  //isLoading,
-  //setData,
-}: {
-  //data: ExpenseInterface[];
-  //isLoading: boolean;
-  //setData: React.Dispatch<React.SetStateAction<ExpenseInterface[]>>;
-}*/) => {
+const List = () => {
   //const [search, setSearch] = useState<string>("");
   //const [useFilteredData, setUseFilteredData] = useState<boolean>(false);
   //const [filteredData, setFilteredData] = useState<ExpenseInterface[]>([]);
+  const queryClient = useQueryClient();
 
-  const { data, setData, isDataLoading } = useExpenseContext();
-  const [month, setMonth] = useState<Date>(new Date());
+  const { mutate: deleteExpenseMutate, isLoading } = useMutation({
+    mutationFn: (expenseId: number | string) => deleteExpense(expenseId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["monthlyExpenses"] });
+    },
+    onError: (error) => {
+      console.error("Error deleting expense:", error);
+      //toast.error()
+    },
+  });
 
-  useEffect(() => {
-    console.log(
-      data.filter((expense) => {
-        const expenseDate = new Date(expense.date);
-        return (
-          expenseDate.getFullYear() === month.getFullYear() &&
-          expenseDate.getMonth() === month.getMonth()
-        );
-      }),
-    );
-  }, [month]);
+  //const { data, setData, isDataLoading } = useExpenseContext();
+  //const { monthAndYear, setMonthAndYear } = useCalendarContext();
+  const [monthAndYear, setMonthAndYear] = useState<Date>(new Date());
+  const { data: monthlyExpenses, isLoading: isMonthlyExpensesLoading } =
+    useMonthlyExpenses(monthAndYear);
 
-  const refetchExpenses = async (newExpense: ExpenseInterface) => {
+  const refetchExpenses = async () => {
     try {
-      console.log(newExpense);
-      setData((prevData) => {
-        const combinedData = [...prevData, newExpense];
-        return combinedData.sort((a, b) =>
-          compareAsc(new Date(a.date), new Date(b.date)),
-        );
-      });
-      toast.success(`Added monthly expense`, {
+      toast.success(`Succesfully added monthly expense`, {
         position: "top-center",
         autoClose: 5000,
         hideProgressBar: false,
@@ -74,33 +61,23 @@ const List = (/*{
   };
 
   const handleDeleteTask = async (expenseId: number | string) => {
-    const response = await axios.delete(
-      `http://localhost:8000/expenses/${expenseId}/`,
-      {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-        },
-      },
-    );
-    if (response.status === 204) {
-      console.log("Expense deleted successfully");
-      setData((prevExpenses) =>
+    deleteExpenseMutate(expenseId);
+    console.log("Expense deleted successfully");
+    /*setData((prevExpenses) =>
         prevExpenses.filter((expense) => expense.id !== expenseId),
-      );
-      toast.success("Successfully deleted expense", {
-        position: "top-center",
-        autoClose: 5000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "light",
-        transition: Bounce,
-      });
-    } else {
-      console.error("Failed to delete expense");
-    }
+      );*/
+    //window.location.reload();
+    toast.success("Successfully deleted expense", {
+      position: "top-center",
+      autoClose: 5000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      theme: "light",
+      transition: Bounce,
+    });
   };
 
   /*const handleSearch = (e : React.ChangeEvent<HTMLInputElement>) => {
@@ -121,8 +98,19 @@ const List = (/*{
 
   return (
     <>
-      {!isDataLoading ? (
-        data.length > 0 ? (
+      <div>
+        <MonthPicker
+          currentMonth={new Date(monthAndYear)}
+          onMonthChange={(newDate) => {
+            //setMonth(newMonth);
+            setMonthAndYear(newDate);
+            console.log("Selected month:", format(newDate, "MMMM yyyy"));
+            // refetchExpenses();
+          }}
+        />
+      </div>
+      {!isMonthlyExpensesLoading ? (
+        monthlyExpenses && monthlyExpenses.length > 0 ? (
           <>
             <div className="mt-16"></div>
             <div className="mb-2">
@@ -130,16 +118,7 @@ const List = (/*{
                 Full detailed list
               </h1>
             </div>
-            <div>
-              <MonthPicker
-                currentMonth={month}
-                onMonthChange={(newMonth) => {
-                  setMonth(newMonth);
-                  console.log("Selected month:", format(newMonth, "MMMM yyyy"));
-                  // refetchExpenses();
-                }}
-              />
-            </div>
+
             <div className="mb-2 border-cyan-500 overflow-x-auto dark:text-white">
               {/*<div className="mb-4 flex justify-center">
                 <label className="input input-bordered flex items-center w-64 gap-2">
@@ -175,7 +154,7 @@ const List = (/*{
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {data.map((expense, index) => (
+                  {monthlyExpenses.map((expense, index) => (
                     <TableRow key={index}>
                       <TableCell className="text-lg font-ubuntu font-bold text-center">
                         {expense.name}
@@ -213,23 +192,23 @@ const List = (/*{
             <div className="relative right-64 text-sm dark:text-white">
               <p>*: Expenses made from Plaid</p>
             </div>
-            <div className="my-4 p-4 border border-green-800 w-1/3">
+            <div className="mt-8 p-4 border border-green-800 w-1/3">
               <Form onFormSubmit={refetchExpenses} />
             </div>
-            <div className="dark:text-slate-200">--- OR ---</div>
+            <div className="mt-4 dark:text-slate-200">--- OR ---</div>
             <div className="my-4 p-4 border border-green-800 dark:text-white">
               <Recurring onFormSubmit={refetchExpenses} />
             </div>
           </>
         ) : (
-          <>
+          <div className="mt-8 flex flex-col items-center">
             <div>
-              <p>No expenses! Add some</p>
+              <p>No expenses recorded for this month</p>
             </div>
-            <div className="mb-8">
+            <div className="mt-8">
               <Form onFormSubmit={refetchExpenses} />
             </div>
-          </>
+          </div>
         )
       ) : (
         <div className="flex justify-center items-center">

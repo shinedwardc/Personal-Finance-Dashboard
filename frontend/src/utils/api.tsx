@@ -76,16 +76,65 @@ export const getExpensesByMonth = async (
   year: number,
 ): Promise<ExpenseInterface[]> => {
   try {
-    console.log("get expenses by month called");
+    console.log("get expenses by month called", month, year);
     const response = await api.get("/expenses/", {
       params: { month, year },
     });
+    console.log(response.data.expenses);
     return response.data.expenses;
   } catch (error) {
     console.error(error);
     throw error;
   }
 };
+
+export const addExpense = async (
+  newExpense: {
+    name: string;
+    category: string;
+    amount: number;
+    currency: string;
+    date: string;
+    updated_at: string;
+  }
+): Promise<ExpenseInterface> => {
+  try {
+    const response = await api.post(
+      "http://localhost:8000/expenses/", 
+      newExpense, 
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+    });
+    console.log("Expense created:", response.data);
+    return response.data as ExpenseInterface;
+  } catch (error: any) {
+    if (error.response) {
+      console.log("Error response:", error.response.data);
+    } else {
+      console.log("Error message:", error.message);
+    }
+    throw error;
+  }
+}
+
+export const deleteExpense = async (expenseId: number | string) => {
+  try {
+    const response = await axios.delete(
+      `http://localhost:8000/expenses/${expenseId}/`,
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+        },
+      },
+    );
+    return response;
+  } catch (error) {
+    console.error("Error deleting expense:", error);
+    throw error;
+  }
+}
 
 export const getCategories = async (): Promise<string[]> => {
   try {
@@ -187,7 +236,9 @@ export const fetchInvestments = async () => {
 
 export const fetchProfileSettings = async () => {
   try {
+    console.log("fetching profile settings");
     const response = await api.get("/get-profile-settings/");
+    console.log(response.data);
     return response.data;
   } catch (error) {
     console.error(error);

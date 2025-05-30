@@ -61,7 +61,8 @@ export const CalendarProvider = ({
 }: {
   children: React.ReactNode;
 }) => {
-  const { data, isDataLoading } = useExpenseContext();
+  //const { data, isDataLoading } = useExpenseContext();
+  const { data, isLoading } = useExpenseContext();
 
   const calendarRef = useRef<FullCalendar | null>(null);
 
@@ -112,6 +113,7 @@ export const CalendarProvider = ({
   }, [data]);
 
   useEffect(() => {
+    console.log(calendarRef.current);
     //With Full Calendar reference
     if (events.length > 0 && calendarRef.current) {
       const calendarApi = calendarRef.current.getApi();
@@ -125,6 +127,7 @@ export const CalendarProvider = ({
           event.amount >= 0
         );
       });
+      //console.log("Filtered events for current month:", filteredEvents);
       const totalAmount = filteredEvents.reduce(
         (sum, event) => sum + event.amount,
         0,
@@ -143,6 +146,7 @@ export const CalendarProvider = ({
           event.amount >= 0
         );
       });
+      //console.log("Filtered events for current month:", filteredEvents);
       const totalAmount = filteredEvents.reduce(
         (sum, event) => sum + event.amount,
         0,

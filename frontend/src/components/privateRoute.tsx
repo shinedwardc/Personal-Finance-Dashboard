@@ -1,13 +1,14 @@
 import { Navigate } from "react-router-dom";
-import { AuthState } from "../interfaces/userAuth";
+import { useProfileContext } from "@/hooks/useProfileContext";
 
 const PrivateRoute = ({
-  authState,
   children,
 }: {
-  authState: AuthState;
   children: React.ReactNode;
 }) => {
+
+  const { authState } = useProfileContext();
+
   if (authState.isLoading) {
     return (
       <div className="flex justify-center items-center h-screen">
