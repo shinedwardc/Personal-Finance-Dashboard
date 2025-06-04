@@ -1,7 +1,16 @@
 import { useEffect, useState, useMemo } from "react";
 import { useProfileContext } from "@/hooks/useProfileContext";
 import { useMonthlyExpenses } from "@/hooks/useMonthlyExpenses";
-import { Bar, BarChart, XAxis, YAxis } from "recharts";
+import {
+  Bar,
+  BarChart,
+  XAxis,
+  YAxis,
+  Pie,
+  PieChart,
+  Cell,
+  LabelList,
+} from "recharts";
 import Modal from "react-modal";
 import {
   Card,
@@ -17,6 +26,8 @@ import {
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
+  ChartLegend,
+  ChartLegendContent,
 } from "@/components/ui/chart";
 import Form from "./Form";
 import { ExpenseInterface } from "../interfaces/expenses";
@@ -38,19 +49,34 @@ const Dashboard = ({ plaidBalance }: { plaidBalance: PlaidResponse }) => {
     [],
   );
   const [graphData, setGraphData] = useState<
-    Array<{ Category: string; Total: number }>
+    Array<{ category: string; total: number }>
   >([]);
-  const [graphType, setGraphType] = useState<string>("bar");
+  //const [graphType, setGraphType] = useState<string>("bar");
   const [modalIsOpen, setIsOpen] = useState<boolean>(false);
 
   //const modalRef = useRef<HTMLDialogElement>(null);
   Modal.setAppElement("#root");
   //console.log(settings);
 
-  const chartConfig = {
-    desktop: {
-      label: "Desktop",
+  const barConfig = {
+    total: {
+      label: "Category total",
       color: "hsl(var(--chart-2))",
+    },
+  } satisfies ChartConfig;
+
+  const pieConfig = {
+    total: {
+      label: "Spent on category",
+    },
+    Community: {
+      color: "#dcfce7",
+    },
+    "Food-and-Drink": {
+      color: "#bbf7d0",
+    },
+    Payment: {
+      color: "#86efac",
     },
   } satisfies ChartConfig;
 
@@ -71,7 +97,7 @@ const Dashboard = ({ plaidBalance }: { plaidBalance: PlaidResponse }) => {
           const categoryName = expense.category;
           newCategories.add(categoryName);
         }
-        //console.log("newCategories: ", newCategories);
+        //console.log("categories: ", newCategories);
         setCategories(Array.from(newCategories));
         setCategoryLoading(false);
       } catch (error) {
@@ -122,12 +148,12 @@ const Dashboard = ({ plaidBalance }: { plaidBalance: PlaidResponse }) => {
       }
       setTopSpendingCategories(topSpenders);
     }
-
+    //console.log(totals);
     const graphData = [];
     for (const category of Object.keys(totals).sort()) {
       const totalObj = {
-        Category: category,
-        Total: totals[category],
+        category: category,
+        total: totals[category],
       };
       graphData.push(totalObj);
     }
@@ -162,7 +188,7 @@ const Dashboard = ({ plaidBalance }: { plaidBalance: PlaidResponse }) => {
           {data && data.length > 0 ? (
             <>
               <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-                <Card className="rounded-xl h-[150px] w-[330px]">
+                <Card className="rounded-xl h-[180px] w-[330px]">
                   <CardHeader>
                     <CardTitle>This Month's Spending</CardTitle>
                     <CardDescription>
@@ -173,7 +199,7 @@ const Dashboard = ({ plaidBalance }: { plaidBalance: PlaidResponse }) => {
                     <h1 className="font-bold">${monthlySpent}</h1>
                   </CardContent>
                 </Card>
-                <Card className="rounded-xl h-[150px] w-[330px]">
+                <Card className="rounded-xl h-[180px] w-[330px]">
                   <CardHeader>
                     <CardTitle>Top spending categories</CardTitle>
                     <CardDescription>
@@ -190,7 +216,7 @@ const Dashboard = ({ plaidBalance }: { plaidBalance: PlaidResponse }) => {
                     )}
                   </CardContent>
                 </Card>
-                <Card className="rounded-xl h-[150px] w-[330px]">
+                <Card className="rounded-xl h-[180px] w-[330px]">
                   <CardHeader>
                     <CardTitle>Current balance</CardTitle>
                     <CardDescription>
@@ -201,7 +227,7 @@ const Dashboard = ({ plaidBalance }: { plaidBalance: PlaidResponse }) => {
                     <p>${balance.toFixed(2)}</p>
                   </CardContent>
                 </Card>
-                <Card className="rounded-xl h-[150px] w-[330px]">
+                <Card className="rounded-xl h-[180px] w-[330px]">
                   <CardHeader>
                     <CardTitle>Remaining budget</CardTitle>
                     <CardDescription>
@@ -261,21 +287,23 @@ const Dashboard = ({ plaidBalance }: { plaidBalance: PlaidResponse }) => {
               <div className="mt-4 p-5 rounded-xl border border-neutral-200 bg-white dark:border-neutral-800 dark:bg-neutral-950 dark:text-neutral-50">
                 <div>
                   <h1 className="text-2xl font-semibold text-black dark:text-white ml-4">
-                    Overview
+                    Spending by category visualized
                   </h1>
                 </div>
                 <div className="flex flex-row gap-4 mt-4">
                   <Card className="w-1/2 rounded-xl">
                     <CardHeader>
-                      <CardTitle className="font-normal">
-                        Spending by category
-                      </CardTitle>
+                      <CardTitle className="font-normal">Bar</CardTitle>
                     </CardHeader>
                     <CardDescription>
-                      <ChartContainer config={chartConfig}>
-                        <BarChart accessibilityLayer data={graphData}>
+                      <ChartContainer config={barConfig}>
+                        <BarChart
+                          accessibilityLayer
+                          data={graphData}
+                          margin={{ top: 20, bottom: 5 }}
+                        >
                           <XAxis
-                            dataKey="Category"
+                            dataKey="category"
                             tickLine={false}
                             tickMargin={10}
                             axisLine={false}
@@ -286,38 +314,83 @@ const Dashboard = ({ plaidBalance }: { plaidBalance: PlaidResponse }) => {
                             content={<ChartTooltipContent />}
                           />
                           <Bar
-                            dataKey="Total"
-                            fill="var(--color-desktop)"
+                            dataKey="total"
+                            fill="var(--color-total)"
                             radius={8}
-                          />
+                          >
+                            <LabelList
+                              position="top"
+                              offset={10}
+                              fontSize={12}
+                            />
+                          </Bar>
                         </BarChart>
                       </ChartContainer>
                     </CardDescription>
                   </Card>
                   <Card className="w-1/2 rounded-xl">
                     <CardHeader>
-                      <CardTitle className="font-normal"></CardTitle>
+                      <CardTitle className="font-normal">Pie</CardTitle>
                     </CardHeader>
                     <CardDescription>
-                      <ChartContainer config={chartConfig}>
-                        <BarChart accessibilityLayer data={graphData}>
-                          <XAxis
-                            dataKey="Category"
-                            tickLine={false}
-                            tickMargin={10}
-                            axisLine={false}
-                          />
-                          <YAxis scale="auto" tickCount={5} unit={"$"} />
+                      <ChartContainer config={pieConfig}>
+                        <PieChart>
                           <ChartTooltip
-                            cursor={false}
-                            content={<ChartTooltipContent />}
+                            content={
+                              <ChartTooltipContent hideLabel nameKey="total" />
+                            }
                           />
-                          <Bar
-                            dataKey="Total"
-                            fill="var(--color-desktop)"
-                            radius={8}
-                          />
-                        </BarChart>
+                          <Pie
+                            data={graphData}
+                            dataKey="total"
+                            labelLine={false}
+                            cx="50%"
+                            cy="50%"
+                            label={({
+                              cx,
+                              cy,
+                              midAngle,
+                              innerRadius,
+                              outerRadius,
+                              percent,
+                              index,
+                            }) => {
+                              const RADIAN = Math.PI / 180;
+                              const radius =
+                                innerRadius + (outerRadius - innerRadius) * 0.5;
+                              const x =
+                                cx + radius * Math.cos(-midAngle * RADIAN);
+                              const y =
+                                cy + radius * Math.sin(-midAngle * RADIAN);
+                              return (
+                                <text
+                                  x={x}
+                                  y={y}
+                                  fill="black"
+                                  textAnchor={x > cx ? "start" : "end"}
+                                  dominantBaseline="central"
+                                >
+                                  {`${(percent * 100).toFixed(0)}%`}
+                                </text>
+                              );
+                            }}
+                          >
+                            {graphData.map((_, index) => (
+                              <Cell
+                                key={index}
+                                fill={`var(--color-${
+                                  categories[
+                                    index % categories.length
+                                  ].includes(" ")
+                                    ? categories[
+                                        index % categories.length
+                                      ].replace(/ /g, "-")
+                                    : categories[index % categories.length]
+                                })`}
+                              />
+                            ))}
+                          </Pie>
+                        </PieChart>
                       </ChartContainer>
                     </CardDescription>
                   </Card>

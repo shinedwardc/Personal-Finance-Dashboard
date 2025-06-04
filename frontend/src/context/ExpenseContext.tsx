@@ -31,8 +31,7 @@ export const ExpenseProvider = ({ children }: { children: ReactNode }) => {
   const queryClient = useQueryClient();
   const {
     authState,
-    setAuthState,
-    isLoading: isProfileLoading,
+    isProfileLoading,
   } = useProfileContext();
   const [data, setData] = useState<ExpenseInterface[]>([]);
   const [plaidBalance, setPlaidBalance] = useState<PlaidResponse | null>(null);
