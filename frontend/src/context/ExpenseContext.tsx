@@ -29,7 +29,11 @@ export const ExpenseContext = createContext<
 
 export const ExpenseProvider = ({ children }: { children: ReactNode }) => {
   const queryClient = useQueryClient();
-  const { authState, setAuthState, isLoading : isProfileLoading } = useProfileContext();
+  const {
+    authState,
+    setAuthState,
+    isLoading: isProfileLoading,
+  } = useProfileContext();
   const [data, setData] = useState<ExpenseInterface[]>([]);
   const [plaidBalance, setPlaidBalance] = useState<PlaidResponse | null>(null);
 
@@ -106,7 +110,7 @@ export const ExpenseProvider = ({ children }: { children: ReactNode }) => {
     plaidLoading ||
     plaidBalanceLoading ||
     isProfileLoading;
-    //settingsLoading;
+  //settingsLoading;
 
   return (
     <ExpenseContext.Provider

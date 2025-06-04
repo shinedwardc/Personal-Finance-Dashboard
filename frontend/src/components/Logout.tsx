@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import { useProfileContext } from "@/hooks/useProfileContext";
 
 const Logout = () => {
-
   const { authState, setAuthState } = useProfileContext();
 
   const navigate = useNavigate();

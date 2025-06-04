@@ -5,7 +5,6 @@ import { Settings } from "../interfaces/settings";
 import Connections from "./Connections";
 
 const Profile = () => {
-
   const { handleSettingsForm } = useProfileContext();
 
   const [view, setView] = useState<string>("Profile");

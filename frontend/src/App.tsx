@@ -23,19 +23,11 @@ import PasswordRecovery from "./components/PasswordRecovery";
 import { PlaidResponse } from "./interfaces/plaid";
 
 function App() {
-  const {
-    data,
-    isDataLoading,
-    handleSettingsForm,
-    plaidBalance,
-  } = useExpenseContext();
+  const { data, isDataLoading, handleSettingsForm, plaidBalance } =
+    useExpenseContext();
 
-  const {
-    authState,
-    setAuthState,
-    profileSettings,
-    isProfileLoading,
-  } = useProfileContext();
+  const { authState, setAuthState, profileSettings, isProfileLoading } =
+    useProfileContext();
 
   return (
     <Router>
@@ -50,22 +42,9 @@ function App() {
           <div className="flex-grow flex flex-col items-center justify-center mr-[64px]">
             <Routes>
               {/* Public routes */}
-              <Route
-                path="/about"
-                element={<Introduction/>}
-              />
-              <Route
-                path="/login"
-                element={
-                  <Login/>
-                }
-              />
-              <Route
-                path="/logout"
-                element={
-                  <Logout/>
-                }
-              />
+              <Route path="/about" element={<Introduction />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/logout" element={<Logout />} />
               <Route path="/signup" element={<Signup />} />
               <Route path="/recover" element={<PasswordRecovery />} />
               {/* Protected routes */}
@@ -73,9 +52,7 @@ function App() {
                 path="/"
                 element={
                   <PrivateRoute>
-                    <Dashboard
-                      plaidBalance={plaidBalance as PlaidResponse}
-                    />
+                    <Dashboard plaidBalance={plaidBalance as PlaidResponse} />
                   </PrivateRoute>
                 }
               />
@@ -83,9 +60,7 @@ function App() {
                 path="/dashboard"
                 element={
                   <PrivateRoute>
-                    <Dashboard
-                      plaidBalance={plaidBalance as PlaidResponse}
-                    />
+                    <Dashboard plaidBalance={plaidBalance as PlaidResponse} />
                   </PrivateRoute>
                 }
               />
@@ -125,7 +100,7 @@ function App() {
                 path="/profile"
                 element={
                   <PrivateRoute>
-                    <Profile/>
+                    <Profile />
                   </PrivateRoute>
                 }
               />

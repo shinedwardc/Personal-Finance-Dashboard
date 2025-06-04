@@ -22,13 +22,9 @@ import Form from "./Form";
 import { ExpenseInterface } from "../interfaces/expenses";
 import { PlaidResponse } from "../interfaces/plaid";
 
-const Dashboard = ({
-  plaidBalance,
-}: {
-  plaidBalance: PlaidResponse;
-}) => {
+const Dashboard = ({ plaidBalance }: { plaidBalance: PlaidResponse }) => {
   //const { data, setData, isDataLoading } = useExpenseContext();
-  const today = useMemo(() => new Date(),[]);
+  const today = useMemo(() => new Date(), []);
   const { data, isLoading: isDataLoading } = useMonthlyExpenses(today);
   const { profileSettings, isProfileLoading } = useProfileContext();
   const [monthlySpent, setMonthlySpent] = useState<number>(0);
@@ -223,7 +219,9 @@ const Dashboard = ({
                         <h3
                           className={`text-sm ${profileSettings.monthlyBudget - Number(monthlySpent.toFixed(2)) < 0 ? "text-red-400" : "text-yellow-200"}`}
                         >
-                          {profileSettings.monthlyBudget - Number(monthlySpent.toFixed(2)) < 0
+                          {profileSettings.monthlyBudget -
+                            Number(monthlySpent.toFixed(2)) <
+                          0
                             ? `Spent over monthly budget limit by ${Math.abs(profileSettings.monthlyBudget - Number(monthlySpent.toFixed(2))).toFixed(2)}$`
                             : `You have ${(profileSettings.monthlyBudget - Number(monthlySpent.toFixed(2))).toFixed(2)}$ left until budget limit`}
                         </h3>

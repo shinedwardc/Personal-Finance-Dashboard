@@ -68,7 +68,7 @@ const Form = ({ onFormSubmit }: formProps) => {
       console.error("Error adding expense:", error);
       //toast.error();
     },
-  })
+  });
 
   const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

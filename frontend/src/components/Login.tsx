@@ -5,7 +5,6 @@ import LoginForm from "./LoginForm";
 import { useProfileContext } from "@/hooks/useProfileContext";
 
 const Login = () => {
-
   const { authState, setAuthState } = useProfileContext();
 
   const [username, setUsername] = useState("");

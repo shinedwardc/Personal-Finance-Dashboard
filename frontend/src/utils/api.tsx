@@ -88,25 +88,24 @@ export const getExpensesByMonth = async (
   }
 };
 
-export const addExpense = async (
-  newExpense: {
-    name: string;
-    category: string;
-    amount: number;
-    currency: string;
-    date: string;
-    updated_at: string;
-  }
-): Promise<ExpenseInterface> => {
+export const addExpense = async (newExpense: {
+  name: string;
+  category: string;
+  amount: number;
+  currency: string;
+  date: string;
+  updated_at: string;
+}): Promise<ExpenseInterface> => {
   try {
     const response = await api.post(
-      "http://localhost:8000/expenses/", 
-      newExpense, 
+      "http://localhost:8000/expenses/",
+      newExpense,
       {
         headers: {
           "Content-Type": "application/json",
         },
-    });
+      },
+    );
     console.log("Expense created:", response.data);
     return response.data as ExpenseInterface;
   } catch (error: any) {
@@ -117,7 +116,7 @@ export const addExpense = async (
     }
     throw error;
   }
-}
+};
 
 export const deleteExpense = async (expenseId: number | string) => {
   try {
@@ -134,7 +133,7 @@ export const deleteExpense = async (expenseId: number | string) => {
     console.error("Error deleting expense:", error);
     throw error;
   }
-}
+};
 
 export const getCategories = async (): Promise<string[]> => {
   try {

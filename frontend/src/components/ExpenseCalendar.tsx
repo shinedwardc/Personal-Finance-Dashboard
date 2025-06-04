@@ -18,15 +18,18 @@ import { useSpring, animated } from "@react-spring/web";
 import { motion, AnimatePresence } from "motion/react";
 
 const ExpenseCalendar = () => {
-
   //const calendarRef = useRef<FullCalendar | null>(null);
 
-  const [events, setEvents] = useState<{ title: string; start: string; amount: number; frequency: string | null; }[]>([]);
-  const [chosenEvents, setChosenEvents] = useState<{ title: string; start: string; amount: number; frequency: string | null; }[]>([]);
+  const [events, setEvents] = useState<
+    { title: string; start: string; amount: number; frequency: string | null }[]
+  >([]);
+  const [chosenEvents, setChosenEvents] = useState<
+    { title: string; start: string; amount: number; frequency: string | null }[]
+  >([]);
   const [monthAndYear, setMonthAndYear] = useState<Date>(new Date());
   const [monthlySpent, setMonthlySpent] = useState<number>(0);
 
-  const [date, setDate] = useState<Date | undefined>(new Date())
+  const [date, setDate] = useState<Date | undefined>(new Date());
 
   const { data, isLoading: isDataLoading } = useMonthlyExpenses(monthAndYear);
 
@@ -51,23 +54,25 @@ const ExpenseCalendar = () => {
       }, 0);
       setMonthlySpent(totalAmount);
       const formattedEvents = data.map((expense) => ({
-          title: expense.name,
-          start: expense.date,
-          amount: expense.amount,
-          frequency: expense.frequency,
-        }));
+        title: expense.name,
+        start: expense.date,
+        amount: expense.amount,
+        frequency: expense.frequency,
+      }));
       console.log(formattedEvents);
       const calculateDayExpenses = new Map();
       for (const event of formattedEvents) {
         if (calculateDayExpenses.has(event.start)) {
-          calculateDayExpenses.set(event.start, calculateDayExpenses.get(event.start) + event.amount);
+          calculateDayExpenses.set(
+            event.start,
+            calculateDayExpenses.get(event.start) + event.amount,
+          );
         } else {
           calculateDayExpenses.set(event.start, event.amount);
         }
       }
       setEvents(formattedEvents);
-    }
-    else {
+    } else {
       setMonthlySpent(0);
       setEvents([]);
     }
@@ -112,12 +117,12 @@ const ExpenseCalendar = () => {
     date,
     setDate,
   } = useCalendarContext();*/
-   
+
   const handleDateChange = (arg: { start: Date }) => {
     const newDate = new Date(arg.start);
     console.log(newDate);
-    setMonthAndYear(new Date(newDate.getFullYear(),newDate.getMonth(), 1));
-  }
+    setMonthAndYear(new Date(newDate.getFullYear(), newDate.getMonth(), 1));
+  };
 
   const spentSpring = useSpring({
     from: { spent: 0 },
