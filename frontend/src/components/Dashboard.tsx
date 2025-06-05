@@ -219,7 +219,7 @@ const Dashboard = ({ plaidBalance }: { plaidBalance: PlaidResponse }) => {
 
   const refetchExpenses = async (newExpense: ExpenseInterface) => {
     try {
-      c//onsole.log("newExpense", newExpense);
+      //console.log("newExpense", newExpense);
       setData((prevData) => {
         const combinedData = [...prevData, newExpense];
         return combinedData.sort(

@@ -32,16 +32,10 @@ ChartJS.register(
 );
 
 const Breakdown = ({
-  //data,
-  //setData,
   settings,
-  //isDataLoading,
   plaidBalance,
 }: {
-  //data: ExpenseInterface[];
   settings: Settings;
-  //setData: React.Dispatch<React.SetStateAction<ExpenseInterface[]>>;
-  //isDataLoading: boolean;
   plaidBalance: PlaidResponse;
 }) => {
   const { data, setData, isDataLoading } = useExpenseContext();

@@ -1,11 +1,12 @@
 import { useEffect, useState, createContext, ReactNode } from "react";
 import { useProfileContext } from "@/hooks/useProfileContext";
 import { ExpenseInterface } from "../interfaces/expenses";
-import { AuthState } from "../interfaces/userAuth";
 import { PlaidResponse } from "../interfaces/plaid";
 import { Settings } from "../interfaces/settings";
 import {
   getExpense,
+  addExpense,
+  deleteExpense,
   fetchPlaidTransactions,
   fetchPlaidBalance,
   updateBudgetLimit,
@@ -16,10 +17,16 @@ export const ExpenseContext = createContext<
   | {
       data: ExpenseInterface[];
       setData: React.Dispatch<React.SetStateAction<ExpenseInterface[]>>;
-      authState: AuthState;
-      setAuthState: React.Dispatch<React.SetStateAction<AuthState>>;
-      filteredData: ExpenseInterface[];
       isDataLoading: boolean;
+      addExpenseMutate: (newExpense : {
+        name: string;
+        category: string;
+        amount: number;
+        currency: string;
+        date: string;
+        updated_at: string;        
+      }) => void;
+      deleteExpenseMutate: (expenseId : string | number) => void;
       settingsData: Settings;
       handleSettingsForm: (data: Settings) => void;
       settingsLoading: boolean;
@@ -42,11 +49,32 @@ export const ExpenseProvider = ({ children }: { children: ReactNode }) => {
     enabled: authState.isLoggedIn,
   });
 
-  /*const { data: filteredByMonth, isLoading: filteredDataLoading } = useQuery({
-    queryKey: ["expenses", authState.isLoggedIn, "filtered", monthAndYear],
-    queryFn: () => getExpensesByMonth(monthAndYear.getMonth(), monthAndYear.getFullYear()),
-    enabled: authState.isLoggedIn && !!monthAndYear,
-  });*/
+  const { mutate: addExpenseMutate, isLoading: addExpenseLoading } = useMutation({
+    mutationFn: (newExpense: {
+      name: string;
+      category: string;
+      amount: number;
+      currency: string;
+      date: string;
+      updated_at: string;
+    }) => addExpense(newExpense),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["monthlyExpenses"] });
+    },
+    onError: (error) => {
+      console.error("Error adding expense:", error);
+    },
+  });
+
+  const { mutate: deleteExpenseMutate, isLoading: deleteExpenseLoading } = useMutation({
+    mutationFn: (expenseId: number | string) => deleteExpense(expenseId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["monthlyExpenses"] });
+    },
+    onError: (error) => {
+      console.error("Error deleting expense:", error);
+    },
+  });
 
   const { data: plaidData, isLoading: plaidLoading } = useQuery({
     queryKey: ["plaidData", authState.isLoggedIn, authState.isPlaidConnected],
@@ -64,7 +92,7 @@ export const ExpenseProvider = ({ children }: { children: ReactNode }) => {
     enabled: authState.isLoggedIn && authState.isPlaidConnected,
   });
 
-  const mutation = useMutation({
+  const { mutate: settingsMutate, isLoading: settingsMutateLoading } = useMutation({
     mutationFn: (data: Settings) => {
       return updateBudgetLimit(data);
     },
@@ -77,7 +105,7 @@ export const ExpenseProvider = ({ children }: { children: ReactNode }) => {
 
   const handleSettingsForm = (data: Settings): void => {
     //updateBudgetLimit(data);
-    mutation.mutate(data);
+    settingsMutate(data);
   };
 
   useEffect(() => {
@@ -116,6 +144,8 @@ export const ExpenseProvider = ({ children }: { children: ReactNode }) => {
       value={{
         data,
         setData,
+        addExpenseMutate,
+        deleteExpenseMutate,
         handleSettingsForm,
         plaidBalance,
         isDataLoading,

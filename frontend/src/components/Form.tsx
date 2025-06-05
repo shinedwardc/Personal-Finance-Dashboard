@@ -1,7 +1,6 @@
 import { useState } from "react";
-import { useQueryClient, useMutation } from "@tanstack/react-query";
-import { addExpense } from "../utils/api";
-import { ExpenseInterface } from "../interfaces/expenses";
+import { useForm, submitHandler } from "react-hook-form"l
+import { useExpenseContext } from "@/hooks/useExpenseContext";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { Input } from "./ui/input";
@@ -50,29 +49,11 @@ const Form = ({ onFormSubmit }: formProps) => {
   const [name, setName] = useState<string>("");
   const [date, setDate] = useState<Date>(new Date());
 
-  const queryClient = useQueryClient();
 
-  const { mutate: addExpenseMutate, isLoading } = useMutation({
-    mutationFn: (newExpense: {
-      name: string;
-      category: string;
-      amount: number;
-      currency: string;
-      date: string;
-      updated_at: string;
-    }) => addExpense(newExpense),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["monthlyExpenses"] });
-    },
-    onError: (error) => {
-      console.error("Error adding expense:", error);
-      //toast.error();
-    },
-  });
+  const { addExpenseMutate } = useExpenseContext();
 
   const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    //console.log(date ? format(date,"yyyy-MM-dd") : "No date selected");
     const newExpense = {
       name,
       category: selectedCategory,

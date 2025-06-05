@@ -1,9 +1,8 @@
 import { useState } from "react";
-import { useQueryClient, useMutation } from "@tanstack/react-query";
+import { useExpenseContext } from "@/hooks/useExpenseContext";
 import { useMonthlyExpenses } from "@/hooks/useMonthlyExpenses";
 import Form from "./Form";
 import Recurring from "./Recurring";
-import { deleteExpense } from "../utils/api";
 import { format } from "date-fns";
 import {
   Table,
@@ -21,30 +20,16 @@ import { toast, Bounce } from "react-toastify";
 
 const List = () => {
   //const [search, setSearch] = useState<string>("");
-  //const [useFilteredData, setUseFilteredData] = useState<boolean>(false);
-  //const [filteredData, setFilteredData] = useState<ExpenseInterface[]>([]);
-  const queryClient = useQueryClient();
-
-  const { mutate: deleteExpenseMutate, isLoading } = useMutation({
-    mutationFn: (expenseId: number | string) => deleteExpense(expenseId),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["monthlyExpenses"] });
-    },
-    onError: (error) => {
-      console.error("Error deleting expense:", error);
-      //toast.error()
-    },
-  });
-
-  //const { data, setData, isDataLoading } = useExpenseContext();
-  //const { monthAndYear, setMonthAndYear } = useCalendarContext();
   const [monthAndYear, setMonthAndYear] = useState<Date>(new Date());
+
+  const { deleteExpenseMutate } = useExpenseContext();
+
   const { data: monthlyExpenses, isLoading: isMonthlyExpensesLoading } =
     useMonthlyExpenses(monthAndYear);
 
-  const refetchExpenses = async () => {
+  const onNewExpense = async () => {
     try {
-      toast.success(`Succesfully added monthly expense`, {
+      toast.success("Succesfully added expense", {
         position: "top-center",
         autoClose: 5000,
         hideProgressBar: false,
@@ -56,28 +41,50 @@ const List = () => {
         transition: Bounce,
       });
     } catch (error) {
+      toast.error("Failed to add expense", {
+        position: "top-center",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: false,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+        transition: Bounce,
+      });      
       console.error("Failed to refetch expenses:", error);
     }
   };
 
   const handleDeleteTask = async (expenseId: number | string) => {
-    deleteExpenseMutate(expenseId);
-    console.log("Expense deleted successfully");
-    /*setData((prevExpenses) =>
-        prevExpenses.filter((expense) => expense.id !== expenseId),
-      );*/
-    //window.location.reload();
-    toast.success("Successfully deleted expense", {
-      position: "top-center",
-      autoClose: 5000,
-      hideProgressBar: false,
-      closeOnClick: true,
-      pauseOnHover: true,
-      draggable: true,
-      progress: undefined,
-      theme: "light",
-      transition: Bounce,
-    });
+    try {
+      deleteExpenseMutate(expenseId);
+      toast.success("Successfully deleted expense", {
+        position: "top-center",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+        transition: Bounce,
+      });
+    } catch (error) {
+      toast.error("Failed to add expense", {
+        position: "top-center",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: false,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+        transition: Bounce,
+      });     
+      console.error("Failed to delete expense ", expenseId, error);
+    }
+
   };
 
   /*const handleSearch = (e : React.ChangeEvent<HTMLInputElement>) => {
@@ -193,11 +200,11 @@ const List = () => {
               <p>*: Expenses made from Plaid</p>
             </div>
             <div className="mt-8 p-4 border border-green-800 w-1/3">
-              <Form onFormSubmit={refetchExpenses} />
+              <Form onFormSubmit={onNewExpense} />
             </div>
             <div className="mt-4 dark:text-slate-200">--- OR ---</div>
             <div className="my-4 p-4 border border-green-800 dark:text-white">
-              <Recurring onFormSubmit={refetchExpenses} />
+              <Recurring onFormSubmit={onNewExpense} />
             </div>
           </>
         ) : (
@@ -206,7 +213,7 @@ const List = () => {
               <p>No expenses recorded for this month</p>
             </div>
             <div className="mt-8">
-              <Form onFormSubmit={refetchExpenses} />
+              <Form onFormSubmit={onNewExpense} />
             </div>
           </div>
         )
