@@ -1,19 +1,19 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
+import { useMonthlyExpenses } from "@/hooks/useMonthlyExpenses";
 import { ExpenseInterface } from "@/interfaces/expenses";
 import { Area, AreaChart, CartesianGrid, XAxis, YAxis, Legend } from "recharts";
 import { ChartConfig, ChartContainer } from "@/components/ui/chart";
 import { ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 
-const Stats = ({
-  data,
-  isLoading,
-}: {
-  data: ExpenseInterface[];
-  isLoading: boolean;
-}) => {
+
+const Stats = () => {
+
+  const today = useMemo(() => new Date(), []);
+  const { data, isLoading } = useMonthlyExpenses(today);
+
   const [currentDate, setCurrentDate] = useState<Date>(new Date());
   const [monthlySpent, setMonthlySpent] = useState<number>(0);
-  const [expenseMap, setExpenseMap] = useState<Map<string, number>>(new Map());
+  //const [expenseMap, setExpenseMap] = useState<Map<string, number>>(new Map());
   const [chartData, setChartData] = useState<any[]>([]);
 
   const chartConfig = {
@@ -24,7 +24,7 @@ const Stats = ({
   } satisfies ChartConfig;
 
   useEffect(() => {
-    if (data.length > 0) {
+    if (data && data.length > 0) {
       const selectedMonthExpenses = data.filter((expense) => {
         //Check if the month of the expense is the same as the month selected
         const expenseMonth =
@@ -134,7 +134,7 @@ const Stats = ({
           sortedCumulativeAmountPerBy.set(key, amount);
         }
       }
-      setExpenseMap(sortedCumulativeAmountPerBy);
+      //setExpenseMap(sortedCumulativeAmountPerBy);
       //console.log('sorted cumulative amount per by', sortedCumulativeAmountPerBy);
       //console.log('chart data array',chartDataArray);
       setChartData(chartDataArray);

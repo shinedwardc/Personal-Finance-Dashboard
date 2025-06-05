@@ -92,7 +92,7 @@ function App() {
                 path="/stats"
                 element={
                   <PrivateRoute>
-                    <Stats data={data} isLoading={isDataLoading} />
+                    <Stats />
                   </PrivateRoute>
                 }
               />
