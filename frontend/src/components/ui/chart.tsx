@@ -346,6 +346,7 @@ function getPayloadConfigFromPayload(
     configLabelKey = payloadPayload[
       key as keyof typeof payloadPayload
     ] as string;
+    configLabelKey = configLabelKey.replace(/\s+/g,"-");
   }
 
   return configLabelKey in config
