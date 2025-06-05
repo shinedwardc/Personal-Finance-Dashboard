@@ -1,5 +1,7 @@
 import { useState } from "react";
-import { useForm, submitHandler } from "react-hook-form"l
+import { useForm, Controller, SubmitHandler } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
 import { useExpenseContext } from "@/hooks/useExpenseContext";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
@@ -24,6 +26,18 @@ interface formProps {
   onFormSubmit: () => void;
 }
 
+// Define validation schema
+const formSchema = z.object({
+  name: z.string().min(1, "Name is required"),
+  category: z.string().min(1, "Category is required"),
+  amount: z.number().min(0.01, "Amount is required"),
+  currency: z.string().min(1, "Currency is required"),
+  date: z.date({ required_error: "Date is required" }),
+});
+
+// Infer form types
+type FormInputs = z.infer<typeof formSchema>;
+
 const Form = ({ onFormSubmit }: formProps) => {
   const categoryNames = [
     "Bank Fees",
@@ -43,16 +57,45 @@ const Form = ({ onFormSubmit }: formProps) => {
     "Travel",
     "Utilities",
   ];
-  const [selectedCategory, setSelectedCategory] = useState<string>("");
-  const [amount, setAmount] = useState<string>("");
-  const [currency, setCurrency] = useState<string>("usd");
-  const [name, setName] = useState<string>("");
-  const [date, setDate] = useState<Date>(new Date());
-
-
   const { addExpenseMutate } = useExpenseContext();
 
-  const handleFormSubmit = async (e: React.FormEvent) => {
+  //const [selectedCategory, setSelectedCategory] = useState<string>("");
+  //const [amount, setAmount] = useState<string>("");
+  //const [currency, setCurrency] = useState<string>("usd");
+  //const [name, setName] = useState<string>("");
+  //const [date, setDate] = useState<Date>(new Date());
+
+  const {
+    register,
+    handleSubmit,
+    control,
+    setValue,
+    formState: { errors },
+  } = useForm<FormInputs>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      name: "",
+      category: "",
+      amount: 0,
+      currency: "USD",
+      date: new Date(),
+    },
+  });
+  const onSubmit = (data : FormInputs) => {
+    console.log(data);
+    const newExpense = {
+      name: data.name,
+      category: data.category,
+      amount: data.amount,
+      currency: data.currency,
+      date: format(date, "yyyy-MM-dd"),
+      updated_at: new Date().toISOString(),
+    };
+    addExpenseMutate(newExpense);
+    onFormSubmit();
+  };
+
+  /*const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const newExpense = {
       name,
@@ -64,10 +107,10 @@ const Form = ({ onFormSubmit }: formProps) => {
     };
     addExpenseMutate(newExpense);
     onFormSubmit();
-  };
+  };*/
 
   return (
-    <form onSubmit={handleFormSubmit}>
+    <form onSubmit={handleSubmit(onSubmit)}>
       <div>
         <label htmlFor="name" className="block w-full dark:text-white">
           Name
@@ -75,86 +118,115 @@ const Form = ({ onFormSubmit }: formProps) => {
         <Input
           type="text"
           placeholder="Expense or transaction name"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
+          {...register("name")}
         />
+        {errors.name && (
+          <p className="text-red-500 text-sm">{errors.name.message}</p>
+        )}
       </div>
       <div>
         <label htmlFor="category" className="block dark:text-white">
           Category
         </label>
-        <div className="flex items-center space-x-4">
-          <Select onValueChange={(value) => setSelectedCategory(value)}>
-            <SelectTrigger>
-              <SelectValue placeholder="Select a category"></SelectValue>
-            </SelectTrigger>
-            <SelectContent>
-              {categoryNames.map((category, index) => (
-                <SelectItem key={index} value={category}>
-                  {category}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-      </div>
-      <div className="mt-2 mb-2">
-        <div className="mb-2 dark:text-white">
-          Amount
-          <div className="flex justify-row gap-x-1 ">
-            <Input
-              type="number"
-              id="amount"
-              value={amount}
-              onChange={(e) => setAmount(e.target.value)}
-              className="w-[340px]"
-            />
-            <Select onValueChange={(value) => setCurrency(value)}>
-              <SelectTrigger className="w-[100px]">
-                <SelectValue placeholder="USD $"></SelectValue>
+        <Controller
+          control={control}
+          name="category"
+          render={({ field }) => (
+            <Select onValueChange={field.onChange} value={field.value}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select a category" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="usd">USD $</SelectItem>
-                <SelectItem value="eur">EUR €</SelectItem>
-                <SelectItem value="gbp">GBP £</SelectItem>
-                <SelectItem value="jpy">JPY ¥</SelectItem>
-                <SelectItem value="aud">AUD $</SelectItem>
-                <SelectItem value="cad">CAD $</SelectItem>
-                <SelectItem value="krw">KRW ₩</SelectItem>
-                <SelectItem value="inr">INR ₹</SelectItem>
+                {categoryNames.map((category, index) => (
+                  <SelectItem key={index} value={category}>
+                    {category}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
-          </div>
-        </div>
+          )}
+        />
+        {errors.category && (
+          <p className="text-red-500 text-sm">{errors.category.message}</p>
+        )}
       </div>
-      <div>
-        <div className="mb-2 dark:text-white">
-          Date
-          <div className="flex justify-row gap-x-1 ">
+      <div className="mt-2 mb-2">
+        <div className="mb-2 dark:text-white">Amount</div>
+        <div className="flex justify-row gap-x-1">
+          <Controller
+            control={control}
+            name="amount"
+            render={({ field }) => (
+              <Input
+                type="number"
+                {...field}
+                value={field.value || ""}
+                className="w-[340px]"
+                onChange={(e) => field.onChange(Number(e.target.value))}
+              />
+            )}
+          />
+          <Controller
+            control={control}
+            name="currency"
+            render={({ field }) => (
+              <Select onValueChange={field.onChange} value={field.value}>
+                <SelectTrigger className="w-[100px]">
+                  <SelectValue placeholder="USD $" />
+                </SelectTrigger>
+                <SelectContent>
+                  {["usd", "eur", "gbp", "jpy", "aud", "cad", "krw", "inr"].map(
+                    (cur) => (
+                      <SelectItem key={cur} value={cur}>
+                        {cur.toUpperCase()}
+                      </SelectItem>
+                    ),
+                  )}
+                </SelectContent>
+              </Select>
+            )}
+          />
+        </div>
+        {errors.amount && (
+          <p className="text-red-500 text-sm">{errors.amount.message}</p>
+        )}
+        {errors.currency && (
+          <p className="text-red-500 text-sm">{errors.currency.message}</p>
+        )}
+      </div>
+      <div className="mb-2 dark:text-white">
+        Date
+        <Controller
+          control={control}
+          name="date"
+          render={({ field }) => (
             <Popover>
               <PopoverTrigger asChild>
                 <Button
-                  variant={"outline"}
+                  variant="outline"
                   className={cn(
                     "w-[240px] justify-start text-left font-normal",
-                    !date && "text-muted-foreground",
+                    !field.value && "text-muted-foreground",
                   )}
                 >
                   <LuCalendarDays className="mr-2 h-4 w-4" />
-                  {format(date, "PPP")}
+                  {field.value ? format(field.value, "PPP") : "Pick a date"}
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-auto p-0" align="start">
                 <Calendar
                   mode="single"
-                  selected={date}
-                  onSelect={setDate}
+                  selected={field.value}
+                  onSelect={field.onChange}
                   initialFocus
                 />
               </PopoverContent>
             </Popover>
-          </div>
-        </div>
+          )}
+        />
+        {errors.date && (
+          <p className="text-red-500 text-sm">{errors.date.message}</p>
+        )}
       </div>
       <div>
         <button type="submit" className="btn btn-accent rounded mt-3">
