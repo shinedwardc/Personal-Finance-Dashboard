@@ -48,8 +48,8 @@ export default function MonthPicker({
   return (
     <div className="p-3">
       <div className="flex flex-col space-y-4 sm:flex-row sm:space-x-4 sm:space-y-0">
-        <div className="space-y-4">
-          <div className="relative flex items-center justify-center pt-1">
+        <div className="flex flex-col items-center space-y-4">
+          <div className="relative flex items-center justify-center pt-1 w-1/2">
             <div
               className="text-sm font-medium"
               aria-live="polite"
@@ -89,8 +89,7 @@ export default function MonthPicker({
             </div>
           </div>
           <div
-            className="grid w-full grid-cols-3 gap-2"
-            role="grid"
+            className="flex flex-row w-full overflow-x-auto scrollbar-hide"
             aria-labelledby="month-picker"
           >
             {months.map((month) => (

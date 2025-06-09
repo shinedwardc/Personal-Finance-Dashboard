@@ -22,6 +22,7 @@ export const useMonthlyExpenses = (monthAndYear: Date | null) => {
           )
         : Promise.resolve([]),
     enabled: !!authState.isLoggedIn && !!monthAndYear,
+    refetchOnWindowFocus: false,
   });
   return { data, isLoading };
 };

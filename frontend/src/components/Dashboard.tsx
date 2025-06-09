@@ -11,7 +11,7 @@ import {
   Cell,
   LabelList,
 } from "recharts";
-import Modal from "react-modal";
+import ModalButton from "./ui/modal-button";
 import {
   Card,
   CardContent,
@@ -52,20 +52,8 @@ const Dashboard = ({ plaidBalance }: { plaidBalance: PlaidResponse }) => {
     Array<{ category: string; total: number }>
   >([]);
   //const [graphType, setGraphType] = useState<string>("bar");
-  const [modalIsOpen, setIsOpen] = useState<boolean>(false);
 
-  //const modalRef = useRef<HTMLDialogElement>(null);
-  Modal.setAppElement("#root");
-  //console.log(settings);
-
-  const barConfig = {
-    total: {
-      label: "Category total",
-      color: "hsl(var(--chart-2))",
-    },
-  } satisfies ChartConfig;
-
-  const pieConfig = {
+  const chartConfig = {
     total: {
       label: "Spent on category",
     },
@@ -217,20 +205,6 @@ const Dashboard = ({ plaidBalance }: { plaidBalance: PlaidResponse }) => {
     return totals;
   };
 
-  const refetchExpenses = async (newExpense: ExpenseInterface) => {
-    try {
-      //console.log("newExpense", newExpense);
-      setData((prevData) => {
-        const combinedData = [...prevData, newExpense];
-        return combinedData.sort(
-          (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
-        );
-      });
-    } catch (error) {
-      console.error("Failed to refetch expenses:", error);
-    }
-    setIsOpen(false);
-  };
 
   return (
     <>
@@ -351,7 +325,7 @@ const Dashboard = ({ plaidBalance }: { plaidBalance: PlaidResponse }) => {
                       <CardTitle className="font-normal">Bar</CardTitle>
                     </CardHeader>
                     <CardDescription>
-                      <ChartContainer config={barConfig}>
+                      <ChartContainer config={chartConfig}>
                         <BarChart
                           accessibilityLayer
                           data={graphData}
@@ -366,19 +340,28 @@ const Dashboard = ({ plaidBalance }: { plaidBalance: PlaidResponse }) => {
                           <YAxis scale="auto" tickCount={5} unit={"$"} />
                           <ChartTooltip
                             cursor={false}
-                            content={<ChartTooltipContent />}
+                            content={<ChartTooltipContent
+                                labelKey="category"
+                                nameKey="total" 
+                            />}
                           />
                           <Bar
                             dataKey="total"
-                            fill="var(--color-total)"
                             radius={8}
                           >
+                            {graphData.map((item, index) => (
+                              <Cell
+                                key={index}
+                                fill={`var(--color-${item.category.replace(/\s+/g, "-")})`}
+                              />
+                            ))}                            
                             <LabelList
                               position="top"
                               offset={10}
                               fontSize={12}
                             />
                           </Bar>
+                          {/*<ChartLegend content={<ChartLegendContent/>} />*/}
                         </BarChart>
                       </ChartContainer>
                     </CardDescription>
@@ -388,7 +371,7 @@ const Dashboard = ({ plaidBalance }: { plaidBalance: PlaidResponse }) => {
                       <CardTitle className="font-normal">Pie</CardTitle>
                     </CardHeader>
                     <CardDescription>
-                      <ChartContainer config={pieConfig}>
+                      <ChartContainer config={chartConfig}>
                         <PieChart>
                           <ChartTooltip
                             content={
@@ -434,12 +417,10 @@ const Dashboard = ({ plaidBalance }: { plaidBalance: PlaidResponse }) => {
                               );
                             }}
                           >
-                            {graphData.map((_, index) => (
+                            {graphData.map((item, index) => (
                               <Cell
                                 key={index}
-                                fill={`var(--color-${categories[
-                                  index % categories.length
-                                ].replace(/\s+/g, "-")})`}
+                                fill={`var(--color-${item.category.replace(/\s+/g, "-")})`}
                               />
                             ))}
                           </Pie>
@@ -463,32 +444,7 @@ const Dashboard = ({ plaidBalance }: { plaidBalance: PlaidResponse }) => {
                 Start adding your expenses below or at the transactions page to
                 see the overview.
               </p>
-              <div className="flex justify-center mt-8">
-                {/* Open the modal using document.getElementById('ID').showModal() method */}
-                <button
-                  className="btn btn-success"
-                  onClick={() => setIsOpen(true)}
-                >
-                  Add new expense
-                </button>
-                <Modal
-                  isOpen={modalIsOpen}
-                  onRequestClose={() => setIsOpen(false)}
-                  className="modal-box absolute top-[35%] left-[38.7%] dark:bg-black"
-                >
-                  <div className="">
-                    <button
-                      className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"
-                      onClick={() => setIsOpen(false)}
-                    >
-                      ✕
-                    </button>
-                    <div>
-                      <Form onFormSubmit={refetchExpenses} />
-                    </div>
-                  </div>
-                </Modal>
-              </div>
+              <ModalButton newExpense={() => console.log('New expense added')}/>
             </div>
           )}
         </div>

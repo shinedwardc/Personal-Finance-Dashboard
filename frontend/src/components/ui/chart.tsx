@@ -186,8 +186,7 @@ const ChartTooltipContent = React.forwardRef<
           {payload.map((item, index) => {
             const key = `${nameKey || item.name || item.dataKey || "value"}`;
             const itemConfig = getPayloadConfigFromPayload(config, item, key);
-            const indicatorColor = color || item.payload.fill || item.color;
-
+            const indicatorColor = color || item.payload?.fill || item.color || config[item.payload.category.replace(/\s+/g, "-")].color;
             return (
               <div
                 key={item.dataKey}
@@ -238,7 +237,7 @@ const ChartTooltipContent = React.forwardRef<
                       </div>
                       {item.value && (
                         <span className="font-mono font-medium tabular-nums text-neutral-950 dark:text-neutral-50">
-                          {item.value.toLocaleString()}
+                          {`${item.value.toLocaleString()}$`}
                         </span>
                       )}
                     </div>
@@ -286,7 +285,6 @@ const ChartLegendContent = React.forwardRef<
         {payload.map((item) => {
           const key = `${nameKey || item.dataKey || "value"}`;
           const itemConfig = getPayloadConfigFromPayload(config, item, key);
-
           return (
             <div
               key={item.value}
@@ -323,16 +321,13 @@ function getPayloadConfigFromPayload(
   if (typeof payload !== "object" || payload === null) {
     return undefined;
   }
-
   const payloadPayload =
     "payload" in payload &&
     typeof payload.payload === "object" &&
     payload.payload !== null
       ? payload.payload
       : undefined;
-
   let configLabelKey: string = key;
-
   if (
     key in payload &&
     typeof payload[key as keyof typeof payload] === "string"
@@ -346,9 +341,8 @@ function getPayloadConfigFromPayload(
     configLabelKey = payloadPayload[
       key as keyof typeof payloadPayload
     ] as string;
-    configLabelKey = configLabelKey.replace(/\s+/g,"-");
   }
-
+  configLabelKey = configLabelKey.replace(/\s+/g,"-");
   return configLabelKey in config
     ? config[configLabelKey]
     : config[key as keyof typeof config];

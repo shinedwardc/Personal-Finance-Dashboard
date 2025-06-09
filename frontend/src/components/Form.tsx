@@ -77,7 +77,7 @@ const Form = ({ onFormSubmit }: formProps) => {
       name: "",
       category: "",
       amount: 0,
-      currency: "USD",
+      currency: "usd",
       date: new Date(),
     },
   });
@@ -88,7 +88,7 @@ const Form = ({ onFormSubmit }: formProps) => {
       category: data.category,
       amount: data.amount,
       currency: data.currency,
-      date: format(date, "yyyy-MM-dd"),
+      date: format(data.date, "yyyy-MM-dd"),
       updated_at: new Date().toISOString(),
     };
     addExpenseMutate(newExpense);
