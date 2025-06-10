@@ -20,7 +20,7 @@ const ModalButton = ({ newExpense } : { newExpense : () => void}) => {
             <Modal
                 isOpen={modalIsOpen}
                 onRequestClose={() => setIsOpen(false)}
-                className="modal-box absolute top-[35%] left-[38.7%] dark:bg-black"
+                className="modal-box absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 dark:bg-black"
             >
                 <div className="">
                 <button

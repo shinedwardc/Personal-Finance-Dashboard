@@ -18,7 +18,7 @@ const Navbar = () => {
   };
 
   return (
-    <div className="container mx-auto">
+    <>
       {!authState.isLoading && (
         <nav className="flex flex-row w-full justify-between items-center gap-x-2 md:mt-5">
           <div
@@ -166,7 +166,7 @@ const Navbar = () => {
           )}
         </nav>
       )}
-    </div>
+    </>
   );
 };
 

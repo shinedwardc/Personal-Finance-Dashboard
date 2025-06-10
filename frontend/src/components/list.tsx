@@ -12,7 +12,14 @@ import {
   TableHeader,
   TableRow,
 } from "../components/ui/table";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "./ui/select";
+import { Input } from "./ui/input";
 import MonthPicker from "./ui/month-picker";
 import ModalButton from "./ui/modal-button";
 import { toast, Bounce } from "react-toastify";
@@ -23,11 +30,12 @@ import { ExpenseInterface } from "@/interfaces/expenses";
 //https://flowbite.com/docs/components/spinner/#progress-spinner
 
 const List = () => {
-  //const [search, setSearch] = useState<string>("");
   const [monthAndYear, setMonthAndYear] = useState<Date>(new Date());
   const [sortBy, setSortBy] = useState<string>("date");
-  const [sortDirection, setSortDirection] = useState<"ascending" | "descending">("ascending");
-
+  const [sortDirection, setSortDirection] = useState<
+    "ascending" | "descending"
+  >("ascending");
+  const [search, setSearch] = useState<string>("");
   const { deleteExpenseMutate } = useExpenseContext();
 
   const { data: monthlyExpenses, isLoading: isMonthlyExpensesLoading } =
@@ -35,15 +43,21 @@ const List = () => {
 
   //const [list, setList] = useState<ExpenseInterface[] | undefined>(undefined);
 
-  const sortedExpenses = useMemo(() => {
+  const expenseList = useMemo(() => {
     if (!monthlyExpenses) return [];
-    return [...monthlyExpenses].sort((a, b) => {
-      if (sortDirection === "ascending"){
+    const query = search.toLowerCase();
+    const filteredExpenses = monthlyExpenses.filter((expense) => {
+      const name = expense.name.toLowerCase().includes(query);
+      const category = expense.category.toLowerCase().includes(query);
+      return name || category;
+    });
+    return [...filteredExpenses].sort((a, b) => {
+      if (sortDirection === "ascending") {
         return a[sortBy].toString().localeCompare(b[sortBy].toString());
       }
       return b[sortBy].toString().localeCompare(a[sortBy].toString());
     });
-  }, [monthlyExpenses, sortBy, sortDirection]);
+  }, [monthlyExpenses, sortBy, sortDirection, search]);
 
   const onNewExpense = async () => {
     try {
@@ -69,7 +83,7 @@ const List = () => {
         progress: undefined,
         theme: "light",
         transition: Bounce,
-      });      
+      });
       console.error("Failed to refetch expenses:", error);
     }
   };
@@ -99,13 +113,12 @@ const List = () => {
         progress: undefined,
         theme: "light",
         transition: Bounce,
-      });     
+      });
       console.error("Failed to delete expense ", expenseId, error);
     }
-
   };
 
-  const handleSortChange = (value : string) => {
+  const handleSortChange = (value: string) => {
     setSortBy(value);
     /*if (monthlyExpenses){
       monthlyExpenses.sort((a,b) => a[value].localeCompare(b[value]));
@@ -116,46 +129,38 @@ const List = () => {
     else if (monthlyExpenses && value === "date") {
       monthlyExpenses.sort((a,b) => a.date.localeCompare(b.date));
     }*/
-  }
-  
-  const handleDirectionChange = (value : string) => {
-    setSortDirection(value);
-  }
+  };
 
-  /*const handleSearch = (e : React.ChangeEvent<HTMLInputElement>) => {
+  const handleDirectionChange = (value: "ascending" | "descending") => {
+    setSortDirection(value);
+  };
+
+  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     const query = e.target.value;
     setSearch(query);
-    let searchedData = data;
-    if (query.length > 0){
-      setUseFilteredData(true);
-      const lowerCaseQuery = query.toLowerCase();
-      searchedData = searchedData.filter((expense) => !Array.isArray(expense.category) ? 
-                                          expense.name?.toLowerCase().includes(lowerCaseQuery) : expense.category.name.toLowerCase().includes(lowerCaseQuery))
-      setFilteredData(searchedData);
-    }
-    else{
-      setUseFilteredData(false);
-    }
-  }*/
+  };
 
   return (
     <>
       {!isMonthlyExpensesLoading ? (
-        sortedExpenses && sortedExpenses.length > 0 ? (
-          <>
-            <div className="mt-16"></div>
-            <div className="mb-2 w-1/3 flex flex-row justify-around items-center">
-              <h1 className="text-3xl antialiased font-semibold dark:text-white">
+        <>
+          <div className="mt-16 flex flex-col md:flex-row w-full justify-between items-center gap-4">
+            <div className="flex-1 flex flex-row md:justify-end justify-center">
+              <h1 className="text-3xl font-semibold antialiased dark:text-white">
                 Transactions
               </h1>
-              <ModalButton newExpense={onNewExpense}/>
             </div>
-            <div className="flex flex-row w-1/2 items-center gap-2">
+            <div className="flex-1 flex md:justify-start justify-center">
+              <ModalButton newExpense={onNewExpense} />
+            </div>
+          </div>
+          <div className="flex md:flex-row flex-col w-full mt-2 justify-between gap-4">
+            <div className="flex-1 flex flex-row gap-2 md:justify-end justify-center items-center">
               <label className="text-sm font-medium text-gray-600 whitespace-nowrap">
                 Sort by
               </label>
               <Select onValueChange={handleSortChange} defaultValue="date">
-                <SelectTrigger className="w-1/4">
+                <SelectTrigger className="md:w-1/5 w-1/3">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -164,116 +169,119 @@ const List = () => {
                   <SelectItem value="name">Name</SelectItem>
                 </SelectContent>
               </Select>
-              <Select onValueChange={handleDirectionChange} defaultValue="ascending">
-                <SelectTrigger className="w-1/4">
+              <Select
+                onValueChange={handleDirectionChange}
+                defaultValue="ascending"
+              >
+                <SelectTrigger className="md:w-1/5 w-1/3">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="ascending">
                     <span className="flex flex-row items-center gap-1">
-                      Ascending <TbSortAscendingLetters/>
+                      Ascending <TbSortAscendingLetters />
                     </span>
                   </SelectItem>
                   <SelectItem value="descending">
                     <span className="flex flex-row items-center gap-1">
-                      Descending <TbSortDescendingLetters/>
+                      Descending <TbSortDescendingLetters />
                     </span>
                   </SelectItem>
                 </SelectContent>
-              </Select>             
+              </Select>
             </div>
-            <div className="mb-2 border-cyan-500 overflow-x-auto dark:text-white">
-              {/*<div className="mb-4 flex justify-center">
-                <label className="input input-bordered flex items-center w-64 gap-2">
-                  <input type="text" className="grow" placeholder="Search" value={search} onChange={handleSearch}/>
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 16 16"
-                    fill="currentColor"
-                    className="h-4 w-4 opacity-70">
-                    <path
-                      fillRule="evenodd"
-                      d="M9.965 11.026a5 5 0 1 1 1.06-1.06l2.755 2.754a.75.75 0 1 1-1.06 1.06l-2.755-2.754ZM10.5 7a3.5 3.5 0 1 1-7 0 3.5 3.5 0 0 1 7 0Z"
-                      clipRule="evenodd" />
-                  </svg>
-                </label>
-              </div>*/}
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    {[
-                      "Date",
-                      "Description",
-                      "Category",
-                      "Amount",
-                      //"Currency",
-                      "Actions",
-                    ].map((header) => (
-                      <TableHead key={header} className="text-center">
-                        {header}
-                      </TableHead>
-                    ))}
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {sortedExpenses.map((expense, index) => (
-                    <TableRow key={index}>
-                      <TableCell className="text-base text-center">
-                        {expense.date.toString().substring(0, 10)}
-                      </TableCell>
-                      <TableCell className="text-lg font-ubuntu font-bold text-center">
-                        {expense.name}
-                      </TableCell>
-                      <TableCell className="text-base text-center">
-                        {typeof expense.id === "number"
-                          ? expense.category
-                          : "*" + expense.category}
-                      </TableCell>
-                      <TableCell className={`text-base text-center ${expense.amount > 0 ? "text-red-500" : "text-green-500"}`}>
-                        {expense.amount < 0
-                          ? "+" + (expense.amount * -1).toString()
-                          : expense.amount * -1}$
-                        {/*currencies[expense.currency as keyof Currency]*/}
-                      </TableCell>
-                      {/*<TableCell className="text-base text-center">
-                        {expense.currency.toUpperCase()}
-                      </TableCell>*/}
-                      <TableCell className="flex justify-center">
-                        <button
-                          className={`btn ${typeof expense.id !== "number" ? "btn-disabled" : "btn-error"} btn-tiny text-center`}
-                          onClick={() => handleDeleteTask(expense.id)}
-                        >
-                          {typeof expense.id !== "number" ? "Plaid" : "Delete"}
-                        </button>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-              <div>
-                <MonthPicker
-                  currentMonth={new Date(monthAndYear)}
-                  onMonthChange={(newDate) => {
-                    setMonthAndYear(newDate);
-                  }}
-                />
-              </div>
-            </div>
-            <div className="mt-4 dark:text-slate-200">--- OR ---</div>
-            <div className="my-4 p-4 border border-green-800 dark:text-white">
-              <Recurring onFormSubmit={onNewExpense} />
-            </div>
-          </>
-        ) : (
-          <div className="mt-8 flex flex-col items-center">
-            <div>
-              <p>No expenses recorded for this month</p>
-            </div>
-            <div className="mt-8">
-              <Form onFormSubmit={onNewExpense} />
+            <div className="flex-1 flex flex-row gap-2 md:justify-start justify-center items-center">
+              <label className="text-sm font-medium text-gray-600 whitespace-nowrap">
+                Search
+              </label>
+              <Input
+                className="md:w-1/4 w-[275px]"
+                onChange={handleSearch}
+                value={search}
+              />
             </div>
           </div>
-        )
+          {expenseList.length > 0 ? (
+            <>
+              <div className="mb-2 border-cyan-500 max-h-[500px] overflow-auto w-1/2 dark:text-white">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      {[
+                        "Date",
+                        "Description",
+                        "Category",
+                        "Amount",
+                        //"Currency",
+                        "Actions",
+                      ].map((header) => (
+                        <TableHead key={header} className="text-center">
+                          {header}
+                        </TableHead>
+                      ))}
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {expenseList.map((expense, index) => (
+                      <TableRow key={index}>
+                        <TableCell className="text-base text-center">
+                          {expense.date.toString().substring(0, 10)}
+                        </TableCell>
+                        <TableCell className="text-lg font-ubuntu font-bold text-center">
+                          {expense.name}
+                        </TableCell>
+                        <TableCell className="text-base text-center">
+                          {typeof expense.id === "number"
+                            ? expense.category
+                            : "*" + expense.category}
+                        </TableCell>
+                        <TableCell
+                          className={`text-base text-center ${expense.amount > 0 ? "text-red-500" : "text-green-500"}`}
+                        >
+                          {expense.amount < 0
+                            ? "+" + (expense.amount * -1).toString()
+                            : expense.amount * -1}
+                          ${/*currencies[expense.currency as keyof Currency]*/}
+                        </TableCell>
+                        {/*<TableCell className="text-base text-center">
+                        {expense.currency.toUpperCase()}
+                      </TableCell>*/}
+                        <TableCell className="flex justify-center">
+                          <button
+                            className={`btn ${typeof expense.id !== "number" ? "btn-disabled" : "btn-error"} btn-tiny text-center`}
+                            onClick={() => handleDeleteTask(expense.id)}
+                          >
+                            {typeof expense.id !== "number"
+                              ? "Plaid"
+                              : "Delete"}
+                          </button>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            </>
+          ) : (
+            <div className="mt-8 flex flex-col items-center">
+              <div>
+                <p>No expenses recorded for this month</p>
+              </div>
+            </div>
+          )}
+          <div>
+            <MonthPicker
+              currentMonth={new Date(monthAndYear)}
+              onMonthChange={(newDate) => {
+                setMonthAndYear(newDate);
+              }}
+            />
+          </div>
+          {/*<div className="mt-4 dark:text-slate-200">--- OR ---</div>
+          <div className="my-4 p-4 border border-green-800 dark:text-white">
+            <Recurring onFormSubmit={onNewExpense} />
+          </div>*/}
+        </>
       ) : (
         <div className="flex justify-center items-center">
           <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-white-900"></div>

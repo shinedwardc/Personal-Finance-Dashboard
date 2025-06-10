@@ -34,79 +34,78 @@ function App() {
       <ToastContainer />
       <ThemeProvider storageKey="vite-ui-theme">
         <div className="min-h-screen dark:bg-black dark:text-white overflow-auto font-inter">
-          <div className="flex flex-row gap-5">
+          <div className="container mx-auto">
             <Navbar />
-            {/*<ModeToggle />*/}
+            {/*<ExpenseProvider data={data} setData={setData} isDataLoading={isDataLoading}>*/}
+            <div className="flex flex-col items-center justify-center">
+              <Routes>
+                {/* Public routes */}
+                <Route path="/about" element={<Introduction />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/logout" element={<Logout />} />
+                <Route path="/signup" element={<Signup />} />
+                <Route path="/recover" element={<PasswordRecovery />} />
+                {/* Protected routes */}
+                <Route
+                  path="/"
+                  element={
+                    <PrivateRoute>
+                      <Dashboard plaidBalance={plaidBalance as PlaidResponse} />
+                    </PrivateRoute>
+                  }
+                />
+                <Route
+                  path="/dashboard"
+                  element={
+                    <PrivateRoute>
+                      <Dashboard plaidBalance={plaidBalance as PlaidResponse} />
+                    </PrivateRoute>
+                  }
+                />
+                <Route
+                  path="/transactions"
+                  element={
+                    <PrivateRoute>
+                      <List />
+                    </PrivateRoute>
+                  }
+                />
+                <Route
+                  path="/investments"
+                  element={
+                    <PrivateRoute>
+                      <Investments />
+                    </PrivateRoute>
+                  }
+                />
+                <Route
+                  path="/calendar"
+                  element={
+                    <PrivateRoute>
+                      <Calendar />
+                    </PrivateRoute>
+                  }
+                />
+                <Route
+                  path="/stats"
+                  element={
+                    <PrivateRoute>
+                      <Stats />
+                    </PrivateRoute>
+                  }
+                />
+                <Route
+                  path="/profile"
+                  element={
+                    <PrivateRoute>
+                      <Profile />
+                    </PrivateRoute>
+                  }
+                />
+              </Routes>
+            </div>
+            {/*</ExpenseProvider>*/}
           </div>
-          {/*<ExpenseProvider data={data} setData={setData} isDataLoading={isDataLoading}>*/}
-          <div className="flex-grow flex flex-col items-center justify-center mr-[64px]">
-            <Routes>
-              {/* Public routes */}
-              <Route path="/about" element={<Introduction />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/logout" element={<Logout />} />
-              <Route path="/signup" element={<Signup />} />
-              <Route path="/recover" element={<PasswordRecovery />} />
-              {/* Protected routes */}
-              <Route
-                path="/"
-                element={
-                  <PrivateRoute>
-                    <Dashboard plaidBalance={plaidBalance as PlaidResponse} />
-                  </PrivateRoute>
-                }
-              />
-              <Route
-                path="/dashboard"
-                element={
-                  <PrivateRoute>
-                    <Dashboard plaidBalance={plaidBalance as PlaidResponse} />
-                  </PrivateRoute>
-                }
-              />
-              <Route
-                path="/transactions"
-                element={
-                  <PrivateRoute>
-                    <List />
-                  </PrivateRoute>
-                }
-              />
-              <Route
-                path="/investments"
-                element={
-                  <PrivateRoute>
-                    <Investments />
-                  </PrivateRoute>
-                }
-              />
-              <Route
-                path="/calendar"
-                element={
-                  <PrivateRoute>
-                    <Calendar />
-                  </PrivateRoute>
-                }
-              />
-              <Route
-                path="/stats"
-                element={
-                  <PrivateRoute>
-                    <Stats />
-                  </PrivateRoute>
-                }
-              />
-              <Route
-                path="/profile"
-                element={
-                  <PrivateRoute>
-                    <Profile />
-                  </PrivateRoute>
-                }
-              />
-            </Routes>
-          </div>
-          {/*</ExpenseProvider>*/}
         </div>
       </ThemeProvider>
     </Router>
