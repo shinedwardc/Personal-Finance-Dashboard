@@ -1,5 +1,4 @@
-import { useState } from "react";
-import { useForm, Controller, SubmitHandler } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { useExpenseContext } from "@/hooks/useExpenseContext";
@@ -22,10 +21,6 @@ import {
 } from "../components/ui/popover";
 import { LuCalendarDays } from "react-icons/lu";
 
-interface formProps {
-  onFormSubmit: () => void;
-}
-
 // Define validation schema
 const formSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -38,7 +33,23 @@ const formSchema = z.object({
 // Infer form types
 type FormInputs = z.infer<typeof formSchema>;
 
-const Form = ({ onFormSubmit }: formProps) => {
+interface formProps {
+  addingNewExpense : boolean;
+  initialValues?: FormInputs & {id? : number | undefined};
+  onFormSubmit : () => void;
+}
+
+const Form = ({ 
+  addingNewExpense,   
+  initialValues = {
+    name: "",
+    amount: 0,
+    category: "",
+    currency: "usd",
+    date: new Date(),
+  }, 
+  onFormSubmit,
+}: formProps) => {
   const categoryNames = [
     "Bank Fees",
     "Cash Advance",
@@ -57,7 +68,7 @@ const Form = ({ onFormSubmit }: formProps) => {
     "Travel",
     "Utilities",
   ];
-  const { addExpenseMutate } = useExpenseContext();
+  const { addExpenseMutate, editExpenseMutate } = useExpenseContext();
 
   //const [selectedCategory, setSelectedCategory] = useState<string>("");
   //const [amount, setAmount] = useState<string>("");
@@ -69,21 +80,20 @@ const Form = ({ onFormSubmit }: formProps) => {
     register,
     handleSubmit,
     control,
-    setValue,
     formState: { errors },
   } = useForm<FormInputs>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name: "",
-      category: "",
-      amount: 0,
+      name: initialValues.name,
+      category: initialValues.category,
+      amount: initialValues.amount,
       currency: "usd",
-      date: new Date(),
+      date: new Date(initialValues.date),
     },
   });
+
   const onSubmit = (data : FormInputs) => {
-    console.log(data);
-    const newExpense = {
+    const expense = {
       name: data.name,
       category: data.category,
       amount: data.amount,
@@ -91,7 +101,12 @@ const Form = ({ onFormSubmit }: formProps) => {
       date: format(data.date, "yyyy-MM-dd"),
       updated_at: new Date().toISOString(),
     };
-    addExpenseMutate(newExpense);
+    if (addingNewExpense) {
+      addExpenseMutate(expense);
+    }
+    else {
+      editExpenseMutate({ expenseId: Number(initialValues.id), data: expense });
+    }
     onFormSubmit();
   };
 
@@ -205,7 +220,7 @@ const Form = ({ onFormSubmit }: formProps) => {
                 <Button
                   variant="outline"
                   className={cn(
-                    "w-[240px] justify-start text-left font-normal",
+                    "ml-2 w-[240px] justify-start text-left font-normal",
                     !field.value && "text-muted-foreground",
                   )}
                 >
@@ -230,7 +245,7 @@ const Form = ({ onFormSubmit }: formProps) => {
       </div>
       <div>
         <button type="submit" className="btn btn-accent rounded mt-3">
-          Add Expense
+          {addingNewExpense ? "Add" : "Update"} Expense
         </button>
       </div>
     </form>

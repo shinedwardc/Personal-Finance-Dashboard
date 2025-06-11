@@ -16,7 +16,6 @@ import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "./ui/card";
@@ -29,9 +28,8 @@ import {
   ChartLegend,
   ChartLegendContent,
 } from "@/components/ui/chart";
-import Form from "./Form";
-import { ExpenseInterface } from "../interfaces/expenses";
 import { PlaidResponse } from "../interfaces/plaid";
+import { ExpenseInterface } from "../interfaces/expenses";
 
 const Dashboard = ({ plaidBalance }: { plaidBalance: PlaidResponse }) => {
   //const { data, setData, isDataLoading } = useExpenseContext();
@@ -39,12 +37,12 @@ const Dashboard = ({ plaidBalance }: { plaidBalance: PlaidResponse }) => {
   const { data, isLoading: isDataLoading } = useMonthlyExpenses(today);
   const { profileSettings, isProfileLoading } = useProfileContext();
   const [monthlySpent, setMonthlySpent] = useState<number>(0);
-  const [categoryTotals, setCategoryTotals] = useState<Record<string, number>>(
+  /*const [categoryTotals, setCategoryTotals] = useState<Record<string, number>>(
     {},
-  );
+  );*/
   const [balance, setBalance] = useState<number>(0);
-  const [categories, setCategories] = useState<string[]>([]);
-  const [categoryLoading, setCategoryLoading] = useState<boolean>(true);
+  /*const [categories, setCategories] = useState<string[]>([]);
+  const [categoryLoading, setCategoryLoading] = useState<boolean>(true);*/
   const [topSpendingCategories, setTopSpendingCategories] = useState<string[]>(
     [],
   );
@@ -126,15 +124,15 @@ const Dashboard = ({ plaidBalance }: { plaidBalance: PlaidResponse }) => {
   useEffect(() => {
     const initialize = async () => {
       try {
-        const totalAmount = data.reduce((sum, event) => {
+        const totalAmount = (data ?? []).reduce((sum, event) => {
           if (event.amount >= 0) {
             return sum + event.amount;
           }
           return sum;
         }, 0);
-        setMonthlySpent(totalAmount);
-        const totals = await calculateTotalByCategory(data);
-        setCategoryTotals(totals);
+        setMonthlySpent(totalAmount ?? 0);
+        calculateTotalByCategory(data ?? []);
+        /*setCategoryTotals(totals);
         const newCategories = new Set<string>();
         for (const expense of data) {
           const categoryName = expense.category;
@@ -142,13 +140,15 @@ const Dashboard = ({ plaidBalance }: { plaidBalance: PlaidResponse }) => {
         }
         //console.log("categories: ", newCategories);
         setCategories(Array.from(newCategories));
-        setCategoryLoading(false);
+        setCategoryLoading(false);*/
       } catch (error) {
         console.error("Error initializing data:", error);
       }
     };
-    if (!data) return;
-    initialize();
+
+    if (data){
+      initialize();
+    }
   }, [data]);
 
   useEffect(() => {
@@ -165,10 +165,8 @@ const Dashboard = ({ plaidBalance }: { plaidBalance: PlaidResponse }) => {
 
   const calculateTotalByCategory = async (
     expenses: ExpenseInterface[],
-  ): Promise<Record<string, number>> => {
+  ): Promise<void> => {
     const totals: Record<string, number> = {};
-    //setTotal(0);
-    //console.log("expenses", expenses);
     for (const expense of expenses) {
       const amount = parseFloat(expense.amount.toString());
       if (amount < 0) continue;
@@ -191,7 +189,6 @@ const Dashboard = ({ plaidBalance }: { plaidBalance: PlaidResponse }) => {
       }
       setTopSpendingCategories(topSpenders);
     }
-    //console.log(totals);
     const graphData = [];
     for (const category of Object.keys(totals).sort()) {
       const totalObj = {
@@ -202,7 +199,6 @@ const Dashboard = ({ plaidBalance }: { plaidBalance: PlaidResponse }) => {
     }
     //console.log(graphData);
     setGraphData(graphData);
-    return totals;
   };
 
 
@@ -394,7 +390,6 @@ const Dashboard = ({ plaidBalance }: { plaidBalance: PlaidResponse }) => {
                               innerRadius,
                               outerRadius,
                               percent,
-                              index,
                             }) => {
                               const RADIAN = Math.PI / 180;
                               const radius =

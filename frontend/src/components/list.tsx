@@ -1,17 +1,8 @@
 import { useState, useMemo } from "react";
 import { useExpenseContext } from "@/hooks/useExpenseContext";
 import { useMonthlyExpenses } from "@/hooks/useMonthlyExpenses";
-import Form from "./Form";
-import Recurring from "./Recurring";
-import {
-  Table,
-  TableBody,
-  TableCaption,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "../components/ui/table";
+import Form from "@/components/Form";
+import { DataTable } from "./ui/data-table";
 import {
   Select,
   SelectContent,
@@ -19,9 +10,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "./ui/select";
+import { Dialog, DialogPortal, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Input } from "./ui/input";
+import { Button } from "./ui/button";
 import MonthPicker from "./ui/month-picker";
-import ModalButton from "./ui/modal-button";
 import { toast, Bounce } from "react-toastify";
 import { TbSortAscendingLetters } from "react-icons/tb";
 import { TbSortDescendingLetters } from "react-icons/tb";
@@ -38,6 +30,10 @@ const List = () => {
   const [search, setSearch] = useState<string>("");
   const { deleteExpenseMutate } = useExpenseContext();
 
+  
+  const [editData, setEditData] = useState<ExpenseInterface | null>(null);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+
   const { data: monthlyExpenses, isLoading: isMonthlyExpensesLoading } =
     useMonthlyExpenses(monthAndYear);
 
@@ -52,14 +48,21 @@ const List = () => {
       return name || category;
     });
     return [...filteredExpenses].sort((a, b) => {
+      const getField = (expense: ExpenseInterface) => {
+        if (sortBy === "date") return expense.date;
+        if (sortBy === "category") return expense.category;
+        if (sortBy === "name") return expense.name;
+        return "";
+      };
       if (sortDirection === "ascending") {
-        return a[sortBy].toString().localeCompare(b[sortBy].toString());
+        return getField(a).localeCompare(getField(b));
       }
-      return b[sortBy].toString().localeCompare(a[sortBy].toString());
+      return getField(b).localeCompare(getField(a));
     });
   }, [monthlyExpenses, sortBy, sortDirection, search]);
 
   const onNewExpense = async () => {
+    setIsEditModalOpen(false);
     try {
       toast.success("Succesfully added expense", {
         position: "top-center",
@@ -88,10 +91,11 @@ const List = () => {
     }
   };
 
-  const handleDeleteTask = async (expenseId: number | string) => {
+  const onEditExpense = async () => {
+    setIsEditModalOpen(false);
+    setEditData(null); // Clear edit data
     try {
-      deleteExpenseMutate(expenseId);
-      toast.success("Successfully deleted expense", {
+      toast.success("Successfully updated expense", {
         position: "top-center",
         autoClose: 5000,
         hideProgressBar: false,
@@ -102,6 +106,25 @@ const List = () => {
         theme: "light",
         transition: Bounce,
       });
+    } catch (error) {
+      toast.error("Failed to update expense", {
+        position: "top-center",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: false,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+        transition: Bounce,
+      });
+      console.error("Failed to update expense:", error);
+    }
+  };
+
+  const handleDeleteTransaction = async (expenseId: number) => {
+    try {
+      deleteExpenseMutate(expenseId);
     } catch (error) {
       toast.error("Failed to add expense", {
         position: "top-center",
@@ -115,8 +138,26 @@ const List = () => {
         transition: Bounce,
       });
       console.error("Failed to delete expense ", expenseId, error);
+    } finally {
+      toast.success("Successfully deleted expense", {
+        position: "top-center",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+        transition: Bounce,
+      });
     }
   };
+
+  const handleEditTransaction = async (expense: ExpenseInterface) => {
+    console.log(expense);
+    setEditData(expense);
+    setIsEditModalOpen(true);
+  }
 
   const handleSortChange = (value: string) => {
     setSortBy(value);
@@ -144,6 +185,30 @@ const List = () => {
     <>
       {!isMonthlyExpensesLoading ? (
         <>
+          <Dialog modal={false} open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
+            <DialogPortal>
+              <div className="fixed inset-0 bg-white/30 backdrop-blur-sm z-40" />
+              <DialogContent
+                className="z-50"
+              >
+                <DialogHeader>
+                  <DialogTitle>{editData ? "Update" : "Add"} Expense</DialogTitle>
+                </DialogHeader>
+                {editData ? (
+                  <Form
+                    addingNewExpense={false}
+                    initialValues={{
+                      ...editData,
+                      date: new Date(editData.date),
+                    }}
+                    onFormSubmit={onEditExpense}
+                  />
+                ) : (
+                  <Form addingNewExpense={true} onFormSubmit={onNewExpense}/>
+                )}
+              </DialogContent>
+            </DialogPortal>
+          </Dialog>
           <div className="mt-16 flex flex-col md:flex-row w-full justify-between items-center gap-4">
             <div className="flex-1 flex flex-row md:justify-end justify-center">
               <h1 className="text-3xl font-semibold antialiased dark:text-white">
@@ -151,7 +216,9 @@ const List = () => {
               </h1>
             </div>
             <div className="flex-1 flex md:justify-start justify-center">
-              <ModalButton newExpense={onNewExpense} />
+              <div className="flex justify-center">
+                <Button variant="default" onClick={() => setIsEditModalOpen(true)}>Add +</Button>
+              </div>
             </div>
           </div>
           <div className="flex md:flex-row flex-col w-full mt-2 justify-between gap-4">
@@ -198,70 +265,14 @@ const List = () => {
                 className="md:w-1/4 w-[275px]"
                 onChange={handleSearch}
                 value={search}
+                placeholder="Filter tasks..."
               />
             </div>
           </div>
           {expenseList.length > 0 ? (
-            <>
-              <div className="mb-2 border-cyan-500 max-h-[500px] overflow-auto w-1/2 dark:text-white">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      {[
-                        "Date",
-                        "Description",
-                        "Category",
-                        "Amount",
-                        //"Currency",
-                        "Actions",
-                      ].map((header) => (
-                        <TableHead key={header} className="text-center">
-                          {header}
-                        </TableHead>
-                      ))}
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {expenseList.map((expense, index) => (
-                      <TableRow key={index}>
-                        <TableCell className="text-base text-center">
-                          {expense.date.toString().substring(0, 10)}
-                        </TableCell>
-                        <TableCell className="text-lg font-ubuntu font-bold text-center">
-                          {expense.name}
-                        </TableCell>
-                        <TableCell className="text-base text-center">
-                          {typeof expense.id === "number"
-                            ? expense.category
-                            : "*" + expense.category}
-                        </TableCell>
-                        <TableCell
-                          className={`text-base text-center ${expense.amount > 0 ? "text-red-500" : "text-green-500"}`}
-                        >
-                          {expense.amount < 0
-                            ? "+" + (expense.amount * -1).toString()
-                            : expense.amount * -1}
-                          ${/*currencies[expense.currency as keyof Currency]*/}
-                        </TableCell>
-                        {/*<TableCell className="text-base text-center">
-                        {expense.currency.toUpperCase()}
-                      </TableCell>*/}
-                        <TableCell className="flex justify-center">
-                          <button
-                            className={`btn ${typeof expense.id !== "number" ? "btn-disabled" : "btn-error"} btn-tiny text-center`}
-                            onClick={() => handleDeleteTask(expense.id)}
-                          >
-                            {typeof expense.id !== "number"
-                              ? "Plaid"
-                              : "Delete"}
-                          </button>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </div>
-            </>
+            <div className="mt-4">
+              <DataTable data={expenseList} onDelete={handleDeleteTransaction} onEdit={handleEditTransaction} />
+            </div>
           ) : (
             <div className="mt-8 flex flex-col items-center">
               <div>

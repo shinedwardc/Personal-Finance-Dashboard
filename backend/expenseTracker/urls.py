@@ -5,7 +5,6 @@ from .utils import plaid
 urlpatterns = [
     path('expenses/', views.expense_list, name='expense_list'),
     path('expenses/<int:id>/', views.expense_list, name='expense_list'),
-#    path('delete-expense/<int:id>', views.delete_expense, name='delete_expense'),
     path('signup/', views.user_post, name='user_post'),
     path('reset-password-email/', views.reset_password_email, name='reset_password_email'),
     path('code-verification/',views.code_verification, name='code_verification'),

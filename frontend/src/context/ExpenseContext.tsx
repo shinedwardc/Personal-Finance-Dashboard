@@ -7,6 +7,7 @@ import {
   getExpense,
   addExpense,
   deleteExpense,
+  editExpense,
   fetchPlaidTransactions,
   fetchPlaidBalance,
   updateBudgetLimit,
@@ -26,7 +27,8 @@ export const ExpenseContext = createContext<
         date: string;
         updated_at: string;        
       }) => void;
-      deleteExpenseMutate: (expenseId : string | number) => void;
+      deleteExpenseMutate: (expenseId : number) => void;
+      editExpenseMutate: ({ expenseId, data }: { expenseId: number; data: any }) => void;
       settingsData: Settings;
       handleSettingsForm: (data: Settings) => void;
       settingsLoading: boolean;
@@ -67,7 +69,7 @@ export const ExpenseProvider = ({ children }: { children: ReactNode }) => {
   });
 
   const { mutate: deleteExpenseMutate, isLoading: deleteExpenseLoading } = useMutation({
-    mutationFn: (expenseId: number | string) => deleteExpense(expenseId),
+    mutationFn: (expenseId: number) => deleteExpense(expenseId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["monthlyExpenses"] });
     },
@@ -75,6 +77,16 @@ export const ExpenseProvider = ({ children }: { children: ReactNode }) => {
       console.error("Error deleting expense:", error);
     },
   });
+
+  const { mutate: editExpenseMutate, isLoading: editExpenseLoading } = useMutation({
+    mutationFn: ({expenseId, data} : {expenseId : number; data : ExpenseInterface}) => editExpense(expenseId,data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["monthlyExpenses" ]});
+    },
+    onError: (error) => {
+      console.error("Error editing expense:", error);
+    }
+  })
 
   const { data: plaidData, isLoading: plaidLoading } = useQuery({
     queryKey: ["plaidData", authState.isLoggedIn, authState.isPlaidConnected],
@@ -146,6 +158,7 @@ export const ExpenseProvider = ({ children }: { children: ReactNode }) => {
         setData,
         addExpenseMutate,
         deleteExpenseMutate,
+        editExpenseMutate,
         handleSettingsForm,
         plaidBalance,
         isDataLoading,

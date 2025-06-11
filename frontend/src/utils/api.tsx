@@ -118,7 +118,7 @@ export const addExpense = async (newExpense: {
   }
 };
 
-export const deleteExpense = async (expenseId: number | string) => {
+export const deleteExpense = async (expenseId: number) => {
   try {
     const response = await axios.delete(
       `http://localhost:8000/expenses/${expenseId}/`,
@@ -134,6 +134,24 @@ export const deleteExpense = async (expenseId: number | string) => {
     throw error;
   }
 };
+
+export const editExpense = async (expenseId: number, data : ExpenseInterface) => {
+  try {
+    const response = await axios.patch(
+      `http://localhost:8000/expenses/${expenseId}/`,
+      data,
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+        },
+      },
+    )
+    return response;
+  } catch (error) {
+    console.error("Error editing expense:", error);
+    throw error;
+  }
+}
 
 export const getCategories = async (): Promise<string[]> => {
   try {
