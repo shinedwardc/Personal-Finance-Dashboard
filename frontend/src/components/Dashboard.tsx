@@ -1,6 +1,7 @@
 import { useEffect, useState, useMemo } from "react";
 import { useProfileContext } from "@/hooks/useProfileContext";
 import { useMonthlyExpenses } from "@/hooks/useMonthlyExpenses";
+import Form from "./Form";
 import {
   Bar,
   BarChart,
@@ -11,7 +12,6 @@ import {
   Cell,
   LabelList,
 } from "recharts";
-import ModalButton from "./ui/modal-button";
 import {
   Card,
   CardContent,
@@ -28,6 +28,13 @@ import {
   ChartLegend,
   ChartLegendContent,
 } from "@/components/ui/chart";
+import {
+  Dialog,
+  DialogPortal,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { PlaidResponse } from "../interfaces/plaid";
 import { ExpenseInterface } from "../interfaces/expenses";
 
@@ -50,6 +57,8 @@ const Dashboard = ({ plaidBalance }: { plaidBalance: PlaidResponse }) => {
     Array<{ category: string; total: number }>
   >([]);
   //const [graphType, setGraphType] = useState<string>("bar");
+
+  const [modalIsOpen, setIsOpen] = useState<boolean>(false);
 
   const chartConfig = {
     total: {
@@ -146,7 +155,7 @@ const Dashboard = ({ plaidBalance }: { plaidBalance: PlaidResponse }) => {
       }
     };
 
-    if (data){
+    if (data) {
       initialize();
     }
   }, [data]);
@@ -200,7 +209,6 @@ const Dashboard = ({ plaidBalance }: { plaidBalance: PlaidResponse }) => {
     //console.log(graphData);
     setGraphData(graphData);
   };
-
 
   return (
     <>
@@ -336,21 +344,20 @@ const Dashboard = ({ plaidBalance }: { plaidBalance: PlaidResponse }) => {
                           <YAxis scale="auto" tickCount={5} unit={"$"} />
                           <ChartTooltip
                             cursor={false}
-                            content={<ChartTooltipContent
+                            content={
+                              <ChartTooltipContent
                                 labelKey="category"
-                                nameKey="total" 
-                            />}
+                                nameKey="total"
+                              />
+                            }
                           />
-                          <Bar
-                            dataKey="total"
-                            radius={8}
-                          >
+                          <Bar dataKey="total" radius={8}>
                             {graphData.map((item, index) => (
                               <Cell
                                 key={index}
                                 fill={`var(--color-${item.category.replace(/\s+/g, "-")})`}
                               />
-                            ))}                            
+                            ))}
                             <LabelList
                               position="top"
                               offset={10}
@@ -439,7 +446,32 @@ const Dashboard = ({ plaidBalance }: { plaidBalance: PlaidResponse }) => {
                 Start adding your expenses below or at the transactions page to
                 see the overview.
               </p>
-              <ModalButton newExpense={() => console.log('New expense added')}/>
+              <div className="flex justify-center mt-8">
+                <button
+                  className="btn btn-success"
+                  onClick={() => setIsOpen(true)}
+                >
+                  Add new expense
+                </button>
+                <Dialog
+                  modal={false}
+                  open={modalIsOpen}
+                  onOpenChange={setIsOpen}
+                >
+                  <DialogPortal>
+                    <div className="fixed inset-0 bg-white/30 backdrop-blur-sm z-40" />
+                    <DialogContent className="z-50">
+                      <DialogHeader>
+                        <DialogTitle>Add Expense</DialogTitle>
+                      </DialogHeader>
+                      <Form
+                        addingNewExpense={true}
+                        onFormSubmit={() => setIsOpen(false)}
+                      />
+                    </DialogContent>
+                  </DialogPortal>
+                </Dialog>
+              </div>
             </div>
           )}
         </div>

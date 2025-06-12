@@ -186,7 +186,11 @@ const ChartTooltipContent = React.forwardRef<
           {payload.map((item, index) => {
             const key = `${nameKey || item.name || item.dataKey || "value"}`;
             const itemConfig = getPayloadConfigFromPayload(config, item, key);
-            const indicatorColor = color || item.payload?.fill || item.color || config[item.payload.category.replace(/\s+/g, "-")].color;
+            const indicatorColor =
+              color ||
+              item.payload?.fill ||
+              item.color ||
+              config[item.payload.category.replace(/\s+/g, "-")].color;
             return (
               <div
                 key={item.dataKey}
@@ -342,7 +346,7 @@ function getPayloadConfigFromPayload(
       key as keyof typeof payloadPayload
     ] as string;
   }
-  configLabelKey = configLabelKey.replace(/\s+/g,"-");
+  configLabelKey = configLabelKey.replace(/\s+/g, "-");
   return configLabelKey in config
     ? config[configLabelKey]
     : config[key as keyof typeof config];

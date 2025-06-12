@@ -5,9 +5,7 @@ import { Area, AreaChart, CartesianGrid, XAxis, YAxis, Legend } from "recharts";
 import { ChartConfig, ChartContainer } from "@/components/ui/chart";
 import { ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 
-
 const Stats = () => {
-
   const today = useMemo(() => new Date(), []);
   const { data, isLoading } = useMonthlyExpenses(today);
 

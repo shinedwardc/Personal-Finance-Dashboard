@@ -34,20 +34,20 @@ const formSchema = z.object({
 type FormInputs = z.infer<typeof formSchema>;
 
 interface formProps {
-  addingNewExpense : boolean;
-  initialValues?: FormInputs & {id? : number | undefined};
-  onFormSubmit : () => void;
+  addingNewExpense: boolean;
+  initialValues?: FormInputs & { id?: number | undefined };
+  onFormSubmit: () => void;
 }
 
-const Form = ({ 
-  addingNewExpense,   
+const Form = ({
+  addingNewExpense,
   initialValues = {
     name: "",
     amount: 0,
     category: "",
     currency: "usd",
     date: new Date(),
-  }, 
+  },
   onFormSubmit,
 }: formProps) => {
   const categoryNames = [
@@ -92,7 +92,7 @@ const Form = ({
     },
   });
 
-  const onSubmit = (data : FormInputs) => {
+  const onSubmit = (data: FormInputs) => {
     const expense = {
       name: data.name,
       category: data.category,
@@ -103,8 +103,7 @@ const Form = ({
     };
     if (addingNewExpense) {
       addExpenseMutate(expense);
-    }
-    else {
+    } else {
       editExpenseMutate({ expenseId: Number(initialValues.id), data: expense });
     }
     onFormSubmit();

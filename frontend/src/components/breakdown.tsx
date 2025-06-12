@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo, useRef } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { Bar, Line } from "react-chartjs-2";
 import {
   Chart as ChartJS,
@@ -12,7 +12,13 @@ import {
   Legend,
   RadialLinearScale,
 } from "chart.js";
-import Modal from "react-modal";
+import {
+  Dialog,
+  DialogPortal,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { ExpenseInterface } from "../interfaces/expenses";
 import { PlaidResponse } from "../interfaces/plaid";
 import { Settings } from "../interfaces/settings";
@@ -50,8 +56,6 @@ const Breakdown = ({
   const [graphType, setGraphType] = useState<string>("bar");
   const [modalIsOpen, setIsOpen] = useState<boolean>(false);
 
-  //const modalRef = useRef<HTMLDialogElement>(null);
-  Modal.setAppElement("#root");
 
   useEffect(() => {
     const initialize = async () => {
@@ -215,21 +219,7 @@ const Breakdown = ({
     console.log(filtered);
   };*/
 
-  const refetchExpenses = async (newExpense: ExpenseInterface) => {
-    try {
-      console.log("newExpense", newExpense);
-      setData((prevData) => {
-        const combinedData = [...prevData, newExpense];
-        return combinedData.sort(
-          (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
-        );
-      });
-    } catch (error) {
-      console.error("Failed to refetch expenses:", error);
-    }
-    /*if (modalRef.current) {
-      modalRef.current.close();
-    }*/
+  const onNewExpense = () => {
     setIsOpen(false);
   };
 
@@ -345,30 +335,30 @@ const Breakdown = ({
                 </div>
               </div>
               <div className="flex justify-center mt-8">
-                {/* Open the modal using document.getElementById('ID').showModal() method */}
                 <button
                   className="btn btn-success"
                   onClick={() => setIsOpen(true)}
                 >
                   Add new expense
                 </button>
-                <Modal
-                  isOpen={modalIsOpen}
-                  onRequestClose={() => setIsOpen(false)}
-                  className="modal-box absolute top-[35%] left-[38.7%] dark:bg-black"
+                <Dialog
+                  modal={false}
+                  open={modalIsOpen}
+                  onOpenChange={setIsOpen}
                 >
-                  <div className="">
-                    <button
-                      className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"
-                      onClick={() => setIsOpen(false)}
-                    >
-                      ✕
-                    </button>
-                    <div>
-                      <Form onFormSubmit={refetchExpenses} />
-                    </div>
-                  </div>
-                </Modal>
+                  <DialogPortal>
+                    <div className="fixed inset-0 bg-white/30 backdrop-blur-sm z-40" />
+                    <DialogContent className="z-50">
+                      <DialogHeader>
+                        <DialogTitle>Add Expense</DialogTitle>
+                      </DialogHeader>
+                      <Form
+                        addingNewExpense={true}
+                        onFormSubmit={onNewExpense}
+                      />
+                    </DialogContent>
+                  </DialogPortal>
+                </Dialog>
               </div>
             </div>
           ) : (
@@ -378,30 +368,30 @@ const Breakdown = ({
                 the Expenses page to add some
               </h2>
               <div className="flex justify-center mt-8">
-                {/* Open the modal using document.getElementById('ID').showModal() method */}
                 <button
                   className="btn btn-success"
                   onClick={() => setIsOpen(true)}
                 >
                   Add new expense
                 </button>
-                <Modal
-                  isOpen={modalIsOpen}
-                  onRequestClose={() => setIsOpen(false)}
-                  className="modal-box absolute top-[35%] left-[38.7%] dark:bg-black"
+                <Dialog
+                  modal={false}
+                  open={modalIsOpen}
+                  onOpenChange={setIsOpen}
                 >
-                  <div className="">
-                    <button
-                      className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"
-                      onClick={() => setIsOpen(false)}
-                    >
-                      ✕
-                    </button>
-                    <div>
-                      <Form onFormSubmit={refetchExpenses} />
-                    </div>
-                  </div>
-                </Modal>
+                  <DialogPortal>
+                    <div className="fixed inset-0 bg-white/30 backdrop-blur-sm z-40" />
+                    <DialogContent className="z-50">
+                      <DialogHeader>
+                        <DialogTitle>Add Expense</DialogTitle>
+                      </DialogHeader>
+                      <Form
+                        addingNewExpense={true}
+                        onFormSubmit={onNewExpense}
+                      />
+                    </DialogContent>
+                  </DialogPortal>
+                </Dialog>
               </div>
             </div>
           )

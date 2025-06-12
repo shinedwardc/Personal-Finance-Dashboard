@@ -118,11 +118,13 @@ export const addExpense = async (newExpense: {
   }
 };
 
-export const deleteExpense = async (expenseId: number) => {
+export const deleteExpense = async (ids : number[]) => {
   try {
+    console.log(ids);
     const response = await axios.delete(
-      `http://localhost:8000/expenses/${expenseId}/`,
+      `http://localhost:8000/expenses/`,
       {
+        data: {ids},
         headers: {
           Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
         },

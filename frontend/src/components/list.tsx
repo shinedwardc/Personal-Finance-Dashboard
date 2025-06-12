@@ -10,7 +10,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "./ui/select";
-import { Dialog, DialogPortal, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import {
+  Dialog,
+  DialogPortal,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
 import MonthPicker from "./ui/month-picker";
@@ -30,36 +36,13 @@ const List = () => {
   const [search, setSearch] = useState<string>("");
   const { deleteExpenseMutate } = useExpenseContext();
 
-  
   const [editData, setEditData] = useState<ExpenseInterface | null>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
-  const { data: monthlyExpenses, isLoading: isMonthlyExpensesLoading } =
+  const { data: expenseList, isLoading: isMonthlyExpensesLoading } =
     useMonthlyExpenses(monthAndYear);
 
   //const [list, setList] = useState<ExpenseInterface[] | undefined>(undefined);
-
-  const expenseList = useMemo(() => {
-    if (!monthlyExpenses) return [];
-    const query = search.toLowerCase();
-    const filteredExpenses = monthlyExpenses.filter((expense) => {
-      const name = expense.name.toLowerCase().includes(query);
-      const category = expense.category.toLowerCase().includes(query);
-      return name || category;
-    });
-    return [...filteredExpenses].sort((a, b) => {
-      const getField = (expense: ExpenseInterface) => {
-        if (sortBy === "date") return expense.date;
-        if (sortBy === "category") return expense.category;
-        if (sortBy === "name") return expense.name;
-        return "";
-      };
-      if (sortDirection === "ascending") {
-        return getField(a).localeCompare(getField(b));
-      }
-      return getField(b).localeCompare(getField(a));
-    });
-  }, [monthlyExpenses, sortBy, sortDirection, search]);
 
   const onNewExpense = async () => {
     setIsEditModalOpen(false);
@@ -122,7 +105,7 @@ const List = () => {
     }
   };
 
-  const handleDeleteTransaction = async (expenseId: number) => {
+  const handleDeleteTransaction = async (expenseId: number[]) => {
     try {
       deleteExpenseMutate(expenseId);
     } catch (error) {
@@ -157,7 +140,7 @@ const List = () => {
     console.log(expense);
     setEditData(expense);
     setIsEditModalOpen(true);
-  }
+  };
 
   const handleSortChange = (value: string) => {
     setSortBy(value);
@@ -185,14 +168,18 @@ const List = () => {
     <>
       {!isMonthlyExpensesLoading ? (
         <>
-          <Dialog modal={false} open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
+          <Dialog
+            modal={false}
+            open={isEditModalOpen}
+            onOpenChange={setIsEditModalOpen}
+          >
             <DialogPortal>
               <div className="fixed inset-0 bg-white/30 backdrop-blur-sm z-40" />
-              <DialogContent
-                className="z-50"
-              >
+              <DialogContent className="z-50">
                 <DialogHeader>
-                  <DialogTitle>{editData ? "Update" : "Add"} Expense</DialogTitle>
+                  <DialogTitle>
+                    {editData ? "Update" : "Add"} Expense
+                  </DialogTitle>
                 </DialogHeader>
                 {editData ? (
                   <Form
@@ -204,7 +191,7 @@ const List = () => {
                     onFormSubmit={onEditExpense}
                   />
                 ) : (
-                  <Form addingNewExpense={true} onFormSubmit={onNewExpense}/>
+                  <Form addingNewExpense={true} onFormSubmit={onNewExpense} />
                 )}
               </DialogContent>
             </DialogPortal>
@@ -217,11 +204,16 @@ const List = () => {
             </div>
             <div className="flex-1 flex md:justify-start justify-center">
               <div className="flex justify-center">
-                <Button variant="default" onClick={() => setIsEditModalOpen(true)}>Add +</Button>
+                <Button
+                  variant="default"
+                  onClick={() => setIsEditModalOpen(true)}
+                >
+                  Add +
+                </Button>
               </div>
             </div>
           </div>
-          <div className="flex md:flex-row flex-col w-full mt-2 justify-between gap-4">
+          {/*<div className="flex md:flex-row flex-col w-full mt-2 justify-between gap-4">
             <div className="flex-1 flex flex-row gap-2 md:justify-end justify-center items-center">
               <label className="text-sm font-medium text-gray-600 whitespace-nowrap">
                 Sort by
@@ -268,10 +260,14 @@ const List = () => {
                 placeholder="Filter tasks..."
               />
             </div>
-          </div>
-          {expenseList.length > 0 ? (
+          </div>*/}
+          {expenseList && expenseList.length > 0 ? (
             <div className="mt-4">
-              <DataTable data={expenseList} onDelete={handleDeleteTransaction} onEdit={handleEditTransaction} />
+              <DataTable
+                data={expenseList}
+                onDelete={handleDeleteTransaction}
+                onEdit={handleEditTransaction}
+              />
             </div>
           ) : (
             <div className="mt-8 flex flex-col items-center">

@@ -30,35 +30,25 @@ def authentication_status(request):
 @api_view(['GET','POST','DELETE','PATCH'])
 @check_authentication
 def expense_list(request,id=None):
-    if id:
-        if request.method == 'DELETE':
-            try:
-                print('id ',id)
-                expense = Expense.objects.get(pk=id, user=request.user)
-                expense.delete()
-                return Response({'Successfully deleted expense'},status=status.HTTP_204_NO_CONTENT)
-            except Expense.DoesNotExist:
-                return Response(status=status.HTTP_404_NOT_FOUND)
-        elif request.method == 'PATCH':
-            try:
-                print('id', id)
-                expense = Expense.objects.get(pk=id, user=request.user)
-                serializer = ExpenseSerializer(expense, data=request.data, partial=True)
-                if serializer.is_valid():
-                    serializer.save()
-                    return Response(serializer.data, status=status.HTTP_200_OK)
-                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)                
-            except Expense.DoesNotExist:
-                return Response(status=status.HTTP_404_NOT_FOUND)
-
+    if id and request.method == 'PATCH':
+        try:
+            print('id', id)
+            expense = Expense.objects.get(pk=id, user=request.user)
+            serializer = ExpenseSerializer(expense, data=request.data, partial=True)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_200_OK)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)                
+        except Expense.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
     else:
         if request.method == 'GET':
             if request.query_params.get('month') and request.query_params.get('year'):
                 month = int(request.query_params.get('month'))
                 year = int(request.query_params.get('year'))
-                expenses = Expense.objects.filter(user=request.user, date__month=month, date__year=year).order_by('date')
+                expenses = Expense.objects.filter(user=request.user, date__month=month, date__year=year).order_by('date','name','category')
             else:
-                expenses = Expense.objects.filter(user=request.user).order_by('date')
+                expenses = Expense.objects.filter(user=request.user).order_by('date','name','category')
             serializer = ExpenseSerializer(expenses, many=True)
             return Response({'expenses': serializer.data})
         elif request.method == 'POST':
@@ -67,6 +57,12 @@ def expense_list(request,id=None):
                 serializer.save()
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        elif request.method == 'DELETE':          
+            ids = request.data.get('ids', [])
+            if not isinstance(ids, list):
+                return Response({'error': 'Expected a list of IDs.'}, status=status.HTTP_400_BAD_REQUEST)
+            Expense.objects.filter(id__in=ids).delete()
+            return Response({'Successfully deleted expense(s)'},status=status.HTTP_204_NO_CONTENT)
     
 
 @api_view(['GET'])

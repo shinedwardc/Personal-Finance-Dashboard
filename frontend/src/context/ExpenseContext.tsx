@@ -69,7 +69,7 @@ export const ExpenseProvider = ({ children }: { children: ReactNode }) => {
   });
 
   const { mutate: deleteExpenseMutate, isLoading: deleteExpenseLoading } = useMutation({
-    mutationFn: (expenseId: number) => deleteExpense(expenseId),
+    mutationFn: (expenseId : number[]) => deleteExpense(expenseId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["monthlyExpenses"] });
     },
