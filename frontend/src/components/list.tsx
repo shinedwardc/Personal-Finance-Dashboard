@@ -4,36 +4,22 @@ import { useMonthlyExpenses } from "@/hooks/useMonthlyExpenses";
 import Form from "@/components/Form";
 import { DataTable } from "./ui/data-table";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "./ui/select";
-import {
   Dialog,
   DialogPortal,
   DialogContent,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Input } from "./ui/input";
 import { Button } from "./ui/button";
 import MonthPicker from "./ui/month-picker";
 import { toast, Bounce } from "react-toastify";
-import { TbSortAscendingLetters } from "react-icons/tb";
-import { TbSortDescendingLetters } from "react-icons/tb";
 import { ExpenseInterface } from "@/interfaces/expenses";
 
 //https://flowbite.com/docs/components/spinner/#progress-spinner
 
 const List = () => {
-  const [monthAndYear, setMonthAndYear] = useState<Date>(new Date());
-  const [sortBy, setSortBy] = useState<string>("date");
-  const [sortDirection, setSortDirection] = useState<
-    "ascending" | "descending"
-  >("ascending");
-  const [search, setSearch] = useState<string>("");
+  const today = useMemo(() => new Date(),[]);
+  const [monthAndYear, setMonthAndYear] = useState<Date>(today);
   const { deleteExpenseMutate } = useExpenseContext();
 
   const [editData, setEditData] = useState<ExpenseInterface | null>(null);
@@ -142,28 +128,6 @@ const List = () => {
     setIsEditModalOpen(true);
   };
 
-  const handleSortChange = (value: string) => {
-    setSortBy(value);
-    /*if (monthlyExpenses){
-      monthlyExpenses.sort((a,b) => a[value].localeCompare(b[value]));
-    }*/
-    /*if (monthlyExpenses && value === "name") {
-      monthlyExpenses.sort((a,b) => a.name.localeCompare(b.name));
-    }
-    else if (monthlyExpenses && value === "date") {
-      monthlyExpenses.sort((a,b) => a.date.localeCompare(b.date));
-    }*/
-  };
-
-  const handleDirectionChange = (value: "ascending" | "descending") => {
-    setSortDirection(value);
-  };
-
-  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const query = e.target.value;
-    setSearch(query);
-  };
-
   return (
     <>
       {!isMonthlyExpensesLoading ? (
@@ -213,54 +177,6 @@ const List = () => {
               </div>
             </div>
           </div>
-          {/*<div className="flex md:flex-row flex-col w-full mt-2 justify-between gap-4">
-            <div className="flex-1 flex flex-row gap-2 md:justify-end justify-center items-center">
-              <label className="text-sm font-medium text-gray-600 whitespace-nowrap">
-                Sort by
-              </label>
-              <Select onValueChange={handleSortChange} defaultValue="date">
-                <SelectTrigger className="md:w-1/5 w-1/3">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="date">Date</SelectItem>
-                  <SelectItem value="category">Category</SelectItem>
-                  <SelectItem value="name">Name</SelectItem>
-                </SelectContent>
-              </Select>
-              <Select
-                onValueChange={handleDirectionChange}
-                defaultValue="ascending"
-              >
-                <SelectTrigger className="md:w-1/5 w-1/3">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="ascending">
-                    <span className="flex flex-row items-center gap-1">
-                      Ascending <TbSortAscendingLetters />
-                    </span>
-                  </SelectItem>
-                  <SelectItem value="descending">
-                    <span className="flex flex-row items-center gap-1">
-                      Descending <TbSortDescendingLetters />
-                    </span>
-                  </SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="flex-1 flex flex-row gap-2 md:justify-start justify-center items-center">
-              <label className="text-sm font-medium text-gray-600 whitespace-nowrap">
-                Search
-              </label>
-              <Input
-                className="md:w-1/4 w-[275px]"
-                onChange={handleSearch}
-                value={search}
-                placeholder="Filter tasks..."
-              />
-            </div>
-          </div>*/}
           {expenseList && expenseList.length > 0 ? (
             <div className="mt-4">
               <DataTable

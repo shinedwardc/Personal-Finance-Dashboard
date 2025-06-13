@@ -1,15 +1,12 @@
 import { useEffect, useState, createContext, ReactNode } from "react";
 import { useProfileContext } from "@/hooks/useProfileContext";
 import { ExpenseInterface } from "../interfaces/expenses";
-import { PlaidResponse } from "../interfaces/plaid";
 import { Settings } from "../interfaces/settings";
 import {
   getExpense,
   addExpense,
   deleteExpense,
   editExpense,
-  fetchPlaidTransactions,
-  fetchPlaidBalance,
   updateBudgetLimit,
 } from "../utils/api";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
@@ -42,8 +39,8 @@ export const ExpenseProvider = ({ children }: { children: ReactNode }) => {
     authState,
     isProfileLoading,
   } = useProfileContext();
+
   const [data, setData] = useState<ExpenseInterface[]>([]);
-  const [plaidBalance, setPlaidBalance] = useState<PlaidResponse | null>(null);
 
   const { data: expenseData, isLoading: expenseLoading } = useQuery({
     queryKey: ["expenses", authState.isLoggedIn],
@@ -88,22 +85,6 @@ export const ExpenseProvider = ({ children }: { children: ReactNode }) => {
     }
   })
 
-  const { data: plaidData, isLoading: plaidLoading } = useQuery({
-    queryKey: ["plaidData", authState.isLoggedIn, authState.isPlaidConnected],
-    queryFn: fetchPlaidTransactions,
-    enabled: authState.isLoggedIn && authState.isPlaidConnected,
-  });
-
-  const { data: plaidBalanceData, isLoading: plaidBalanceLoading } = useQuery({
-    queryKey: [
-      "plaidBalance",
-      authState.isLoggedIn,
-      authState.isPlaidConnected,
-    ],
-    queryFn: fetchPlaidBalance,
-    enabled: authState.isLoggedIn && authState.isPlaidConnected,
-  });
-
   const { mutate: settingsMutate, isLoading: settingsMutateLoading } = useMutation({
     mutationFn: (data: Settings) => {
       return updateBudgetLimit(data);
@@ -121,33 +102,15 @@ export const ExpenseProvider = ({ children }: { children: ReactNode }) => {
   };
 
   useEffect(() => {
-    //console.log("expenseData", expenseData);
-    //console.log("plaidData", plaidData);
     if (expenseData) {
       setData(expenseData);
     }
-    if (plaidData) {
-      setData((prevData) => {
-        const combinedData = [...prevData, ...plaidData];
-        return combinedData.sort(
-          (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
-        );
-      });
-    }
-  }, [expenseData, plaidData]);
-
-  useEffect(() => {
-    if (plaidBalanceData) {
-      setPlaidBalance(plaidBalanceData);
-    }
-  }, [plaidBalanceData]);
+  }, [expenseData]);
 
   const isDataLoading =
     authState.isLoading ||
     expenseLoading ||
     //filteredDataLoading ||
-    plaidLoading ||
-    plaidBalanceLoading ||
     isProfileLoading;
   //settingsLoading;
 
@@ -160,7 +123,6 @@ export const ExpenseProvider = ({ children }: { children: ReactNode }) => {
         deleteExpenseMutate,
         editExpenseMutate,
         handleSettingsForm,
-        plaidBalance,
         isDataLoading,
       }}
     >

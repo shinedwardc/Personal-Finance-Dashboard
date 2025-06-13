@@ -91,16 +91,12 @@ def get_transactions(request):
                 'date': transaction['date'],
                 'name': transaction['name'],
                 'merchant_name': transaction.get('merchant_name', ''),
-                'category': transaction.get('category', []),
+                'category': transaction['category'],
                 'payment_channel': transaction.get('payment_channel', ''),
             }
             serializable_transactions.append(serializable_transaction)
         transactions = serializable_transactions
         print('transactions: ', transactions)
-        
-        # You might want to process or format the transactions here
-        # before sending them back to the frontend
-        
         return JsonResponse({'transactions': transactions})
     except plaid.ApiException as e:
         return JsonResponse({'error': str(e)}, status=500)

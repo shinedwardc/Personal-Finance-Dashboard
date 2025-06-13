@@ -206,10 +206,11 @@ export const fetchPlaidTransactions = async () => {
     const response = await api.get("/get-transactions/", {
       params: { access_token: accessToken },
     });
+    console.log(response.data.transactions);
     return response.data.transactions.map((transaction: any) => ({
       id: transaction.id,
       name: transaction.name,
-      category: transaction.category[0],
+      category: transaction.category,
       amount: transaction.amount,
       currency: transaction.currency,
       description: transaction.description,

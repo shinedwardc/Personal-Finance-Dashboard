@@ -1,10 +1,8 @@
-import { useRef, useEffect, useState } from "react";
+import { useRef, useEffect, useState, useMemo } from "react";
 import { useMonthlyExpenses } from "@/hooks/useMonthlyExpenses";
-import { useExpenseContext } from "@/hooks/useExpenseContext";
-import { useCalendarContext } from "@/hooks/useCalendarContext";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
-import { Calendar } from "./ui/calendar";
+import { Select, SelectContent, SelectGroup, SelectLabel, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
 import { format } from "date-fns";
 import {
   Card,
@@ -15,33 +13,38 @@ import {
   CardTitle,
 } from "./ui/card";
 import { useSpring, animated } from "@react-spring/web";
-import { motion, AnimatePresence } from "motion/react";
+import { categoryConfig } from "@/constants/categoryConfig";
+
 
 const ExpenseCalendar = () => {
-  //const calendarRef = useRef<FullCalendar | null>(null);
+  const calendarRef = useRef<FullCalendar | null>(null);
 
   const [events, setEvents] = useState<
-    { title: string; start: string; amount: number; frequency: string | null }[]
+    { title: string; start: string; amount: number; category: string; }[]
   >([]);
-  const [chosenEvents, setChosenEvents] = useState<
-    { title: string; start: string; amount: number; frequency: string | null }[]
-  >([]);
-  const [monthAndYear, setMonthAndYear] = useState<Date>(new Date());
+  const [eventsByDate, setEventsByDate] = useState<Map<string, {title: string; category: string; amount: number; }[]>>(new Map());
+  const today = useMemo(() => new Date(), []);
+  const [monthAndYear, setMonthAndYear] = useState<Date>(today);
   const [monthlySpent, setMonthlySpent] = useState<number>(0);
+
+  const [selectedItem, setSelectedItem] = useState<string>("All");
 
   const [date, setDate] = useState<Date | undefined>(new Date());
 
   const { data, isLoading: isDataLoading } = useMonthlyExpenses(monthAndYear);
 
-  /*const getCurrentMonth = () => {
+  useEffect(() => {
     if (calendarRef.current) {
       const calendarApi = calendarRef.current.getApi();
-      const currentMonth = calendarApi.getDate().getMonth();
-      const currentYear = calendarApi.getDate().getFullYear();
-      setMonthAndYear(new Date(currentYear, currentMonth, 1));
-      console.log("Current Month and Year: ", currentMonth + 1, currentYear);
+      const current = calendarApi.getDate();
+      if (
+        current.getFullYear() !== monthAndYear.getFullYear() ||
+        current.getMonth() !== monthAndYear.getMonth()
+      ) {
+        calendarApi.gotoDate(monthAndYear);
+      }
     }
-  };*/
+  }, [monthAndYear]);
 
   useEffect(() => {
     if (data && data.length > 0) {
@@ -53,25 +56,32 @@ const ExpenseCalendar = () => {
         return sum;
       }, 0);
       setMonthlySpent(totalAmount);
-      const formattedEvents = data.map((expense) => ({
+      const formattedTransactions = data.map((expense) => ({
         title: expense.name,
         start: expense.date,
         amount: expense.amount,
-        frequency: expense.frequency,
+        category: expense.category,
       }));
-      console.log(formattedEvents);
-      const calculateDayExpenses = new Map();
-      for (const event of formattedEvents) {
-        if (calculateDayExpenses.has(event.start)) {
-          calculateDayExpenses.set(
-            event.start,
-            calculateDayExpenses.get(event.start) + event.amount,
-          );
-        } else {
-          calculateDayExpenses.set(event.start, event.amount);
+      setEvents(formattedTransactions);
+      const eventsByDate = new Map<string, {title: string; category: string; amount: number; }[]>();
+      formattedTransactions.map((event) => {
+        if (eventsByDate.has(event.start)) {
+          eventsByDate.get(event.start)?.push({
+            title: event.title,
+            category: event.category,
+            amount: event.amount,
+          });
         }
-      }
-      setEvents(formattedEvents);
+        else {
+          eventsByDate.set(event.start, [{
+            title: event.title,
+            category: event.category,
+            amount: event.amount,
+          }]);
+        }
+      });
+      setEventsByDate(eventsByDate);
+      console.log("eventsByDate: ", eventsByDate);
     } else {
       setMonthlySpent(0);
       setEvents([]);
@@ -98,15 +108,6 @@ const ExpenseCalendar = () => {
       );
   }, [events, getCurrentMonth]);*/
 
-  useEffect(() => {
-    if (events.length > 0 && date instanceof Date) {
-      const chosenEvents = events.filter((event) => {
-        const eventDate = new Date(event.start);
-        return eventDate.toDateString() === date.toDateString();
-      });
-      setChosenEvents(chosenEvents);
-    }
-  }, [events, date]);
   /*const {
     calendarRef,
     events,
@@ -120,7 +121,6 @@ const ExpenseCalendar = () => {
 
   const handleDateChange = (arg: { start: Date }) => {
     const newDate = new Date(arg.start);
-    console.log(newDate);
     setMonthAndYear(new Date(newDate.getFullYear(), newDate.getMonth(), 1));
   };
 
@@ -166,13 +166,14 @@ const ExpenseCalendar = () => {
               </p>
             </CardContent>
           </Card>
-          <div className="w-7/12 ml-20 mb-20 dark:text-white">
+          <div className="w-7/12 ml-20 mb-5 dark:text-white">
             <FullCalendar
               plugins={[dayGridPlugin]}
+              initialDate={monthAndYear}
               initialView="dayGridMonth"
               showNonCurrentDates={false}
               fixedWeekCount={false}
-              //ref={calendarRef}
+              ref={calendarRef}
               datesSet={handleDateChange}
               events={events}
               eventContent={(info) => (
@@ -202,42 +203,57 @@ const ExpenseCalendar = () => {
               <p>: Upcoming recurring bill</p>
             </div>
           </div>
-          <div className="dark:text-white">
+          {/*<div className="dark:text-white">
             <Calendar
               mode="single"
               selected={date}
               //eventData={events}
               onSelect={setDate}
               onMonthChange={() => setDate(undefined)}
-              defaultMonth={new Date()}
+              defaultMonth={monthAndYear}
               className="rounded-md border"
               footer={
                 date ? `Selected: ${date.toLocaleDateString()}` : "Pick a day."
               }
             />
-          </div>
-          <div className="my-10 w-[300px] dark:text-white">
-            <div className="text-sm mb-2">
-              {date?.toLocaleString("en", { weekday: "long", day: "numeric" })}
+          </div>*/}
+          <section className="w-1/2 overflow-y-auto max-h-[500px]">
+            <div className="self-start inline-flex">
+              <Select defaultValue={selectedItem} onValueChange={setSelectedItem}>
+                <SelectTrigger className="border-none">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectGroup>
+                    <SelectLabel>Select expenses</SelectLabel>
+                    <SelectItem value="All">All</SelectItem>
+                    <SelectItem value="Expense">Expense</SelectItem>
+                    <SelectItem value="Income">Income</SelectItem>
+                  </SelectGroup>
+                </SelectContent>
+              </Select>            
             </div>
-            <AnimatePresence>
-              {chosenEvents.length > 0 &&
-                chosenEvents.map((event, index) => (
-                  <motion.div
-                    key={index}
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    transition={{ duration: 0.3 }}
-                  >
-                    <div className="flex flex-row gap-1 text-xl">
-                      <p>{event.title}</p>
-                      <p>- {event.amount}$</p>
-                    </div>
-                  </motion.div>
-                ))}
-            </AnimatePresence>
-          </div>
+            <div className="mb-10 w-1/2 dark:text-white">
+              {selectedItem === "All" ? (
+                [...eventsByDate].map(([date, events]) => (
+                  <div key={date} className="mb-4">
+                    <div className="font-semibold">{new Date(date).toLocaleString("en", { weekday: "long", day: "numeric" })}</div>
+                    <ul>
+                      {events.map((event, idx) => (
+                        <li key={idx}>
+                          {event.title} - {event.category} {categoryConfig[event.category as keyof typeof categoryConfig]?.icon} - ${event.amount}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ))
+              ) : selectedItem === "Expense" ? (
+                <div>Only expenses will be shown here.</div>
+              ) : (
+                <div>Only incomes will be shown here.</div>
+              )}
+            </div>
+          </section>
         </>
       ) : (
         <div>

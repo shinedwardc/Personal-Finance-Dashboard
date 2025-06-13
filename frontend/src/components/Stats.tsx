@@ -1,6 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
 import { useMonthlyExpenses } from "@/hooks/useMonthlyExpenses";
-import { ExpenseInterface } from "@/interfaces/expenses";
 import { Area, AreaChart, CartesianGrid, XAxis, YAxis, Legend } from "recharts";
 import { ChartConfig, ChartContainer } from "@/components/ui/chart";
 import { ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";

@@ -19,6 +19,7 @@ import {
   PopoverTrigger,
   PopoverContent,
 } from "../components/ui/popover";
+import { categoryConfig } from "@/constants/categoryConfig";
 import { LuCalendarDays } from "react-icons/lu";
 
 // Define validation schema
@@ -50,24 +51,6 @@ const Form = ({
   },
   onFormSubmit,
 }: formProps) => {
-  const categoryNames = [
-    "Bank Fees",
-    "Cash Advance",
-    "Community",
-    "Food and Drink",
-    "Healthcare",
-    "Interest",
-    "Loan Payments",
-    "Other",
-    "Payment",
-    "Recreation",
-    "Service",
-    "Shops",
-    "Tax",
-    "Transfer",
-    "Travel",
-    "Utilities",
-  ];
   const { addExpenseMutate, editExpenseMutate } = useExpenseContext();
 
   //const [selectedCategory, setSelectedCategory] = useState<string>("");
@@ -151,9 +134,9 @@ const Form = ({
                 <SelectValue placeholder="Select a category" />
               </SelectTrigger>
               <SelectContent>
-                {categoryNames.map((category, index) => (
-                  <SelectItem key={index} value={category}>
-                    {category}
+                {Object.values(categoryConfig).map((category, index) => (
+                  <SelectItem key={index} value={category.label}>
+                    {category.label} {category.icon}
                   </SelectItem>
                 ))}
               </SelectContent>
