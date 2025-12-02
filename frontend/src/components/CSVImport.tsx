@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useRef } from "react";
 import { Button } from "./ui/button";
 import Papa from "Papaparse";
 import { FaFileCsv } from "react-icons/fa6";
@@ -19,7 +19,7 @@ const CSVImport = ({ setImportedData }) => {
     Papa.parse(file, {
       header: true,     // converts to JSON objects
       skipEmptyLines: true,
-      complete: (results) => {
+      complete: (results : {data : [], errors : [], meta : any}) => {
         //console.log("Parsed CSV:", results.data);
         setImportedData(results.data);
       },
