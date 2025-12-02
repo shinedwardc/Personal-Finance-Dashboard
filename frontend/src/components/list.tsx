@@ -1,7 +1,8 @@
-import { useState, useMemo } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useExpenseContext } from "@/hooks/useExpenseContext";
 import { useMonthlyExpenses } from "@/hooks/useMonthlyExpenses";
 import Form from "@/components/Form";
+import CSVImport from "./CSVImport";
 import { DataTable } from "./ui/data-table";
 import {
   Dialog,
@@ -28,9 +29,15 @@ const List = () => {
   const { data: expenseList, isLoading: isMonthlyExpensesLoading } =
     useMonthlyExpenses(monthAndYear);
 
-  //const [list, setList] = useState<ExpenseInterface[] | undefined>(undefined);
+  const [importedData, setImportedData] = useState<[string,string,number,Date,string] | null>(null);
 
-  const onNewExpense = async () => {
+  useEffect(() => {
+    if (importedData){
+      console.log(importedData);
+    }
+  },[importedData])
+
+  const onFormNewExpense = async () => {
     setIsEditModalOpen(false);
     try {
       toast.success("Succesfully added expense", {
@@ -60,7 +67,7 @@ const List = () => {
     }
   };
 
-  const onEditExpense = async () => {
+  const onFormEditExpense = async () => {
     setIsEditModalOpen(false);
     setEditData(null); // Clear edit data
     try {
@@ -123,10 +130,10 @@ const List = () => {
   };
 
   const handleEditTransaction = async (expense: ExpenseInterface) => {
-    console.log(expense);
     setEditData(expense);
     setIsEditModalOpen(true);
   };
+
 
   return (
     <>
@@ -152,10 +159,10 @@ const List = () => {
                       ...editData,
                       date: new Date(editData.date),
                     }}
-                    onFormSubmit={onEditExpense}
+                    onFormSubmit={onFormEditExpense}
                   />
                 ) : (
-                  <Form addingNewExpense={true} onFormSubmit={onNewExpense} />
+                  <Form addingNewExpense={true} onFormSubmit={onFormNewExpense} />
                 )}
               </DialogContent>
             </DialogPortal>
@@ -175,6 +182,7 @@ const List = () => {
                   </Button>
                 </div>
               </div>
+              <CSVImport setImportedData={setImportedData}/>
             </div>
           </div>
           {expenseList && expenseList.length > 0 ? (

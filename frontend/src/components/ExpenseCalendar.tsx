@@ -148,7 +148,7 @@ const ExpenseCalendar = () => {
     <>
       {!isDataLoading ? (
         <>
-          <Card className="mt-12 lg:max-w-3xl">
+          <Card className="mt-12">
             <CardHeader className="pb-2">
               <CardTitle className="text-sm">Monthly spent</CardTitle>
             </CardHeader>

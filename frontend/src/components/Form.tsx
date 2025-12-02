@@ -109,7 +109,7 @@ const Form = ({
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
       <div>
-        <label htmlFor="name" className="block w-full dark:text-white">
+        <label htmlFor="name" className="mb-2 block w-full dark:text-white">
           Name
         </label>
         <Input
@@ -121,8 +121,8 @@ const Form = ({
           <p className="text-red-500 text-sm">{errors.name.message}</p>
         )}
       </div>
-      <div>
-        <label htmlFor="category" className="block dark:text-white">
+      <div className="mt-2">
+        <label htmlFor="category" className="mb-2 block dark:text-white">
           Category
         </label>
         <Controller
