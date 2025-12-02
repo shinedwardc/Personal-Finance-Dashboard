@@ -1,20 +1,30 @@
 import { Link, useNavigate } from "react-router-dom";
+import axios from "axios";
 import { useProfileContext } from "@/hooks/useProfileContext";
 
 const Navbar = () => {
-  //const navigate = useNavigate();
+  const navigate = useNavigate();
 
   const { authState, setAuthState } = useProfileContext();
 
-  const handleLogout = () => {
-    localStorage.removeItem("accessToken");
-    localStorage.removeItem("refreshToken");
-    setAuthState({
-      isLoggedIn: false,
-      isPlaidConnected: authState.isPlaidConnected,
-      isLoading: false,
-    });
-    //navigate("/login");
+  const handleLogout = async () => {
+    try {
+      await axios.post(
+        "http://localhost:8000/api/logout/",
+        {},
+        {
+          withCredentials: true,
+        },
+      );
+      setAuthState({
+        isLoggedIn: false,
+        isPlaidConnected: authState.isPlaidConnected,
+        isLoading: false,
+      });
+      navigate("/login");
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   return (

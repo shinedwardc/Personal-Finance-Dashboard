@@ -2,7 +2,15 @@ import { useRef, useEffect, useState, useMemo } from "react";
 import { useMonthlyExpenses } from "@/hooks/useMonthlyExpenses";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
-import { Select, SelectContent, SelectGroup, SelectLabel, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectLabel,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "./ui/select";
 import { format } from "date-fns";
 import {
   Card,
@@ -15,14 +23,15 @@ import {
 import { useSpring, animated } from "@react-spring/web";
 import { categoryConfig } from "@/constants/categoryConfig";
 
-
 const ExpenseCalendar = () => {
   const calendarRef = useRef<FullCalendar | null>(null);
 
   const [events, setEvents] = useState<
-    { title: string; start: string; amount: number; category: string; }[]
+    { title: string; start: string; amount: number; category: string }[]
   >([]);
-  const [eventsByDate, setEventsByDate] = useState<Map<string, {title: string; category: string; amount: number; }[]>>(new Map());
+  const [eventsByDate, setEventsByDate] = useState<
+    Map<string, { title: string; category: string; amount: number }[]>
+  >(new Map());
   const today = useMemo(() => new Date(), []);
   const [monthAndYear, setMonthAndYear] = useState<Date>(today);
   const [monthlySpent, setMonthlySpent] = useState<number>(0);
@@ -63,7 +72,10 @@ const ExpenseCalendar = () => {
         category: expense.category,
       }));
       setEvents(formattedTransactions);
-      const eventsByDate = new Map<string, {title: string; category: string; amount: number; }[]>();
+      const eventsByDate = new Map<
+        string,
+        { title: string; category: string; amount: number }[]
+      >();
       formattedTransactions.map((event) => {
         if (eventsByDate.has(event.start)) {
           eventsByDate.get(event.start)?.push({
@@ -71,13 +83,14 @@ const ExpenseCalendar = () => {
             category: event.category,
             amount: event.amount,
           });
-        }
-        else {
-          eventsByDate.set(event.start, [{
-            title: event.title,
-            category: event.category,
-            amount: event.amount,
-          }]);
+        } else {
+          eventsByDate.set(event.start, [
+            {
+              title: event.title,
+              category: event.category,
+              amount: event.amount,
+            },
+          ]);
         }
       });
       setEventsByDate(eventsByDate);
@@ -135,7 +148,7 @@ const ExpenseCalendar = () => {
     <>
       {!isDataLoading ? (
         <>
-          <Card className="mt-16 w-[200px]">
+          <Card className="mt-12 lg:max-w-3xl">
             <CardHeader className="pb-2">
               <CardTitle className="text-sm">Monthly spent</CardTitle>
             </CardHeader>
@@ -166,7 +179,7 @@ const ExpenseCalendar = () => {
               </p>
             </CardContent>
           </Card>
-          <div className="w-7/12 ml-20 mb-5 dark:text-white">
+          <div className="w-7/12 ml-20 my-5 dark:text-white">
             <FullCalendar
               plugins={[dayGridPlugin]}
               initialDate={monthAndYear}
@@ -219,7 +232,10 @@ const ExpenseCalendar = () => {
           </div>*/}
           <section className="w-1/2 overflow-y-auto max-h-[500px]">
             <div className="self-start inline-flex">
-              <Select defaultValue={selectedItem} onValueChange={setSelectedItem}>
+              <Select
+                defaultValue={selectedItem}
+                onValueChange={setSelectedItem}
+              >
                 <SelectTrigger className="border-none">
                   <SelectValue />
                 </SelectTrigger>
@@ -231,27 +247,43 @@ const ExpenseCalendar = () => {
                     <SelectItem value="Income">Income</SelectItem>
                   </SelectGroup>
                 </SelectContent>
-              </Select>            
+              </Select>
             </div>
             <div className="mb-10 w-1/2 dark:text-white">
-              {selectedItem === "All" ? (
-                [...eventsByDate].map(([date, events]) => (
+              {[...eventsByDate].map(([date, events]) => {
+                const filtered =
+                  selectedItem === "All"
+                    ? events
+                    : events.filter((event) =>
+                        selectedItem === "Expense"
+                          ? event.amount > 0
+                          : event.amount < 0,
+                      );
+                if (filtered.length === 0) return null;
+                return (
                   <div key={date} className="mb-4">
-                    <div className="font-semibold">{new Date(date).toLocaleString("en", { weekday: "long", day: "numeric" })}</div>
+                    <div className="font-semibold">
+                      {new Date(date).toLocaleString("en", {
+                        weekday: "long",
+                        day: "numeric",
+                      })}
+                    </div>
                     <ul>
                       {events.map((event, idx) => (
                         <li key={idx}>
-                          {event.title} - {event.category} {categoryConfig[event.category as keyof typeof categoryConfig]?.icon} - ${event.amount}
+                          {event.title} - {event.category}{" "}
+                          {
+                            categoryConfig[
+                              event.category as keyof typeof categoryConfig
+                            ]?.icon
+                          }{" "}
+                          - ${event.amount}
                         </li>
                       ))}
                     </ul>
                   </div>
-                ))
-              ) : selectedItem === "Expense" ? (
-                <div>Only expenses will be shown here.</div>
-              ) : (
-                <div>Only incomes will be shown here.</div>
-              )}
+                );
+              })}
             </div>
           </section>
         </>

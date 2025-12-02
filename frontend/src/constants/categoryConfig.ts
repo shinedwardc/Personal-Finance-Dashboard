@@ -1,21 +1,20 @@
 export type CategoryKey =
-    | "Bank Fees"
-    | "Cash Advance"
-    | "Community"
-    | "Food and Drink"
-    | "Healthcare"
-    | "Interest"
-    | "Loan Payments"
-    | "Other"
-    | "Payment"
-    | "Recreation"
-    | "Service"
-    | "Shops"
-    | "Tax"
-    | "Transfer"
-    | "Travel"
-    | "Utilities";
-
+  | "Bank Fees"
+  | "Cash Advance"
+  | "Community"
+  | "Food and Drink"
+  | "Healthcare"
+  | "Interest"
+  | "Loan Payments"
+  | "Other"
+  | "Payment"
+  | "Recreation"
+  | "Service"
+  | "Shops"
+  | "Tax"
+  | "Transfer"
+  | "Travel"
+  | "Utilities";
 
 export type CategoryConfig = {
   [key in CategoryKey]: {
@@ -36,7 +35,7 @@ export const categoryConfig: CategoryConfig = {
     icon: "💵",
     color: "mint green",
   },
-  "Community": {
+  Community: {
     label: "Community",
     icon: "🤝",
     color: "emerald",
@@ -46,12 +45,12 @@ export const categoryConfig: CategoryConfig = {
     icon: "🍽️",
     color: "yellow",
   },
-  "Healthcare": {
+  Healthcare: {
     label: "Healthcare",
     icon: "💊",
     color: "light red",
   },
-  "Interest": {
+  Interest: {
     label: "Interest",
     icon: "📈",
     color: "gold",
@@ -61,50 +60,49 @@ export const categoryConfig: CategoryConfig = {
     icon: "💰",
     color: "sand",
   },
-  "Other": {
+  Other: {
     label: "Other",
     icon: "❓",
     color: "gray",
   },
-  "Payment": {
+  Payment: {
     label: "Payment",
     icon: "💳",
     color: "blue",
   },
-  "Recreation": {
+  Recreation: {
     label: "Recreation",
     icon: "🎭",
     color: "light purple",
   },
-  "Service": {
+  Service: {
     label: "Service",
     icon: "🛠️",
     color: "light purple",
   },
-  "Shops": {
+  Shops: {
     label: "Shops",
     icon: "🛒",
     color: "purple",
   },
-  "Tax": {
+  Tax: {
     label: "Tax",
     icon: "🧾",
     color: "orange",
   },
-  "Transfer": {
+  Transfer: {
     label: "Transfer",
     icon: "🔄",
     color: "sky blue",
   },
-  "Travel": {
+  Travel: {
     label: "Travel",
     icon: "✈️",
     color: "teal",
   },
-  "Utilities": {
+  Utilities: {
     label: "Utilities",
     icon: "💡",
     color: "amber",
   },
 };
-

@@ -16,16 +16,22 @@ export const ExpenseContext = createContext<
       data: ExpenseInterface[];
       setData: React.Dispatch<React.SetStateAction<ExpenseInterface[]>>;
       isDataLoading: boolean;
-      addExpenseMutate: (newExpense : {
+      addExpenseMutate: (newExpense: {
         name: string;
         category: string;
         amount: number;
         currency: string;
         date: string;
-        updated_at: string;        
+        updated_at: string;
       }) => void;
-      deleteExpenseMutate: (expenseId : number) => void;
-      editExpenseMutate: ({ expenseId, data }: { expenseId: number; data: any }) => void;
+      deleteExpenseMutate: (expenseId: number) => void;
+      editExpenseMutate: ({
+        expenseId,
+        data,
+      }: {
+        expenseId: number;
+        data: any;
+      }) => void;
       settingsData: Settings;
       handleSettingsForm: (data: Settings) => void;
       settingsLoading: boolean;
@@ -35,10 +41,7 @@ export const ExpenseContext = createContext<
 
 export const ExpenseProvider = ({ children }: { children: ReactNode }) => {
   const queryClient = useQueryClient();
-  const {
-    authState,
-    isProfileLoading,
-  } = useProfileContext();
+  const { authState, isProfileLoading } = useProfileContext();
 
   const [data, setData] = useState<ExpenseInterface[]>([]);
 
@@ -48,53 +51,63 @@ export const ExpenseProvider = ({ children }: { children: ReactNode }) => {
     enabled: authState.isLoggedIn,
   });
 
-  const { mutate: addExpenseMutate, isLoading: addExpenseLoading } = useMutation({
-    mutationFn: (newExpense: {
-      name: string;
-      category: string;
-      amount: number;
-      currency: string;
-      date: string;
-      updated_at: string;
-    }) => addExpense(newExpense),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["monthlyExpenses"] });
-    },
-    onError: (error) => {
-      console.error("Error adding expense:", error);
-    },
-  });
+  const { mutate: addExpenseMutate, isLoading: addExpenseLoading } =
+    useMutation({
+      mutationFn: (newExpense: {
+        name: string;
+        category: string;
+        amount: number;
+        currency: string;
+        date: string;
+        updated_at: string;
+      }) => addExpense(newExpense),
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ["monthlyExpenses"] });
+      },
+      onError: (error) => {
+        console.error("Error adding expense:", error);
+      },
+    });
 
-  const { mutate: deleteExpenseMutate, isLoading: deleteExpenseLoading } = useMutation({
-    mutationFn: (expenseId : number[]) => deleteExpense(expenseId),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["monthlyExpenses"] });
-    },
-    onError: (error) => {
-      console.error("Error deleting expense:", error);
-    },
-  });
+  const { mutate: deleteExpenseMutate, isLoading: deleteExpenseLoading } =
+    useMutation({
+      mutationFn: (expenseId: number[]) => deleteExpense(expenseId),
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ["monthlyExpenses"] });
+      },
+      onError: (error) => {
+        console.error("Error deleting expense:", error);
+      },
+    });
 
-  const { mutate: editExpenseMutate, isLoading: editExpenseLoading } = useMutation({
-    mutationFn: ({expenseId, data} : {expenseId : number; data : ExpenseInterface}) => editExpense(expenseId,data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["monthlyExpenses" ]});
-    },
-    onError: (error) => {
-      console.error("Error editing expense:", error);
-    }
-  })
+  const { mutate: editExpenseMutate, isLoading: editExpenseLoading } =
+    useMutation({
+      mutationFn: ({
+        expenseId,
+        data,
+      }: {
+        expenseId: number;
+        data: ExpenseInterface;
+      }) => editExpense(expenseId, data),
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ["monthlyExpenses"] });
+      },
+      onError: (error) => {
+        console.error("Error editing expense:", error);
+      },
+    });
 
-  const { mutate: settingsMutate, isLoading: settingsMutateLoading } = useMutation({
-    mutationFn: (data: Settings) => {
-      return updateBudgetLimit(data);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ["settings", authState.isLoggedIn],
-      });
-    },
-  });
+  const { mutate: settingsMutate, isLoading: settingsMutateLoading } =
+    useMutation({
+      mutationFn: (data: Settings) => {
+        return updateBudgetLimit(data);
+      },
+      onSuccess: () => {
+        queryClient.invalidateQueries({
+          queryKey: ["settings", authState.isLoggedIn],
+        });
+      },
+    });
 
   const handleSettingsForm = (data: Settings): void => {
     //updateBudgetLimit(data);

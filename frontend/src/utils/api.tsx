@@ -2,26 +2,12 @@ import axios, { AxiosInstance } from "axios";
 import { Settings } from "../interfaces/settings";
 import { ExpenseInterface } from "@/interfaces/expenses";
 
+axios.defaults.withCredentials = true;
+
 const api: AxiosInstance = axios.create({
   baseURL: "http://localhost:8000",
   withCredentials: true,
 });
-
-api.interceptors.request.use(
-  (config) => {
-    const token = localStorage.getItem("accessToken");
-
-    // Only attach Authorization header if token is available
-    if (token) {
-      config.headers["Authorization"] = `Bearer ${token}`;
-    }
-    //console.log('config:')
-    return config;
-  },
-  (error) => {
-    return Promise.reject(error);
-  },
-);
 
 api.interceptors.response.use(
   (response) => response,
@@ -34,24 +20,22 @@ api.interceptors.response.use(
       error.config._retry = true;
       try {
         const response = await axios.post(
-          "http://localhost:8000/api/token/refresh/",
-          {
-            refresh: localStorage.getItem("refreshToken"),
-          },
+          "http://localhost:8000/api/auth/refresh/",
+          {},
+          { withCredentials: true },
         );
-        const { access } = response.data;
-        console.log(
-          "refreshed, here is the response data of refresh: ",
-          response.data,
-        );
-        localStorage.setItem("accessToken", access);
-        error.config.headers["Authorization"] = `Bearer ${access}`;
+        //localStorage.setItem("accessToken", access);
+        //error.config.headers["Authorization"] = `Bearer ${access}`;
         return api(error.config);
       } catch (refreshError) {
         // If refresh fails, logout the user
-        localStorage.removeItem("accessToken");
-        localStorage.removeItem("refreshToken");
-        // Redirect to login page or dispatch a logout action
+        //localStorage.removeItem("accessToken");
+        //localStorage.removeItem("refreshToken");
+        await api.post(
+          "http://localhost:8000/api/auth/logout/",
+          {},
+          { withCredentials: true },
+        );
         window.location.href = "/login";
         return Promise.reject(refreshError);
       }
@@ -118,18 +102,15 @@ export const addExpense = async (newExpense: {
   }
 };
 
-export const deleteExpense = async (ids : number[]) => {
+export const deleteExpense = async (ids: number[]) => {
   try {
     console.log(ids);
-    const response = await axios.delete(
-      `http://localhost:8000/expenses/`,
-      {
-        data: {ids},
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-        },
+    const response = await axios.delete(`http://localhost:8000/expenses/`, {
+      data: { ids },
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
       },
-    );
+    });
     return response;
   } catch (error) {
     console.error("Error deleting expense:", error);
@@ -137,7 +118,10 @@ export const deleteExpense = async (ids : number[]) => {
   }
 };
 
-export const editExpense = async (expenseId: number, data : ExpenseInterface) => {
+export const editExpense = async (
+  expenseId: number,
+  data: ExpenseInterface,
+) => {
   try {
     const response = await axios.patch(
       `http://localhost:8000/expenses/${expenseId}/`,
@@ -147,13 +131,13 @@ export const editExpense = async (expenseId: number, data : ExpenseInterface) =>
           Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
         },
       },
-    )
+    );
     return response;
   } catch (error) {
     console.error("Error editing expense:", error);
     throw error;
   }
-}
+};
 
 export const getCategories = async (): Promise<string[]> => {
   try {

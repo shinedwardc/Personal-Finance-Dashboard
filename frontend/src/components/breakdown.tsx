@@ -56,7 +56,6 @@ const Breakdown = ({
   const [graphType, setGraphType] = useState<string>("bar");
   const [modalIsOpen, setIsOpen] = useState<boolean>(false);
 
-
   useEffect(() => {
     const initialize = async () => {
       try {

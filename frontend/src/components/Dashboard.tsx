@@ -60,8 +60,6 @@ const Dashboard = ({ plaidBalance }: { plaidBalance: PlaidResponse }) => {
 
   const [modalIsOpen, setIsOpen] = useState<boolean>(false);
 
-  
-
   useEffect(() => {
     const initialize = async () => {
       try {

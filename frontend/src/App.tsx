@@ -17,7 +17,6 @@ import Investments from "./components/Investments";
 import Profile from "./components/Profile";
 import PrivateRoute from "./components/privateRoute";
 import Login from "./components/Login";
-import Logout from "./components/Logout";
 import Signup from "./components/Signup";
 import PasswordRecovery from "./components/PasswordRecovery";
 import { PlaidResponse } from "./interfaces/plaid";
@@ -42,7 +41,6 @@ function App() {
                 {/* Public routes */}
                 <Route path="/about" element={<Introduction />} />
                 <Route path="/login" element={<Login />} />
-                <Route path="/logout" element={<Logout />} />
                 <Route path="/signup" element={<Signup />} />
                 <Route path="/recover" element={<PasswordRecovery />} />
                 {/* Protected routes */}

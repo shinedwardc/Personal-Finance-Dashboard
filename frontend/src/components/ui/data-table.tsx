@@ -189,7 +189,6 @@ export function DataTable({
       rowSelection,
     },
   });
-  console.log(table.getRowModel().rows[0].getVisibleCells());;
 
   return (
     <>
@@ -249,27 +248,27 @@ export function DataTable({
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>
-                      {cell.column.id === "category" ? (
-                      (() => {
-                        const categoryValue = cell.getValue() as string;
-                        const config = Object.values(categoryConfig).find(
-                          (c) => c.label === categoryValue,
-                        );
-                        return config ? (
-                        <div className="flex items-center w-full">
-                          <span className="min-w-[50px] flex-1 truncate">{config.label}</span>
-                          <span className="flex items-center justify-center w-6 h-6">{config.icon}</span>
-                        </div>
-                        ) : (
-                        categoryValue
-                        );
-                      })()
-                      ) : (
-                        flexRender(
-                          cell.column.columnDef.cell,
-                          cell.getContext(),
-                        )
-                      )}
+                      {cell.column.id === "category"
+                        ? (() => {
+                            const categoryValue = cell.getValue() as string;
+                            const config = Object.values(categoryConfig).find(
+                              (c) => c.label === categoryValue,
+                            );
+                            return config ? (
+                              <div className="flex flex-row gap-1 justify-center items-center">
+                                {config.label}
+                                <span className="flex items-center justify-center w-6 h-6">
+                                  {config.icon}
+                                </span>
+                              </div>
+                            ) : (
+                              categoryValue
+                            );
+                          })()
+                        : flexRender(
+                            cell.column.columnDef.cell,
+                            cell.getContext(),
+                          )}
                     </TableCell>
                   ))}
                 </TableRow>

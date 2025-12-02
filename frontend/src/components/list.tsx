@@ -18,7 +18,7 @@ import { ExpenseInterface } from "@/interfaces/expenses";
 //https://flowbite.com/docs/components/spinner/#progress-spinner
 
 const List = () => {
-  const today = useMemo(() => new Date(),[]);
+  const today = useMemo(() => new Date(), []);
   const [monthAndYear, setMonthAndYear] = useState<Date>(today);
   const { deleteExpenseMutate } = useExpenseContext();
 
@@ -160,25 +160,25 @@ const List = () => {
               </DialogContent>
             </DialogPortal>
           </Dialog>
-          <div className="mt-16 flex flex-col md:flex-row w-full justify-between items-center gap-4">
-            <div className="flex-1 flex flex-row md:justify-end justify-center">
+          <div className="mt-12 flex flex-col md:flex-row w-full justify-center items-center gap-4">
+            <div className="flex justify-center gap-x-2">
               <h1 className="text-3xl font-semibold antialiased dark:text-white">
                 Transactions
               </h1>
-            </div>
-            <div className="flex-1 flex md:justify-start justify-center">
-              <div className="flex justify-center">
-                <Button
-                  variant="default"
-                  onClick={() => setIsEditModalOpen(true)}
-                >
-                  Add +
-                </Button>
+              <div className="flex-1 flex md:justify-start justify-center">
+                <div className="flex justify-center">
+                  <Button
+                    variant="default"
+                    onClick={() => setIsEditModalOpen(true)}
+                  >
+                    Add +
+                  </Button>
+                </div>
               </div>
             </div>
           </div>
           {expenseList && expenseList.length > 0 ? (
-            <div className="mt-4">
+            <div className="mt-2">
               <DataTable
                 data={expenseList}
                 onDelete={handleDeleteTransaction}

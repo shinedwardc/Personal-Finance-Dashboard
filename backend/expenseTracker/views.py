@@ -1,7 +1,9 @@
 from .models import Expense, Investment, EmailVerification, UserProfile
 from django.utils import timezone
 from datetime import timedelta
-from rest_framework.decorators import api_view, permission_classes
+from django.contrib.auth import authenticate
+from rest_framework.decorators import api_view, permission_classes, authentication_classes
+from django.views.decorators.csrf import csrf_exempt
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework import status
@@ -80,25 +82,115 @@ def get_user(request):
     return Response(serializer.data)
 
 @api_view(['POST'])
+@csrf_exempt
+@permission_classes([AllowAny])
+@authentication_classes([])
+def login(request):
+    username = request.data.get('username')
+    password = request.data.get('password')
+    print(username, password)
+
+    user = authenticate(username=username,password=password)
+    if user is None:
+        return Response({"error": "Invalid credentials"}, status=401)
+
+    # Create JWT tokens
+    refresh = RefreshToken.for_user(user)
+    access_token = refresh.access_token
+
+    response = Response({"message": "Login successful"})
+
+    response.set_cookie(
+        key="access",
+        value=str(access_token),
+        httponly=True,
+        secure=False,   # True in production 
+        samesite="Lax",
+        path="/"
+    )
+
+    response.set_cookie(
+        key="refresh",
+        value=str(refresh),
+        httponly=True,
+        secure=False,   # True in production
+        samesite="Lax",
+        path="/"
+    )
+
+    return response    
+
+@api_view(['POST'])
+@csrf_exempt
+@permission_classes([AllowAny])
+@authentication_classes([])
 def google_login(request):
     token = request.data.get('token')
+    print(token)
     try:
         id_info = id_token.verify_oauth2_token(token, Request(), env('GOOGLE_CLIENT_ID'))
-        if "sub" not in id_info:
-            return Response({'error': 'Invalid token'}, status=status.HTTP_400_BAD_REQUEST)
+        # Security checks
+        if id_info["iss"] not in ["accounts.google.com", "https://accounts.google.com"]:
+            raise ValueError("Invalid issuer")
+
+        if not id_info.get("email_verified"):
+            return Response({"error": "Email not verified"}, status=400)
+        
+        google_id = id_info['sub']
         email = id_info['email']
-        print(email)
-        user = User.objects.filter(email=email).first()
-        if not user:
-            user = User.objects.create_user(email=email, username=email)
-        print(user)
+        user, created = User.objects.get_or_create(
+            email=email,
+            defaults={"username": google_id}
+        )
+        user.save()
         refresh = RefreshToken.for_user(user)
-        print("Refresh Token:", str(refresh))
-        return Response({"access": str(refresh.access_token), 
-                         "refresh": str(refresh)}, 
-                         status=status.HTTP_200_OK)
+
+        response = Response({"detail": "Login successful"}, status=200)
+
+        # Secure cookies
+        response.set_cookie(
+            "access",
+            str(refresh.access_token),
+            httponly=True,
+            secure=False,        # True for production
+            samesite="Lax"
+        )
+        response.set_cookie(
+            "refresh",
+            str(refresh),
+            httponly=True,
+            secure=False,        # True for production
+            samesite="Lax"
+        )
+        return response
+
+    except ValueError:
+        return Response({"error": "Invalid token"}, status=401)
+
     except Exception as e:
-        return Response({'Error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        print("Google login error:", str(e))
+        return Response({"error": str(e)}, status=400)
+    
+@api_view(["POST"])
+def refresh_token(request):
+    token = request.COOKIES.get("refresh")
+    if not token:
+        return Response({"error": "No refresh token"}, status=401)
+    try:
+        refresh = RefreshToken(token)
+        new_access = refresh.access_token
+        response = Response({"detail": "Token refreshed"}, status=200)
+        response.set_cookie(
+            "access",
+            str(new_access),
+            httponly=True,
+            secure=True,
+            samesite="Lax"
+        )
+        return response
+    except:
+        return Response({"error": "Invalid refresh"}, status=401)
+    
 
 @api_view(['POST'])
 def user_post(request):
@@ -123,6 +215,13 @@ def user_post(request):
     user_profile.save()
 
     return Response({'message': 'User created successfully.'}, status=status.HTTP_201_CREATED)
+
+@api_view(['POST'])
+def logout(request):
+    response = Response({"detail": "Logged out"}, status=200)
+    response.delete_cookie("access")
+    response.delete_cookie("refresh")
+    return response
 
 @api_view(['POST'])
 def reset_password_email(request):

@@ -1,0 +1,9 @@
+node_modules/
+build/
+.expo/
+web-build/
+android/
+ios/
+.expo/
+.env
+.vscode/

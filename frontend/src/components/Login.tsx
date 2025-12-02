@@ -16,13 +16,19 @@ const Login = () => {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const response = await axios.post("http://localhost:8000/api/token/", {
-        username,
-        password,
-      });
-      const { access, refresh } = response.data; // Assuming JWT tokens
+      await axios.post(
+        "http://localhost:8000/api/auth/",
+        {
+          username,
+          password,
+        },
+        {
+          withCredentials: true,
+        },
+      );
+      /*const { access, refresh } = response.data; // Assuming JWT tokens
       localStorage.setItem("accessToken", access);
-      localStorage.setItem("refreshToken", refresh);
+      localStorage.setItem("refreshToken", refresh);*/
       setAuthState({
         isLoggedIn: true,
         isPlaidConnected: authState.isPlaidConnected,
@@ -38,21 +44,19 @@ const Login = () => {
   const handleGoogleLogin = async (request: any) => {
     console.log("request", request);
     try {
-      const response = await axios.post(
+      await axios.post(
         "http://localhost:8000/api/auth/google/",
         {
           token: request.credential,
         },
         {
-          headers: {
-            "Content-Type": "application/json",
-          },
+          withCredentials: true,
         },
       );
-      const { access, refresh } = response.data;
-      console.log(access, refresh);
-      localStorage.setItem("accessToken", access);
-      localStorage.setItem("refreshToken", refresh);
+      //const { access, refresh } = response.data;
+      //console.log(access, refresh);
+      //localStorage.setItem("accessToken", access);
+      //localStorage.setItem("refreshToken", refresh);
       setAuthState({
         isLoggedIn: true,
         isPlaidConnected: authState.isPlaidConnected,
