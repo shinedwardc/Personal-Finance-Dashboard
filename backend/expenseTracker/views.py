@@ -54,7 +54,7 @@ def expense_list(request,id=None):
             serializer = ExpenseSerializer(expenses, many=True)
             return Response({'expenses': serializer.data})
         elif request.method == 'POST':
-            serializer = ExpenseSerializer(data=request.data, context={'request': request})
+            serializer = ExpenseSerializer(data=request.data, many=isinstance(request.data,list), context={'request': request})
             if serializer.is_valid():
                 serializer.save()
                 return Response(serializer.data, status=status.HTTP_201_CREATED)

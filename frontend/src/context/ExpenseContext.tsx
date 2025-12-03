@@ -16,14 +16,9 @@ export const ExpenseContext = createContext<
       data: ExpenseInterface[];
       setData: React.Dispatch<React.SetStateAction<ExpenseInterface[]>>;
       isDataLoading: boolean;
-      addExpenseMutate: (newExpense: {
-        name: string;
-        category: string;
-        amount: number;
-        currency: string;
-        date: string;
-        updated_at: string;
-      }) => void;
+      addExpenseMutate: (
+        newExpense: ExpenseInterface | ExpenseInterface[],
+      ) => void;
       deleteExpenseMutate: (expenseId: number) => void;
       editExpenseMutate: ({
         expenseId,
@@ -53,14 +48,8 @@ export const ExpenseProvider = ({ children }: { children: ReactNode }) => {
 
   const { mutate: addExpenseMutate, isLoading: addExpenseLoading } =
     useMutation({
-      mutationFn: (newExpense: {
-        name: string;
-        category: string;
-        amount: number;
-        currency: string;
-        date: string;
-        updated_at: string;
-      }) => addExpense(newExpense),
+      mutationFn: (newExpense: ExpenseInterface | ExpenseInterface[]) =>
+        addExpense(newExpense),
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: ["monthlyExpenses"] });
       },

@@ -19,7 +19,7 @@ api.interceptors.response.use(
     ) {
       error.config._retry = true;
       try {
-        const response = await axios.post(
+        await axios.post(
           "http://localhost:8000/api/auth/refresh/",
           {},
           { withCredentials: true },
@@ -72,14 +72,9 @@ export const getExpensesByMonth = async (
   }
 };
 
-export const addExpense = async (newExpense: {
-  name: string;
-  category: string;
-  amount: number;
-  currency: string;
-  date: string;
-  updated_at: string;
-}): Promise<ExpenseInterface> => {
+export const addExpense = async (
+  newExpense: ExpenseInterface | ExpenseInterface[],
+): Promise<ExpenseInterface | ExpenseInterface[]> => {
   try {
     const response = await api.post(
       "http://localhost:8000/expenses/",
@@ -91,7 +86,7 @@ export const addExpense = async (newExpense: {
       },
     );
     console.log("Expense created:", response.data);
-    return response.data as ExpenseInterface;
+    return response.data as ExpenseInterface | ExpenseInterface[];
   } catch (error: any) {
     if (error.response) {
       console.log("Error response:", error.response.data);

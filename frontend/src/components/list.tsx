@@ -21,7 +21,7 @@ import { ExpenseInterface } from "@/interfaces/expenses";
 const List = () => {
   const today = useMemo(() => new Date(), []);
   const [monthAndYear, setMonthAndYear] = useState<Date>(today);
-  const { deleteExpenseMutate } = useExpenseContext();
+  const { addExpenseMutate, deleteExpenseMutate } = useExpenseContext();
 
   const [editData, setEditData] = useState<ExpenseInterface | null>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -29,13 +29,13 @@ const List = () => {
   const { data: expenseList, isLoading: isMonthlyExpensesLoading } =
     useMonthlyExpenses(monthAndYear);
 
-  const [importedData, setImportedData] = useState<[string,string,number,Date,string] | null>(null);
+  const [importedData, setImportedData] = useState<ExpenseInterface[] | null>(null);
 
   useEffect(() => {
-    if (importedData){
-      console.log(importedData);
+    if (importedData) {
+      addExpenseMutate(importedData);
     }
-  },[importedData])
+  }, [importedData, addExpenseMutate]);
 
   const onFormNewExpense = async () => {
     setIsEditModalOpen(false);
@@ -134,7 +134,6 @@ const List = () => {
     setIsEditModalOpen(true);
   };
 
-
   return (
     <>
       {!isMonthlyExpensesLoading ? (
@@ -162,7 +161,10 @@ const List = () => {
                     onFormSubmit={onFormEditExpense}
                   />
                 ) : (
-                  <Form addingNewExpense={true} onFormSubmit={onFormNewExpense} />
+                  <Form
+                    addingNewExpense={true}
+                    onFormSubmit={onFormNewExpense}
+                  />
                 )}
               </DialogContent>
             </DialogPortal>
@@ -182,7 +184,7 @@ const List = () => {
                   </Button>
                 </div>
               </div>
-              <CSVImport setImportedData={setImportedData}/>
+              <CSVImport setImportedData={setImportedData} />
             </div>
           </div>
           {expenseList && expenseList.length > 0 ? (

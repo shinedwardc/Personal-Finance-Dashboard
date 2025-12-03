@@ -131,7 +131,7 @@ export function DataTable({
 
         return (
           <div
-            className={`text-right font-medium ${amount < 0 ? "text-red-500" : "text-green-500"}`}
+            className={`text-center font-medium ${amount < 0 ? "text-red-500" : "text-green-500"}`}
           >
             {formatted}
           </div>
