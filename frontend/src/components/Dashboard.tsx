@@ -47,9 +47,8 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { chartConfig } from "@/constants/chartConfig";
-import { PlaidResponse } from "../interfaces/plaid";
 
-const Dashboard = ({ plaidBalance }: { plaidBalance: PlaidResponse }) => {
+const Dashboard = () => {
   const today = useMemo(() => new Date(), []);
   const { data: monthData, isLoading: isDataLoading } =
     useMonthlyExpenses(today);
@@ -189,7 +188,7 @@ const Dashboard = ({ plaidBalance }: { plaidBalance: PlaidResponse }) => {
     }
   }, [lastMonthData, monthlySpent]);
 
-  useEffect(() => {
+  /*useEffect(() => {
     if (plaidBalance) {
       let newBalance = 0;
       for (const account of plaidBalance.accounts) {
@@ -197,7 +196,7 @@ const Dashboard = ({ plaidBalance }: { plaidBalance: PlaidResponse }) => {
       }
       setBalance(newBalance);
     }
-  }, [plaidBalance]);
+  }, [plaidBalance]);*/
 
   const isLoading = isDataLoading || isProfileLoading || isLastMonthLoading;
 

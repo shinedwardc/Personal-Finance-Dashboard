@@ -22,11 +22,6 @@ import PasswordRecovery from "./components/PasswordRecovery";
 import { PlaidResponse } from "./interfaces/plaid";
 
 function App() {
-  const { data, isDataLoading, handleSettingsForm, plaidBalance } =
-    useExpenseContext();
-
-  const { authState, setAuthState, profileSettings, isProfileLoading } =
-    useProfileContext();
 
   return (
     <Router>
@@ -48,7 +43,7 @@ function App() {
                   path="/"
                   element={
                     <PrivateRoute>
-                      <Dashboard plaidBalance={plaidBalance as PlaidResponse} />
+                      <Dashboard />
                     </PrivateRoute>
                   }
                 />
@@ -56,7 +51,7 @@ function App() {
                   path="/dashboard"
                   element={
                     <PrivateRoute>
-                      <Dashboard plaidBalance={plaidBalance as PlaidResponse} />
+                      <Dashboard />
                     </PrivateRoute>
                   }
                 />
