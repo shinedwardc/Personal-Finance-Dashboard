@@ -9,7 +9,7 @@ import {
   Calendars,
   CalendarClock,
   PiggyBank,
-  TriangleAlert
+  TriangleAlert,
 } from "lucide-react";
 import { useProfileContext } from "@/hooks/useProfileContext";
 import { useMonthlyExpenses } from "@/hooks/useMonthlyExpenses";
@@ -97,17 +97,24 @@ const Dashboard = ({ plaidBalance }: { plaidBalance: PlaidResponse }) => {
     month: "long",
   });
 
-useEffect(() => {
+  useEffect(() => {
     if (!monthData || !today) return;
 
-    const expenses = monthData.filter((expense) => new Date(expense.date) <= today);
+    const expenses = monthData.filter(
+      (expense) => new Date(expense.date) <= today,
+    );
     let total = 0;
 
     const totals: Record<string, number> = {};
     let essentialSum = 0;
     let discretionarySum = 0;
 
-    const discretionaryCats = new Set(["Other", "Recreation", "Shops", "Travel"]);
+    const discretionaryCats = new Set([
+      "Other",
+      "Recreation",
+      "Shops",
+      "Travel",
+    ]);
 
     for (const exp of expenses) {
       const amount = Number(exp.amount);
@@ -159,8 +166,7 @@ useEffect(() => {
     setDailyAverage(dailyAvg);
     setProjectedSpending(dailyAvg * daysInMonth);
     setTimeProgressed(todayDate / daysInMonth);
-}, [monthData, today]);
-
+  }, [monthData, today]);
 
   useEffect(() => {
     if (!lastMonthData) return;
@@ -431,7 +437,7 @@ useEffect(() => {
                 >
                   <Card className="h-full rounded-2xl border border-white/15 bg-white/10 backdrop-blur-lg shadow-[0_20px_60px_rgba(0,0,0,0.45)]">
                     <CardHeader className="pb-2">
-                      <CardTitle className="text-sm font-medium text-neutral-100">
+                      <CardTitle className="text-md font-medium text-neutral-100">
                         Daily Average
                       </CardTitle>
                       <CardDescription className="text-xs text-neutral-400">
@@ -439,7 +445,7 @@ useEffect(() => {
                       </CardDescription>
                     </CardHeader>
                     <CardContent>
-                      <p className="text-2xl font-semibold">
+                      <p className="text-xl font-semibold">
                         {formatCurrency(dailyAverage || 0)}
                       </p>
                       <p className="mt-2 text-xs text-neutral-400">
@@ -454,7 +460,7 @@ useEffect(() => {
                 >
                   <Card className="h-full rounded-2xl border border-white/15 bg-white/10 backdrop-blur-lg shadow-[0_20px_60px_rgba(0,0,0,0.45)]">
                     <CardHeader className="pb-2">
-                      <CardTitle className="text-sm font-medium text-neutral-100">
+                      <CardTitle className="text-md font-medium text-neutral-100">
                         Projected Month-End Spend
                       </CardTitle>
                       <CardDescription className="text-xs text-neutral-400">
@@ -462,7 +468,7 @@ useEffect(() => {
                       </CardDescription>
                     </CardHeader>
                     <CardContent>
-                      <p className="text-2xl font-semibold">
+                      <p className="text-xl font-semibold">
                         {projectedSpending > 0
                           ? projectedSpending >= 100
                             ? `${formatCurrency(Math.floor(projectedSpending / 100) * 100)} - ${formatCurrency(Math.floor(projectedSpending / 100) * 100 + 100)}`
@@ -496,10 +502,10 @@ useEffect(() => {
                   <Card className="h-full rounded-2xl border border-white/15 bg-white/10 backdrop-blur-lg shadow-[0_20px_60px_rgba(0,0,0,0.45)]">
                     <CardHeader className="pb-2">
                       <div className="flex flex-row justify-between">
-                        <CardTitle className="text-sm font-medium text-neutral-100">
+                        <CardTitle className="text-md font-medium text-neutral-100">
                           Month-over-Month
                         </CardTitle>
-                        <Calendars className="w-5 h-5"/>
+                        <Calendars className="w-5 h-5" />
                       </div>
                       <CardDescription className="text-xs text-neutral-400">
                         Change vs {lastMonthLabel}.
@@ -508,7 +514,7 @@ useEffect(() => {
                     <CardContent className="space-y-3">
                       {lastMonthSpent !== null ? (
                         <>
-                          <p className="text-md text-neutral-300">
+                          <p className="text-xl text-neutral-300">
                             Last month:{" "}
                             <span className="text-lg font-medium text-neutral-100">
                               {formatCurrency(lastMonthSpent)}
@@ -566,18 +572,18 @@ useEffect(() => {
                   <Card className="h-full rounded-2xl border border-white/15 bg-white/10 backdrop-blur-lg shadow-[0_20px_60px_rgba(0,0,0,0.45)]">
                     <CardHeader className="pb-2">
                       <div className="flex flex-row justify-between">
-                        <CardTitle className="text-sm font-medium text-neutral-100 pb-2">
+                        <CardTitle className="text-md font-medium text-neutral-100 pb-2">
                           Essential Spending
                         </CardTitle>
-                        <PiggyBank className="w-5 h-5 stroke-pink-400"/>
+                        <PiggyBank className="w-5 h-5 stroke-pink-400" />
                       </div>
                       <CardDescription className="text-xs text-neutral-400">
                         Essentials to discretional expenses payment score
-                      </CardDescription>                    
+                      </CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-3">
                       <span className="text-md font-semibold">
-                        Essentials made up {" "}
+                        Essentials made up{" "}
                         <span
                           className={`
                             ${
@@ -607,10 +613,10 @@ useEffect(() => {
                   <Card className="h-full rounded-2xl border border-white/15 bg-white/10 backdrop-blur-lg shadow-[0_20px_60px_rgba(0,0,0,0.45)]">
                     <CardHeader className="pb-2">
                       <div className="flex flex-row justify-between">
-                        <CardTitle className="text-sm font-medium text-neutral-100 pb-2">
+                        <CardTitle className="text-md font-medium text-neutral-100 pb-2">
                           Overspending Risk
                         </CardTitle>
-                        <TriangleAlert className="h-5 w-5 stroke-red-400"/>
+                        <TriangleAlert className="h-5 w-5 stroke-red-400" />
                       </div>
                       <CardDescription className="text-xs text-neutral-400">
                         Based on current trend, how risky is your spending?
@@ -621,21 +627,28 @@ useEffect(() => {
                         <span
                           className={`
                             ${
-                              (monthlySpent / profileSettings.monthlyBudget) / timeProgressed >= 1.2
+                              monthlySpent /
+                                profileSettings.monthlyBudget /
+                                timeProgressed >=
+                              1.2
                                 ? "text-red-500"
-                                : (monthlySpent / profileSettings.monthlyBudget) / timeProgressed >= 0.9
-                                ? "text-yellow-400"
-                                : "text-emerald-400"
+                                : monthlySpent /
+                                      profileSettings.monthlyBudget /
+                                      timeProgressed >=
+                                    0.9
+                                  ? "text-yellow-400"
+                                  : "text-emerald-400"
                             }`}
                         >
-                          {`${((monthlySpent / profileSettings.monthlyBudget) / timeProgressed * 100).toFixed(1)}`}
+                          {`${((monthlySpent / profileSettings.monthlyBudget / timeProgressed) * 100).toFixed(1)}`}
                           %
                         </span>{" "}
                         overspending risk
                       </span>
                       <p className="text-xs text-neutral-400">
-                        The higher the percentage, the more likely you are going to spend over the monthly budget limit.
-                        Try to aim less than 90%.
+                        The higher the percentage, the more likely you are going
+                        to spend over the monthly budget limit. Try to aim less
+                        than 90%.
                       </p>
                     </CardContent>
                   </Card>

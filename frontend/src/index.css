@@ -30,22 +30,22 @@
     --chart-4: 43 74% 66%;
     --chart-5: 27 87% 67%;
 
-    --color-bank-fees: #d1fae5;       /* light teal */
-    --color-cash-advance: #6ee7b7;    /* mint green */
-    --color-community: #10b981;       /* emerald */
-    --color-food-and-drink: #facc15;  /* yellow */
-    --color-healthcare: #f87171;      /* light red */
-    --color-interest: #fcd34d;        /* gold */
-    --color-loan-payments: #fde68a;   /* sand */
-    --color-other: #e5e7eb;           /* gray */
-    --color-payment: #60a5fa;         /* blue */
-    --color-recreation: #a78bfa;      /* light purple */
-    --color-service: #f472b6;         /* pink */
-    --color-shops: #c084fc;           /* purple */
-    --color-tax: #fb923c;             /* orange */
-    --color-transfer: #93c5fd;        /* sky blue */
-    --color-travel: #34d399;          /* teal */
-    --color-utilities: #fbbf24;       /* amber */
+    --color-bank-fees: #d1fae5; /* light teal */
+    --color-cash-advance: #6ee7b7; /* mint green */
+    --color-community: #10b981; /* emerald */
+    --color-food-and-drink: #facc15; /* yellow */
+    --color-healthcare: #f87171; /* light red */
+    --color-interest: #fcd34d; /* gold */
+    --color-loan-payments: #fde68a; /* sand */
+    --color-other: #e5e7eb; /* gray */
+    --color-payment: #60a5fa; /* blue */
+    --color-recreation: #a78bfa; /* light purple */
+    --color-service: #f472b6; /* pink */
+    --color-shops: #c084fc; /* purple */
+    --color-tax: #fb923c; /* orange */
+    --color-transfer: #93c5fd; /* sky blue */
+    --color-travel: #34d399; /* teal */
+    --color-utilities: #fbbf24; /* amber */
   }
 
   .dark {

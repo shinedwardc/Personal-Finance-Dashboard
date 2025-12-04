@@ -58,9 +58,16 @@ const CSVImport = ({
         onChange={handleFileUpload}
         className="hidden"
       />
-      <Button variant="secondary" onClick={handleClick}>
-        <span className="flex flex-row justify-center gap-x-1">
-          {<FaFileCsv />} Import CSV file
+      <Button
+        variant="secondary"
+        onClick={handleClick}
+        className="px-10 py-6 text-lg 
+                              rounded-full shadow-lg bg-white/20 backdrop-blur-lg 
+                              border border-white/30 hover:bg-white/30"
+      >
+        <span className="flex flex-row justify-center items-center gap-x-1">
+          {<FaFileCsv />}
+          <p>Import CSV file</p>
         </span>
       </Button>
     </>

@@ -1,7 +1,13 @@
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { useProfileContext } from "@/hooks/useProfileContext";
-import { LayoutDashboard, ScrollText, CalendarDays, ChartLine, UserRoundPen } from "lucide-react";
+import {
+  LayoutDashboard,
+  ScrollText,
+  CalendarDays,
+  ChartLine,
+  UserRoundPen,
+} from "lucide-react";
 
 const Navbar = () => {
   const navigate = useNavigate();
@@ -43,14 +49,14 @@ const Navbar = () => {
                 <ul className="flex flex-row gap-x-4">
                   <li className="p-4 flex items-center">
                     <Link to="/dashboard" className="flex flex-row gap-x-1">
-                        <LayoutDashboard />
-                        Dashboard
+                      <LayoutDashboard />
+                      Dashboard
                     </Link>
                   </li>
                   <li className="p-4 flex items-center">
                     <Link to="/transactions" className="flex flex-row gap-x-1">
-                        <ScrollText />
-                        Transactions
+                      <ScrollText />
+                      Transactions
                     </Link>
                   </li>
                   <li className="p-4 flex items-center">

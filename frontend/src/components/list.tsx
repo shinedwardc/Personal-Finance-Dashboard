@@ -171,26 +171,37 @@ const List = () => {
               </DialogContent>
             </DialogPortal>
           </Dialog>
-          <div className="mt-12 flex flex-col md:flex-row w-full justify-center items-center gap-4">
+          <div className="mt-12 flex flex-col md:flex-row w-full justify-center items-center mb-4">
             <div className="flex justify-center gap-x-2">
               <h1 className="text-3xl font-semibold antialiased dark:text-white">
                 Transactions
               </h1>
               <div className="flex-1 flex md:justify-start justify-center">
-                <div className="flex justify-center">
+                <div className="flex flex-row justify-center gap-x-2 fixed bottom-6 right-6">
                   <Button
                     variant="default"
                     onClick={() => setIsEditModalOpen(true)}
+                    className="px-10 py-6 text-lg 
+                              rounded-full shadow-lg bg-white/20 backdrop-blur-lg 
+                              border border-white/30 hover:bg-white/30
+                              "
                   >
                     Add +
                   </Button>
+                  <CSVImport setImportedData={setImportedData} />
                 </div>
               </div>
-              <CSVImport setImportedData={setImportedData} />
             </div>
           </div>
           {expenseList && expenseList.length > 0 ? (
-            <div className="mt-2">
+            <div
+              className="
+                        bg-white/10 dark:bg-white/5 
+                          backdrop-blur-xl 
+                          rounded-xl border border-white/10 
+                          p-4 shadow-lg          
+                          "
+            >
               <DataTable
                 data={expenseList}
                 onDelete={handleDeleteTransaction}

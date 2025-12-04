@@ -283,7 +283,7 @@ export function DataTable({
                                       Upcoming
                                     </span>
                                   </div>
-                                )
+                                );
                               })()
                             : flexRender(
                                 cell.column.columnDef.cell,
