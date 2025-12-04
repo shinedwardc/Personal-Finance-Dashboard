@@ -29,7 +29,9 @@ const List = () => {
   const { data: expenseList, isLoading: isMonthlyExpensesLoading } =
     useMonthlyExpenses(monthAndYear);
 
-  const [importedData, setImportedData] = useState<ExpenseInterface[] | null>(null);
+  const [importedData, setImportedData] = useState<ExpenseInterface[] | null>(
+    null,
+  );
 
   useEffect(() => {
     if (importedData) {

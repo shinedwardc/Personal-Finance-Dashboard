@@ -241,38 +241,59 @@ export function DataTable({
           </TableHeader>
           <TableBody>
             {table.getRowModel().rows?.length ? (
-              table.getRowModel().rows.map((row) => (
-                <TableRow
-                  key={row.id}
-                  data-state={row.getIsSelected() && "selected"}
-                >
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
-                      {cell.column.id === "category"
-                        ? (() => {
-                            const categoryValue = cell.getValue() as string;
-                            const config = Object.values(categoryConfig).find(
-                              (c) => c.label === categoryValue,
-                            );
-                            return config ? (
-                              <div className="flex flex-row gap-1 justify-center items-center">
-                                {config.label}
-                                <span className="flex items-center justify-center w-6 h-6">
-                                  {config.icon}
-                                </span>
-                              </div>
-                            ) : (
-                              categoryValue
-                            );
-                          })()
-                        : flexRender(
-                            cell.column.columnDef.cell,
-                            cell.getContext(),
-                          )}
-                    </TableCell>
-                  ))}
-                </TableRow>
-              ))
+              table.getRowModel().rows.map((row) => {
+                const isFuture = new Date(row.original.date) > new Date();
+                return (
+                  <TableRow
+                    key={row.id}
+                    data-future={isFuture || undefined}
+                    data-selected={row.getIsSelected() || undefined}
+                  >
+                    {row.getVisibleCells().map((cell) => (
+                      <TableCell key={cell.id}>
+                        {cell.column.id === "category"
+                          ? (() => {
+                              const categoryValue = cell.getValue() as string;
+                              const config = Object.values(categoryConfig).find(
+                                (c) => c.label === categoryValue,
+                              );
+                              return config ? (
+                                <div className="flex flex-row gap-1 justify-center items-center">
+                                  {config.label}
+                                  <span className="flex items-center justify-center w-6 h-6">
+                                    {config.icon}
+                                  </span>
+                                </div>
+                              ) : (
+                                categoryValue
+                              );
+                            })()
+                          : cell.column.id === "date" && isFuture
+                            ? (() => {
+                                return (
+                                  <div className="flex flex-col gap-y-1 justify-center items-center">
+                                    {cell.getValue() as string}
+                                    <span
+                                      className="
+                                        rounded-full text-xs 
+                                      bg-blue-200 text-blue-800 
+                                      dark:bg-blue-900/40 dark:text-blue-200
+                                      "
+                                    >
+                                      Upcoming
+                                    </span>
+                                  </div>
+                                )
+                              })()
+                            : flexRender(
+                                cell.column.columnDef.cell,
+                                cell.getContext(),
+                              )}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                );
+              })
             ) : (
               <TableRow>
                 <TableCell
