@@ -66,7 +66,7 @@ const Navbar = () => {
                     </Link>
                   </li>
                   <li className="p-4 flex items-center">
-                    <Link to="/stats" className="flex flex-row gap-x-1">
+                    <Link to="/graph" className="flex flex-row gap-x-1">
                       <ChartLine />
                       Graph
                     </Link>

@@ -1,5 +1,3 @@
-import { useExpenseContext } from "./hooks/useExpenseContext";
-import { useProfileContext } from "./hooks/useProfileContext";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import "./App.css";
 import { ThemeProvider } from "@/components/theme-provider";
@@ -8,21 +6,18 @@ import "react-toastify/dist/ReactToastify.css";
 //import { ModeToggle } from "./components/modeToggle";
 import Navbar from "./components/Navbar";
 import Introduction from "./components/Introduction";
-import Breakdown from "./components/Breakdown";
 import Dashboard from "./components/Dashboard";
 import List from "./components/List";
 import Calendar from "./components/ExpenseCalendar";
-import Stats from "./components/Stats";
+import Graph from "./components/Graph";
 import Investments from "./components/Investments";
 import Profile from "./components/Profile";
 import PrivateRoute from "./components/privateRoute";
 import Login from "./components/Login";
 import Signup from "./components/Signup";
 import PasswordRecovery from "./components/PasswordRecovery";
-import { PlaidResponse } from "./interfaces/plaid";
 
 function App() {
-
   return (
     <Router>
       <ToastContainer />
@@ -80,10 +75,10 @@ function App() {
                   }
                 />
                 <Route
-                  path="/stats"
+                  path="/graph"
                   element={
                     <PrivateRoute>
-                      <Stats />
+                      <Graph />
                     </PrivateRoute>
                   }
                 />

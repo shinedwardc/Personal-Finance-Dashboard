@@ -47,6 +47,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { chartConfig } from "@/constants/chartConfig";
+import { categoryConfig } from "@/constants/categoryConfig";
 
 const Dashboard = () => {
   const today = useMemo(() => new Date(), []);
@@ -138,11 +139,9 @@ const Dashboard = () => {
 
     // Calculate top spending categories
     const sortedTotals = Object.entries(totals).sort((a, b) => b[1] - a[1]);
-    const topValue = sortedTotals[0]?.[1] ?? 0;
+    const topValues = sortedTotals.slice(0, 3);
 
-    setTopSpendingCategories(
-      sortedTotals.filter(([_, v]) => v === topValue).map(([c]) => c),
-    );
+    setTopSpendingCategories(topValues.map(([name, _]) => name));
 
     // Graph data
     setGraphData(
@@ -269,7 +268,7 @@ const Dashboard = () => {
           </header>
           {monthData && monthData.length > 0 ? (
             <>
-              <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4 auto-rows-fr">
+              <section className="grid gap-4 sm:grid-cols-1 md:grid-cols-2 xl:grid-cols-3 auto-rows-fr">
                 <motion.div
                   whileHover={{ y: -4, scale: 1.02 }}
                   transition={{ type: "spring", stiffness: 260, damping: 20 }}
@@ -287,50 +286,6 @@ const Dashboard = () => {
                       </p>
                       <p className="mt-2 text-xs text-neutral-400">
                         Total outgoing expenses recorded this month.
-                      </p>
-                    </CardContent>
-                  </Card>
-                </motion.div>
-                <motion.div
-                  whileHover={{ y: -4, scale: 1.02 }}
-                  transition={{ type: "spring", stiffness: 260, damping: 20 }}
-                >
-                  <Card className="h-full rounded-2xl border border-white/15 bg-white/10 bg-gradient-to-br from-white/10 via-white/5 to-cyan-500/10 backdrop-blur-lg shadow-[0_20px_60px_rgba(0,0,0,0.45)]">
-                    <CardHeader className="flex flex-row items-center justify-between pb-2">
-                      <CardTitle className="text-sm font-medium text-neutral-100">
-                        Top Spending Categories
-                      </CardTitle>
-                      <PieChart className="w-5 h-5 text-cyan-300" />
-                    </CardHeader>
-                    <CardContent>
-                      {topSpendingCategories.length > 0 ? (
-                        <div className="flex flex-wrap gap-2">
-                          {topSpendingCategories.map((category) => {
-                            const categoryKey = category
-                              .replace(/\s+/g, "-")
-                              .toLowerCase();
-                            return (
-                              <span
-                                key={categoryKey}
-                                className="rounded-full px-3 py-1 text-md font-medium"
-                                style={{
-                                  backgroundColor: `color-mix(in srgb, var(--color-${categoryKey}) 70%, transparent)`,
-                                  borderColor: `var(--color-${categoryKey})`,
-                                  borderWidth: 1,
-                                }}
-                              >
-                                {category}
-                              </span>
-                            );
-                          })}
-                        </div>
-                      ) : (
-                        <p className="text-sm text-neutral-400">
-                          No spending data available.
-                        </p>
-                      )}
-                      <p className="mt-3 text-xs text-neutral-400">
-                        Categories tied for the highest total spend this month.
                       </p>
                     </CardContent>
                   </Card>
@@ -648,6 +603,57 @@ const Dashboard = () => {
                         The higher the percentage, the more likely you are going
                         to spend over the monthly budget limit. Try to aim less
                         than 90%.
+                      </p>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+                <motion.div
+                  whileHover={{ y: -4, scale: 1.02 }}
+                  transition={{ type: "spring", stiffness: 260, damping: 20 }}
+                >
+                  <Card className="h-full rounded-2xl border border-white/15 bg-white/10 backdrop-blur-lg shadow-[0_20px_60px_rgba(0,0,0,0.45)]">
+                    <CardHeader className="flex flex-row items-center justify-between pb-2">
+                      <CardTitle className="text-sm font-medium text-neutral-100">
+                        Top Spending Categories
+                      </CardTitle>
+                      <PieChart className="w-5 h-5 text-cyan-300" />
+                    </CardHeader>
+                    <CardContent>
+                      {topSpendingCategories.length > 0 ? (
+                        <div className="flex flex-col gap-1 w-full justify-center ">
+                          {topSpendingCategories.map((category, index) => {
+                            const categoryKey = category
+                              .replace(/[^a-zA-Z0-9]/g, "-")
+                              .toLowerCase();
+
+                            return (
+                              <div
+                                key={categoryKey}
+                                className="flex flex-row gap-x-2 justify-center items-center w-full text-sm"
+                              >
+                                <span className="w-1/6 text-neutral-300 font-bold text-center">
+                                  {index + 1}.
+                                </span>
+                                <span
+                                  className="w-5/6 rounded-full px-2 py-1 text-center font-medium border"
+                                  style={{
+                                    backgroundColor: `color-mix(in srgb, var(--color-${categoryKey}) 70%, transparent)`,
+                                    borderColor: `var(--color-${categoryKey})`,
+                                  }}
+                                >
+                                  {category} {categoryConfig[category].icon}
+                                </span>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      ) : (
+                        <p className="text-sm text-neutral-400">
+                          No spending data available.
+                        </p>
+                      )}
+                      <p className="mt-3 text-xs text-neutral-400">
+                        Categories tied for the highest total spend this month.
                       </p>
                     </CardContent>
                   </Card>

@@ -75,3 +75,19 @@
     --chart-5: 340 75% 55%;
   }
 }
+
+.fc-daygrid-day-frame {
+  height: 110px;
+  max-height: 110px;
+  overflow: hidden;
+}
+
+.fc-daygrid-day-events {
+  max-height: 70px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+}
+
+.fc-daygrid-day-events::-webkit-scrollbar {
+  display: none;
+}

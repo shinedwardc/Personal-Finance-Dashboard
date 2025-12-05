@@ -138,101 +138,88 @@ const List = () => {
 
   return (
     <>
-      {!isMonthlyExpensesLoading ? (
-        <>
-          <Dialog
-            modal={false}
-            open={isEditModalOpen}
-            onOpenChange={setIsEditModalOpen}
-          >
-            <DialogPortal>
-              <div className="fixed inset-0 bg-white/30 backdrop-blur-sm z-40" />
-              <DialogContent className="z-50">
-                <DialogHeader>
-                  <DialogTitle>
-                    {editData ? "Update" : "Add"} Expense
-                  </DialogTitle>
-                </DialogHeader>
-                {editData ? (
-                  <Form
-                    addingNewExpense={false}
-                    initialValues={{
-                      ...editData,
-                      date: new Date(editData.date),
-                    }}
-                    onFormSubmit={onFormEditExpense}
-                  />
-                ) : (
-                  <Form
-                    addingNewExpense={true}
-                    onFormSubmit={onFormNewExpense}
-                  />
-                )}
-              </DialogContent>
-            </DialogPortal>
-          </Dialog>
-          <div className="mt-12 flex flex-col md:flex-row w-full justify-center items-center mb-4">
-            <div className="flex justify-center gap-x-2">
-              <h1 className="text-3xl font-semibold antialiased dark:text-white">
-                Transactions
-              </h1>
-              <div className="flex-1 flex md:justify-start justify-center">
-                <div className="flex flex-row justify-center gap-x-2 fixed bottom-6 right-6">
-                  <Button
-                    variant="default"
-                    onClick={() => setIsEditModalOpen(true)}
-                    className="px-10 py-6 text-lg 
-                              rounded-full shadow-lg bg-white/20 backdrop-blur-lg 
-                              border border-white/30 hover:bg-white/30
-                              "
-                  >
-                    Add +
-                  </Button>
-                  <CSVImport setImportedData={setImportedData} />
-                </div>
-              </div>
-            </div>
-          </div>
-          {expenseList && expenseList.length > 0 ? (
-            <div
-              className="
-                        bg-white/10 dark:bg-white/5 
-                          backdrop-blur-xl 
-                          rounded-xl border border-white/10 
-                          p-4 shadow-lg          
-                          "
-            >
-              <DataTable
-                data={expenseList}
-                onDelete={handleDeleteTransaction}
-                onEdit={handleEditTransaction}
+      <Dialog
+        modal={false}
+        open={isEditModalOpen}
+        onOpenChange={setIsEditModalOpen}
+      >
+        <DialogPortal>
+          <div className="fixed inset-0 bg-white/30 backdrop-blur-sm z-40" />
+          <DialogContent className="z-50">
+            <DialogHeader>
+              <DialogTitle>{editData ? "Update" : "Add"} Expense</DialogTitle>
+            </DialogHeader>
+            {editData ? (
+              <Form
+                addingNewExpense={false}
+                initialValues={{
+                  ...editData,
+                  date: new Date(editData.date),
+                }}
+                onFormSubmit={onFormEditExpense}
               />
+            ) : (
+              <Form addingNewExpense={true} onFormSubmit={onFormNewExpense} />
+            )}
+          </DialogContent>
+        </DialogPortal>
+      </Dialog>
+      <div className="mt-12 flex flex-col md:flex-row w-full justify-center items-center mb-4">
+        <div className="flex justify-center gap-x-2">
+          <h1 className="text-3xl font-semibold antialiased dark:text-white">
+            Transactions
+          </h1>
+          <div className="flex-1 flex md:justify-start justify-center">
+            <div className="flex flex-row justify-center gap-x-2 fixed bottom-6 right-6">
+              <Button
+                variant="default"
+                onClick={() => setIsEditModalOpen(true)}
+                className="px-10 py-6 text-lg 
+                            rounded-full shadow-lg bg-white/20 backdrop-blur-lg 
+                            border border-white/30 hover:bg-white/30
+                            "
+              >
+                Add +
+              </Button>
+              <CSVImport setImportedData={setImportedData} />
             </div>
-          ) : (
-            <div className="mt-8 flex flex-col items-center">
-              <div>
-                <p>No expenses recorded for this month</p>
-              </div>
-            </div>
-          )}
-          <div>
-            <MonthPicker
-              currentMonth={new Date(monthAndYear)}
-              onMonthChange={(newDate) => {
-                setMonthAndYear(newDate);
-              }}
-            />
           </div>
-          {/*<div className="mt-4 dark:text-slate-200">--- OR ---</div>
-          <div className="my-4 p-4 border border-green-800 dark:text-white">
-            <Recurring onFormSubmit={onNewExpense} />
-          </div>*/}
-        </>
+        </div>
+      </div>
+      {expenseList && expenseList.length > 0 ? (
+        <div
+          className="
+                      bg-white/10 dark:bg-white/5 
+                        backdrop-blur-xl 
+                        rounded-xl border border-white/10 
+                        p-4 shadow-lg          
+                        "
+        >
+          <DataTable
+            data={expenseList}
+            onDelete={handleDeleteTransaction}
+            onEdit={handleEditTransaction}
+          />
+        </div>
       ) : (
-        <div className="flex justify-center items-center">
-          <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-white-900"></div>
+        <div className="mt-8 flex flex-col items-center">
+          <div>
+            <p>No expenses recorded for this month</p>
+          </div>
         </div>
       )}
+      <div>
+        <MonthPicker
+          currentMonth={new Date(monthAndYear)}
+          onMonthChange={(newDate) => {
+            setMonthAndYear(newDate);
+          }}
+        />
+      </div>
+      {/*<div className="mt-4 dark:text-slate-200">--- OR ---</div>
+        <div className="my-4 p-4 border border-green-800 dark:text-white">
+          <Recurring onFormSubmit={onNewExpense} />
+        </div>*/}
     </>
   );
 };
