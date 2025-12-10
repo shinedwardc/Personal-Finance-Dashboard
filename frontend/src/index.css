@@ -46,6 +46,8 @@
     --color-transfer: #93c5fd; /* sky blue */
     --color-travel: #34d399; /* teal */
     --color-utilities: #fbbf24; /* amber */
+
+    --color-income: #22c55e, /* green */;
   }
 
   .dark {

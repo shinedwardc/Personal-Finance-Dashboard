@@ -14,7 +14,8 @@ import {
 import { format } from "date-fns";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { useSpring, animated } from "@react-spring/web";
-import { categoryConfig } from "@/constants/categoryConfig";
+import { expenseCategoryConfig } from "@/constants/expenseCategoryConfig";
+//import { systemConfig } from "@/constants/expenseCategoryConfig";
 
 const ExpenseCalendar = () => {
   const calendarRef = useRef<FullCalendar | null>(null);
@@ -47,7 +48,7 @@ const ExpenseCalendar = () => {
   }, [monthAndYear]);
 
   useEffect(() => {
-    if (data && data.length > 0) {
+    if (data) {
       console.log("data: ", data);
       const totalAmount = data.reduce((sum, event) => {
         if (event.amount >= 0) {
@@ -188,25 +189,25 @@ const ExpenseCalendar = () => {
             const category = info.event.extendedProps.category;
             const amount = info.event.extendedProps.amount;
 
-            const config = categoryConfig[category];
+            const config = expenseCategoryConfig[category];
             const label = config.label.replace(/ /g, "-").toLowerCase();
 
             return (
               <div
-                className="flex items-center gap-1 px-1 py-[1px] rounded-md cursor-pointer
-                              hover:scale-[1.03] transition-transform"
+                className="
+                  flex items-center gap-1 px-2 py-[2px] rounded-md cursor-pointer
+                  hover:scale-[1.02] transition-transform
+                  text-[11px] font-medium
+                "
+                style={{
+                  backgroundColor: `color-mix(in srgb, var(--color-${label}) 35%, transparent)`,
+                  color: "white",
+                }}
               >
-                <span
-                  className="w-2 h-2 rounded-full flex-shrink-0"
-                  style={{ backgroundColor: `var(--color-${label})` }}
-                />
+                <span className="truncate w-full">{info.event.title}</span>
 
-                <span className="text-[11px] font-medium truncate w-full">
-                  {info.event.title}
-                </span>
-
-                <span className="text-[10px] text-neutral-100 px-1 rounded-sm ml-auto">
-                  {amount > 0 ? "-" + amount : "+" + Math.abs(amount)}$
+                <span className="text-[10px] font-semibold ml-auto">
+                  {label !== "income" ? "-" + amount : "+" + amount}$
                 </span>
               </div>
             );
@@ -233,15 +234,15 @@ const ExpenseCalendar = () => {
           }
         />
       </div>*/}
-      <section className="w-1/2 overflow-y-auto max-h-[500px]">
-        <div className="self-start inline-flex">
+      <section className="w-full max-h-[500px] overflow-y-auto px-12 py-4 mb-8">
+        <div className="max-w-[200px] mb-4">
           <Select defaultValue={selectedItem} onValueChange={setSelectedItem}>
-            <SelectTrigger className="border-none">
+            <SelectTrigger className="border-none bg-white/10 backdrop-blur-md rounded-lg px-3 py-2 shadow-md text-sm">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
               <SelectGroup>
-                <SelectLabel>Select expenses</SelectLabel>
+                <SelectLabel>Filter</SelectLabel>
                 <SelectItem value="All">All</SelectItem>
                 <SelectItem value="Expense">Expense</SelectItem>
                 <SelectItem value="Income">Income</SelectItem>
@@ -249,7 +250,7 @@ const ExpenseCalendar = () => {
             </SelectContent>
           </Select>
         </div>
-        <div className="mb-10 w-1/2 dark:text-white">
+        <div className="space-y-6">
           {[...eventsByDate].map(([date, events]) => {
             const filtered =
               selectedItem === "All"
@@ -259,28 +260,66 @@ const ExpenseCalendar = () => {
                       ? event.amount > 0
                       : event.amount < 0,
                   );
+
             if (filtered.length === 0) return null;
             return (
-              <div key={date} className="mb-4">
-                <div className="font-semibold">
+              <div key={date} className="space-y-2">
+                <div className="sticky top-0 bg-white/10 backdrop-blur-lg px-2 py-1 rounded-md text-xs font-semibold">
                   {new Date(date).toLocaleString("en", {
                     weekday: "long",
+                    month: "short",
                     day: "numeric",
                   })}
                 </div>
-                <ul>
-                  {events.map((event, idx) => (
-                    <li key={idx}>
-                      {event.title} - {event.category}{" "}
-                      {
-                        categoryConfig[
-                          event.category as keyof typeof categoryConfig
-                        ]?.icon
-                      }{" "}
-                      - ${event.amount}
-                    </li>
-                  ))}
-                </ul>
+                <div className="space-y-2">
+                  {filtered.map((event, idx) => {
+                    console.log(event);
+                    const config = expenseCategoryConfig[event.category]
+
+                    console.log(config);
+
+                    const slug = config.label.replace(/ /g, "-").toLowerCase();
+
+                    return (
+                      <div
+                        key={idx}
+                        className="flex items-center justify-between px-3 py-2 rounded-xl bg-white/5 backdrop-blur-md border border-white/10 shadow-sm"
+                        style={{
+                          borderLeft: `4px solid var(--color-${slug})`,
+                        }}
+                      >
+                        <div className="flex items-center gap-3">
+                          <div
+                            className="w-7 h-7 rounded-full flex items-center justify-center text-lg"
+                            style={{
+                              backgroundColor: `color-mix(in srgb, var(--color-${slug}) 40%, transparent)`,
+                            }}
+                          >
+                            {config.icon}
+                          </div>
+                          <div className="flex flex-col leading-tight">
+                            <span className="text-sm font-medium">
+                              {event.title}
+                            </span>
+                            <span className="text-xs opacity-70">
+                              {event.category}
+                            </span>
+                          </div>
+                        </div>
+                        <div
+                          className={`text-sm font-semibold ${
+                            event.amount > 0
+                              ? "text-red-400"
+                              : "text-emerald-400"
+                          }`}
+                        >
+                          {event.amount > 0 ? "-" : "+"}$
+                          {Math.abs(event.amount)}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
             );
           })}

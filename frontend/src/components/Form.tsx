@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -19,17 +20,28 @@ import {
   PopoverTrigger,
   PopoverContent,
 } from "../components/ui/popover";
-import { categoryConfig } from "@/constants/categoryConfig";
+import { expenseCategoryConfig } from "@/constants/expenseCategoryConfig";
 import { LuCalendarDays } from "react-icons/lu";
 
 // Define validation schema
-const formSchema = z.object({
-  name: z.string().min(1, "Name is required"),
-  category: z.string().min(1, "Category is required"),
-  amount: z.number().min(0.01, "Amount is required"),
-  currency: z.string().min(1, "Currency is required"),
-  date: z.date({ required_error: "Date is required" }),
-});
+const formSchema = z
+  .object({
+    name: z.string().min(1, "Name is required"),
+    category: z.string(),
+    type: z.enum(["Expense", "Income"]),
+    amount: z.number().min(0.01, "Amount is required"),
+    currency: z.string().min(1, "Currency is required"),
+    date: z.date({ required_error: "Date is required" }),
+  })
+  .superRefine((data, ctx) => {
+    if (data.type === "Expense" && !data.category) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Category is required for expenses",
+        path: ["category"],
+      });
+    }
+  });
 
 // Infer form types
 type FormInputs = z.infer<typeof formSchema>;
@@ -45,19 +57,16 @@ const Form = ({
   initialValues = {
     name: "",
     amount: 0,
+    type: "Expense",
     category: "",
     currency: "usd",
     date: new Date(),
   },
   onFormSubmit,
 }: formProps) => {
-  const { addExpenseMutate, editExpenseMutate } = useExpenseContext();
+  const [type, setType] = useState<string>(initialValues.type);
 
-  //const [selectedCategory, setSelectedCategory] = useState<string>("");
-  //const [amount, setAmount] = useState<string>("");
-  //const [currency, setCurrency] = useState<string>("usd");
-  //const [name, setName] = useState<string>("");
-  //const [date, setDate] = useState<Date>(new Date());
+  const { addExpenseMutate, editExpenseMutate } = useExpenseContext();
 
   const {
     register,
@@ -69,6 +78,7 @@ const Form = ({
     defaultValues: {
       name: initialValues.name,
       category: initialValues.category,
+      type: initialValues.type,
       amount: initialValues.amount,
       currency: "usd",
       date: new Date(initialValues.date),
@@ -78,7 +88,7 @@ const Form = ({
   const onSubmit = (data: FormInputs) => {
     const expense = {
       name: data.name,
-      category: data.category,
+      category: data.type === "Expense" ? data.category : "Income",
       amount: data.amount,
       currency: data.currency,
       date: format(data.date, "yyyy-MM-dd"),
@@ -91,20 +101,6 @@ const Form = ({
     }
     onFormSubmit();
   };
-
-  /*const handleFormSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const newExpense = {
-      name,
-      category: selectedCategory,
-      amount: parseFloat(amount),
-      currency,
-      date: format(date, "yyyy-MM-dd"),
-      updated_at: new Date().toISOString(),
-    };
-    addExpenseMutate(newExpense);
-    onFormSubmit();
-  };*/
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
@@ -122,31 +118,61 @@ const Form = ({
         )}
       </div>
       <div className="mt-2">
-        <label htmlFor="category" className="mb-2 block dark:text-white">
-          Category
+        <label htmlFor="type" className="mb-2 block dark:text-white">
+          Type
         </label>
         <Controller
           control={control}
-          name="category"
+          name="type"
           render={({ field }) => (
-            <Select onValueChange={field.onChange} value={field.value}>
+            <Select
+              onValueChange={(value) => {
+                field.onChange(value);
+                setType(value);
+              }}
+              value={field.value}
+            >
               <SelectTrigger>
-                <SelectValue placeholder="Select a category" />
+                <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                {Object.values(categoryConfig).map((category, index) => (
-                  <SelectItem key={index} value={category.label}>
-                    {category.label} {category.icon}
-                  </SelectItem>
-                ))}
+                <SelectItem value="Expense">Expense</SelectItem>
+                <SelectItem value="Income">Income</SelectItem>
               </SelectContent>
             </Select>
           )}
         />
-        {errors.category && (
-          <p className="text-red-500 text-sm">{errors.category.message}</p>
-        )}
       </div>
+      {type === "Expense" ? (
+        <div className="mt-2">
+          <label htmlFor="category" className="mb-2 block dark:text-white">
+            Category
+          </label>
+          <Controller
+            control={control}
+            name="category"
+            render={({ field }) => (
+              <Select onValueChange={field.onChange} value={field.value}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select a category" />
+                </SelectTrigger>
+                <SelectContent>
+                  {Object.values(expenseCategoryConfig).map((category, index) => (
+                    <SelectItem key={index} value={category.label}>
+                      {category.label} {category.icon}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
+          />
+          {errors.category && (
+            <p className="text-red-500 text-sm">{errors.category.message}</p>
+          )}
+        </div>
+      ) : (
+        <></>
+      )}
       <div className="mt-2 mb-2">
         <div className="mb-2 dark:text-white">Amount</div>
         <div className="flex justify-row gap-x-1">

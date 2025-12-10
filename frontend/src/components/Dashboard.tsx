@@ -46,8 +46,14 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  Tooltip,
+  TooltipProvider,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { chartConfig } from "@/constants/chartConfig";
-import { categoryConfig } from "@/constants/categoryConfig";
+import { expenseCategoryConfig } from "@/constants/expenseCategoryConfig";
 
 const Dashboard = () => {
   const today = useMemo(() => new Date(), []);
@@ -63,6 +69,7 @@ const Dashboard = () => {
 
   const { profileSettings, isProfileLoading } = useProfileContext();
   const [monthlySpent, setMonthlySpent] = useState<number>(0);
+  const [monthlyIncome, setMonthlyIncome] = useState<number>(0);
   const [timeProgressed, setTimeProgressed] = useState<number>(0);
   const [dailyAverage, setDailyAverage] = useState<number>(0);
   const [projectedSpending, setProjectedSpending] = useState<number>(0);
@@ -100,12 +107,24 @@ const Dashboard = () => {
   useEffect(() => {
     if (!monthData || !today) return;
 
-    const expenses = monthData.filter(
-      (expense) => new Date(expense.date) <= today,
-    );
-    let total = 0;
+    const { expenses, income } = monthData.reduce(
+      (acc, item) => {
+        if (new Date(item.date) > today) return acc;
 
-    const totals: Record<string, number> = {};
+        if (item.category === "Income") {
+          acc.income.push(item);
+        } else {
+          acc.expenses.push(item);
+        }
+
+        return acc;
+      },
+      { expenses: [], income: [] as typeof monthData },
+    );
+
+    let expenseTotal = 0;
+
+    const expenseTotals: Record<string, number> = {};
     let essentialSum = 0;
     let discretionarySum = 0;
 
@@ -120,7 +139,7 @@ const Dashboard = () => {
       const amount = Number(exp.amount);
       if (amount < 0) continue;
 
-      total += amount;
+      expenseTotal += amount;
 
       // Essential vs discretionary
       if (discretionaryCats.has(exp.category)) {
@@ -130,26 +149,37 @@ const Dashboard = () => {
       }
 
       // Category totals
-      totals[exp.category] = (totals[exp.category] || 0) + amount;
+      expenseTotals[exp.category] = (expenseTotals[exp.category] || 0) + amount;
     }
 
-    setMonthlySpent(total);
+    // Income total
+    let incomeTotal = 0;
+
+    for (const inc of income) {
+      const amount = Number(inc.amount);
+      incomeTotal += amount;
+    }
+
+    setMonthlySpent(expenseTotal);
+    setMonthlyIncome(incomeTotal);
     setEssentials(essentialSum);
     setDiscretionals(discretionarySum);
 
     // Calculate top spending categories
-    const sortedTotals = Object.entries(totals).sort((a, b) => b[1] - a[1]);
+    const sortedTotals = Object.entries(expenseTotals).sort(
+      (a, b) => b[1] - a[1],
+    );
     const topValues = sortedTotals.slice(0, 3);
 
     setTopSpendingCategories(topValues.map(([name, _]) => name));
 
     // Graph data
     setGraphData(
-      Object.keys(totals)
+      Object.keys(expenseTotals)
         .sort()
         .map((cat) => ({
           category: cat,
-          total: totals[cat],
+          total: expenseTotals[cat],
         })),
     );
 
@@ -160,7 +190,7 @@ const Dashboard = () => {
       0,
     ).getDate();
 
-    const dailyAvg = total / todayDate;
+    const dailyAvg = expenseTotal / todayDate;
     setDailyAverage(dailyAvg);
     setProjectedSpending(dailyAvg * daysInMonth);
     setTimeProgressed(todayDate / daysInMonth);
@@ -281,11 +311,11 @@ const Dashboard = () => {
                       <Wallet2 className="w-5 h-5 text-emerald-300" />
                     </CardHeader>
                     <CardContent>
-                      <p className="text-3xl font-semibold tracking-tight">
-                        {formatCurrency(monthlySpent)}
+                      <p className="text-3xl font-semibold tracking-tight text-red-400">
+                        -{formatCurrency(monthlySpent)}
                       </p>
                       <p className="mt-2 text-xs text-neutral-400">
-                        Total outgoing expenses recorded this month.
+                        Total outgoing expenses recorded so far this month.
                       </p>
                     </CardContent>
                   </Card>
@@ -297,16 +327,17 @@ const Dashboard = () => {
                   <Card className="h-full rounded-2xl border border-white/15 bg-white/10 bg-gradient-to-br from-white/10 via-white/5 to-sky-500/10 backdrop-blur-lg shadow-[0_20px_60px_rgba(0,0,0,0.45)]">
                     <CardHeader className="flex flex-row items-center justify-between pb-2">
                       <CardTitle className="text-sm font-medium text-neutral-100">
-                        Current Balance
+                        This Month's Income
                       </CardTitle>
                       <Banknote className="w-5 h-5 text-sky-300" />
                     </CardHeader>
                     <CardContent>
-                      <p className="text-3xl font-semibold tracking-tight">
-                        {formatCurrency(balance)}
+                      <p className="text-3xl font-semibold tracking-tight text-emerald-400">
+                        +{formatCurrency(monthlyIncome)}
                       </p>
                       <p className="mt-2 text-xs text-neutral-400">
-                        Total available across your linked accounts.
+                        Total income from all sources recorded so far this
+                        month.
                       </p>
                     </CardContent>
                   </Card>
@@ -573,36 +604,48 @@ const Dashboard = () => {
                         <TriangleAlert className="h-5 w-5 stroke-red-400" />
                       </div>
                       <CardDescription className="text-xs text-neutral-400">
-                        Based on current trend, how risky is your spending?
+                        Based on pace of spending, chance of spending over
+                        budget?
                       </CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-3">
-                      <span className="text-lg font-semibold">
-                        <span
-                          className={`
-                            ${
-                              monthlySpent /
-                                profileSettings.monthlyBudget /
-                                timeProgressed >=
-                              1.2
-                                ? "text-red-500"
-                                : monthlySpent /
-                                      profileSettings.monthlyBudget /
-                                      timeProgressed >=
-                                    0.9
-                                  ? "text-yellow-400"
-                                  : "text-emerald-400"
-                            }`}
-                        >
-                          {`${((monthlySpent / profileSettings.monthlyBudget / timeProgressed) * 100).toFixed(1)}`}
-                          %
-                        </span>{" "}
-                        overspending risk
-                      </span>
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger>
+                            <span className="text-lg font-semibold">
+                              <span
+                                className={`
+                                ${
+                                  monthlySpent /
+                                    profileSettings.monthlyBudget /
+                                    timeProgressed >=
+                                  1.2
+                                    ? "text-red-500"
+                                    : monthlySpent /
+                                          profileSettings.monthlyBudget /
+                                          timeProgressed >=
+                                        0.9
+                                      ? "text-yellow-400"
+                                      : "text-emerald-400"
+                                }`}
+                              >
+                                {`${((monthlySpent / profileSettings.monthlyBudget / timeProgressed) * 100).toFixed(1)}`}
+                                %
+                              </span>{" "}
+                              overspending risk
+                            </span>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>100% = On pace</p>
+                            <p>&gt; 100% = Overspending risk</p>
+                            <p>&lt; 100% = Underspending</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
                       <p className="text-xs text-neutral-400">
-                        The higher the percentage, the more likely you are going
-                        to spend over the monthly budget limit. Try to aim less
-                        than 90%.
+                        Overspending Risk compares your actual spending with
+                        your expected spending based on how far into the month
+                        you are.
                       </p>
                     </CardContent>
                   </Card>
@@ -622,13 +665,13 @@ const Dashboard = () => {
                       {topSpendingCategories.length > 0 ? (
                         <div className="flex flex-col gap-1 w-full justify-center ">
                           {topSpendingCategories.map((category, index) => {
-                            const categoryKey = category
+                            /*const categoryKey = category
                               .replace(/[^a-zA-Z0-9]/g, "-")
-                              .toLowerCase();
-
+                              .toLowerCase();*/
+                            console.log(category);
                             return (
                               <div
-                                key={categoryKey}
+                                key={category}
                                 className="flex flex-row gap-x-2 justify-center items-center w-full text-sm"
                               >
                                 <span className="w-1/6 text-neutral-300 font-bold text-center">
@@ -637,11 +680,11 @@ const Dashboard = () => {
                                 <span
                                   className="w-5/6 rounded-full px-2 py-1 text-center font-medium border"
                                   style={{
-                                    backgroundColor: `color-mix(in srgb, var(--color-${categoryKey}) 70%, transparent)`,
-                                    borderColor: `var(--color-${categoryKey})`,
+                                    backgroundColor: `color-mix(in srgb, ${expenseCategoryConfig[category].color} 70%, transparent)`,
+                                    borderColor: expenseCategoryConfig[category].color,
                                   }}
                                 >
-                                  {category} {categoryConfig[category].icon}
+                                  {category} {expenseCategoryConfig[category].icon}
                                 </span>
                               </div>
                             );
@@ -679,7 +722,7 @@ const Dashboard = () => {
                         Height shows total spent per category.
                       </CardDescription>
                     </CardHeader>
-                    <CardContent className="pt-2">
+                    <CardContent className="flex justify-center">
                       <ChartContainer
                         config={chartConfig}
                         className="h-[280px]"
@@ -690,7 +733,7 @@ const Dashboard = () => {
                           margin={{ top: 20, bottom: 5, left: 0, right: 0 }}
                         >
                           <XAxis
-                            dataKey="category"
+                            dataKey={(entry) => expenseCategoryConfig[entry.category].group}
                             tickLine={false}
                             tickMargin={10}
                             axisLine={false}
@@ -742,10 +785,10 @@ const Dashboard = () => {
                         spending.
                       </CardDescription>
                     </CardHeader>
-                    <CardContent className="pt-2">
+                    <CardContent className="flex justify-center items-center">
                       <ChartContainer
                         config={chartConfig}
-                        className="h-[280px] flex items-center justify-center"
+                        className="h-[280px]"
                       >
                         <RechartsPieChart>
                           <ChartTooltip

@@ -9,7 +9,7 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import { categoryConfig } from "@/constants/categoryConfig";
+import { expenseCategoryConfig } from "@/constants/expenseCategoryConfig";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   Table,
@@ -120,20 +120,19 @@ export function DataTable({
     columnHelper.accessor("amount", {
       header: () => <div className="text-right">Amount</div>,
       cell: ({ row }) => {
-        const amount =
-          parseFloat(row.getValue("amount")) > 0
-            ? parseFloat(row.getValue("amount")) * -1
-            : parseFloat(row.getValue("amount"));
+        const { category, amount } = row.original;
+        const rowAmount =
+          category.toLowerCase() !== "income" ? amount * -1 : amount;
         const formatted = new Intl.NumberFormat("en-US", {
           style: "currency",
           currency: "USD",
-        }).format(amount);
+        }).format(rowAmount);
 
         return (
           <div
-            className={`text-center font-medium ${amount < 0 ? "text-red-500" : "text-green-500"}`}
+            className={`text-center font-medium ${rowAmount < 0 ? "text-red-500" : "text-green-500"}`}
           >
-            {formatted}
+            {rowAmount > 0 ? `+${formatted}` : formatted}
           </div>
         );
       },
@@ -219,7 +218,7 @@ export function DataTable({
           </div>
         )}
       </div>
-      <div className="rounded-md border overflow-auto max-h-[474px]">
+      <div className="rounded-md border overflow-auto max-h-[420px]">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
@@ -254,12 +253,12 @@ export function DataTable({
                         {cell.column.id === "category"
                           ? (() => {
                               const categoryValue = cell.getValue() as string;
-                              const config = Object.values(categoryConfig).find(
+                              const config = Object.values(expenseCategoryConfig).find(
                                 (c) => c.label === categoryValue,
                               );
                               return config ? (
                                 <div className="flex flex-row gap-1 justify-center items-center">
-                                  {config.label}
+                                  {config.group}
                                   <span className="flex items-center justify-center w-6 h-6">
                                     {config.icon}
                                   </span>

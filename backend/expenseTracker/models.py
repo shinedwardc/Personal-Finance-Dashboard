@@ -36,7 +36,7 @@ class Expense(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self) -> str:
-        return f"User {self.user}, spent {self.amount}, category is {self.category}, this was created at {self.created_at}"
+        return f"User {self.user}, spent {self.amount}, category is {self.category}, transaction date is {self.date}. This was created at {self.created_at}"
     
 class EmailVerification(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
