@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { fetchInvestments } from "@/utils/api";
+import { fetchInvestments } from "@/api/transactions";
 
 interface Stock {
   id: string;

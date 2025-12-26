@@ -3,6 +3,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import LoginForm from "./LoginForm";
 import { useProfileContext } from "@/hooks/useProfileContext";
+import { loginUser, googleLogin } from "@/api/user";
 
 const Login = () => {
   const { authState, setAuthState } = useProfileContext();
@@ -16,19 +17,7 @@ const Login = () => {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await axios.post(
-        "http://localhost:8000/api/auth/",
-        {
-          username,
-          password,
-        },
-        {
-          withCredentials: true,
-        },
-      );
-      /*const { access, refresh } = response.data; // Assuming JWT tokens
-      localStorage.setItem("accessToken", access);
-      localStorage.setItem("refreshToken", refresh);*/
+      await loginUser(username, password);
       setAuthState({
         isLoggedIn: true,
         isPlaidConnected: authState.isPlaidConnected,
@@ -44,15 +33,7 @@ const Login = () => {
   const handleGoogleLogin = async (request: any) => {
     console.log("request", request);
     try {
-      await axios.post(
-        "http://localhost:8000/api/auth/google/",
-        {
-          token: request.credential,
-        },
-        {
-          withCredentials: true,
-        },
-      );
+      await googleLogin(request.credential);
       //const { access, refresh } = response.data;
       //console.log(access, refresh);
       //localStorage.setItem("accessToken", access);

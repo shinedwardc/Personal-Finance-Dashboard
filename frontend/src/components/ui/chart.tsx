@@ -190,7 +190,7 @@ const ChartTooltipContent = React.forwardRef<
               color ||
               item.payload?.fill ||
               item.color ||
-              config[item.payload.category.replace(/\s+/g, "-")].color;
+              config[item.payload.category].color;
             return (
               <div
                 key={item.dataKey}
@@ -346,7 +346,6 @@ function getPayloadConfigFromPayload(
       key as keyof typeof payloadPayload
     ] as string;
   }
-  configLabelKey = configLabelKey.replace(/\s+/g, "-");
   return configLabelKey in config
     ? config[configLabelKey]
     : config[key as keyof typeof config];

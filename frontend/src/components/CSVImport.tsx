@@ -1,5 +1,5 @@
 import { useRef, Dispatch, SetStateAction } from "react";
-import { ExpenseInterface } from "@/interfaces/expenses";
+import { TransactionInterface } from "@/interfaces/Transactions";
 import { Button } from "./ui/button";
 import Papa from "Papaparse";
 import { FaFileCsv } from "react-icons/fa6";
@@ -7,7 +7,7 @@ import { FaFileCsv } from "react-icons/fa6";
 const CSVImport = ({
   setImportedData,
 }: {
-  setImportedData: Dispatch<SetStateAction<ExpenseInterface[] | null>>;
+  setImportedData: Dispatch<SetStateAction<TransactionInterface[] | null>>;
 }) => {
   const fileRef = useRef<HTMLInputElement | null>(null);
 
@@ -21,7 +21,7 @@ const CSVImport = ({
     amount: string;
     date: string;
     notes: string | null;
-  }): Omit<ExpenseInterface, "id" | "updated_at"> => {
+  }): Omit<TransactionInterface, "id" | "updated_at"> => {
     return {
       name: row.title.trim(),
       category: row.category.trim(),

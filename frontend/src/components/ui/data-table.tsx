@@ -9,7 +9,6 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import { expenseCategoryConfig } from "@/constants/expenseCategoryConfig";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   Table,
@@ -32,18 +31,20 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { ArrowUpDown, ArrowUpIcon, ArrowDownIcon } from "lucide-react";
-import { ExpenseInterface } from "@/interfaces/expenses";
+import { TransactionInterface } from "@/interfaces/Transactions";
+import { expenseCategoryConfig } from "@/constants/expenseCategoryConfig";
+import { incomeCategoryConfig } from "@/constants/incomeCategoryConfig";
 
-const columnHelper = createColumnHelper<ExpenseInterface>();
+const columnHelper = createColumnHelper<TransactionInterface>();
 
 export function DataTable({
   data,
   onDelete,
   onEdit,
 }: {
-  data: ExpenseInterface[];
+  data: TransactionInterface[];
   onDelete: (id: number[]) => void;
-  onEdit: (data: ExpenseInterface) => void;
+  onEdit: (data: TransactionInterface) => void;
 }) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
@@ -120,19 +121,15 @@ export function DataTable({
     columnHelper.accessor("amount", {
       header: () => <div className="text-right">Amount</div>,
       cell: ({ row }) => {
-        const { category, amount } = row.original;
-        const rowAmount =
-          category.toLowerCase() !== "income" ? amount * -1 : amount;
+        const { category, amount, type } = row.original;
         const formatted = new Intl.NumberFormat("en-US", {
           style: "currency",
           currency: "USD",
-        }).format(rowAmount);
+        }).format(amount);
 
         return (
-          <div
-            className={`text-center font-medium ${rowAmount < 0 ? "text-red-500" : "text-green-500"}`}
-          >
-            {rowAmount > 0 ? `+${formatted}` : formatted}
+          <div className={`text-center font-medium ${type === "Expense" ? "text-red-500" : "text-green-500"}`}>
+            {type === "Expense" ? `-${formatted}` : `+${formatted}`}
           </div>
         );
       },
@@ -252,20 +249,16 @@ export function DataTable({
                       <TableCell key={cell.id}>
                         {cell.column.id === "category"
                           ? (() => {
-                              const categoryValue = cell.getValue() as string;
-                              const config = Object.values(expenseCategoryConfig).find(
-                                (c) => c.label === categoryValue,
-                              );
-                              return config ? (
+                              const categoryName = cell.getValue() as string;
+                              const type = row.original.type;
+                              return (
                                 <div className="flex flex-row gap-1 justify-center items-center">
-                                  {config.group}
+                                  {type === "Expense" ? expenseCategoryConfig[categoryName].label : incomeCategoryConfig[categoryName].label}
                                   <span className="flex items-center justify-center w-6 h-6">
-                                    {config.icon}
+                                    {type === "Expense" ? expenseCategoryConfig[categoryName].icon : incomeCategoryConfig[categoryName].icon}
                                   </span>
                                 </div>
-                              ) : (
-                                categoryValue
-                              );
+                              )
                             })()
                           : cell.column.id === "date" && isFuture
                             ? (() => {

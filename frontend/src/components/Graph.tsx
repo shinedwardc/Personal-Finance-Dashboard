@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
-import { useMonthlyExpenses } from "@/hooks/useMonthlyExpenses";
+import { useMonthlyTransactions } from "@/hooks/useMonthlyTransactions";
 import { useProfileContext } from "@/hooks/useProfileContext";
 import { Area, AreaChart, CartesianGrid, XAxis, YAxis, Legend } from "recharts";
 import {
@@ -18,7 +18,7 @@ const Stats = () => {
   const { profileSettings } = useProfileContext();
 
   // Fetch monthly data from current view date
-  const { data, isLoading } = useMonthlyExpenses(viewDate);
+  const { data, isLoading } = useMonthlyTransactions(viewDate);
 
   const [rightArrow, setRightArrow] = useState<boolean>(true);
 
@@ -34,7 +34,6 @@ const Stats = () => {
 
   useEffect(() => {
     if (data && today && viewDate) {
-      console.log(viewDate);
       setRightArrow(
         viewDate.getMonth() >= today.getMonth() &&
           viewDate.getFullYear() >= today.getFullYear(),
@@ -50,7 +49,7 @@ const Stats = () => {
             );
 
       const total = monthlyData.reduce(
-        (sum, event) => sum + parseInt(event.amount),
+        (sum, event) => event.type === "Expense" ? sum + event.amount : sum,
         0,
       );
       setMonthlySpent(total);
@@ -59,7 +58,7 @@ const Stats = () => {
       const cumulativeAmountPerBy = new Map();
 
       // Filter data for the selected month and populate map
-      monthlyData.forEach(({ date, amount }) => {
+      monthlyData.filter((expense) => expense.type === "Expense").forEach(({ date, amount }) => {
         const dateKey =
           date instanceof Date ? date.toISOString().split("T")[0] : date;
         const currentAmount = cumulativeAmountPerBy.get(dateKey) || 0;
@@ -167,14 +166,25 @@ const Stats = () => {
       {!isLoading ? (
         <div className="flex justify-center flex-col">
           {rightArrow ? (
+            profileSettings.monthlyBudget !== null ? (
+              <div className="flex flex-col justify-center items-center m-5">
+                <h3 className="font-bold text-2xl">
+                  {profileSettings.monthlyBudget - monthlySpent}$ left
+                </h3>
+                <p className="font-thin italic text-md">
+                  Out of {profileSettings.monthlyBudget}$ budgeted
+                </p>
+              </div>
+            ) : (
             <div className="flex flex-col justify-center items-center m-5">
               <h3 className="font-bold text-2xl">
-                {profileSettings.monthlyBudget - monthlySpent}$ left
+                {monthlySpent}$ Spent
               </h3>
               <p className="font-thin italic text-md">
-                Out of {profileSettings.monthlyBudget}$ budgeted
+                Set a monthly budget in Profile Settings to track your spending
               </p>
-            </div>
+            </div>              
+            )
           ) : (
             <div className="flex flex-col justify-center items-center m-5">
               <h3 className="font-bold text-2xl mb-[24px]">

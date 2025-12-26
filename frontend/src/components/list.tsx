@@ -1,48 +1,48 @@
 import { useState, useEffect, useMemo } from "react";
-import { useExpenseContext } from "@/hooks/useExpenseContext";
-import { useMonthlyExpenses } from "@/hooks/useMonthlyExpenses";
+import { useTransactionContext } from "@/hooks/useTransactionContext";
+import { useMonthlyTransactions } from "@/hooks/useMonthlyTransactions";
 import Form from "@/components/Form";
 import CSVImport from "./CSVImport";
 import { DataTable } from "./ui/data-table";
 import {
   Dialog,
-  DialogPortal,
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogTrigger,
 } from "@/components/ui/dialog";
 import { Button } from "./ui/button";
 import MonthPicker from "./ui/month-picker";
 import { toast, Bounce } from "react-toastify";
-import { ExpenseInterface } from "@/interfaces/expenses";
+import { TransactionInterface } from "@/interfaces/Transactions";
 
 //https://flowbite.com/docs/components/spinner/#progress-spinner
 
 const List = () => {
   const today = useMemo(() => new Date(), []);
   const [monthAndYear, setMonthAndYear] = useState<Date>(today);
-  const { addExpenseMutate, deleteExpenseMutate } = useExpenseContext();
+  const { addTransactionMutate, deleteTransactionMutate } = useTransactionContext();
 
-  const [editData, setEditData] = useState<ExpenseInterface | null>(null);
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editData, setEditData] = useState<TransactionInterface | null>(null);
+  //const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
-  const { data: expenseList, isLoading: isMonthlyExpensesLoading } =
-    useMonthlyExpenses(monthAndYear);
+  const { data: transactionList, isLoading: isMonthlyTransactionsLoading } =
+    useMonthlyTransactions(monthAndYear);
 
-  const [importedData, setImportedData] = useState<ExpenseInterface[] | null>(
+  const [importedData, setImportedData] = useState<TransactionInterface[] | null>(
     null,
   );
 
   useEffect(() => {
     if (importedData) {
-      addExpenseMutate(importedData);
+      addTransactionMutate(importedData);
     }
-  }, [importedData, addExpenseMutate]);
+  }, [importedData, addTransactionMutate]);
 
-  const onFormNewExpense = async () => {
-    setIsEditModalOpen(false);
+  const onFormNewTransactions = async () => {
+    //setIsEditModalOpen(false);
     try {
-      toast.success("Succesfully added expense", {
+      toast.success("Succesfully added transactions", {
         position: "top-center",
         autoClose: 5000,
         hideProgressBar: false,
@@ -54,7 +54,7 @@ const List = () => {
         transition: Bounce,
       });
     } catch (error) {
-      toast.error("Failed to add expense", {
+      toast.error("Failed to add transactions", {
         position: "top-center",
         autoClose: 5000,
         hideProgressBar: false,
@@ -65,15 +65,14 @@ const List = () => {
         theme: "light",
         transition: Bounce,
       });
-      console.error("Failed to refetch expenses:", error);
+      console.error("Failed to refetch transactions:", error);
     }
   };
 
-  const onFormEditExpense = async () => {
-    setIsEditModalOpen(false);
+  const onFormEditTransaction = async () => {
     setEditData(null); // Clear edit data
     try {
-      toast.success("Successfully updated expense", {
+      toast.success("Successfully updated transaction", {
         position: "top-center",
         autoClose: 5000,
         hideProgressBar: false,
@@ -85,7 +84,7 @@ const List = () => {
         transition: Bounce,
       });
     } catch (error) {
-      toast.error("Failed to update expense", {
+      toast.error("Failed to update transaction", {
         position: "top-center",
         autoClose: 5000,
         hideProgressBar: false,
@@ -96,15 +95,15 @@ const List = () => {
         theme: "light",
         transition: Bounce,
       });
-      console.error("Failed to update expense:", error);
+      console.error("Failed to update transaction:", error);
     }
   };
 
-  const handleDeleteTransaction = async (expenseId: number[]) => {
+  const handleDeleteTransactions = async (transactionId: number[]) => {
     try {
-      deleteExpenseMutate(expenseId);
+      deleteTransactionMutate(transactionId);
     } catch (error) {
-      toast.error("Failed to add expense", {
+      toast.error("Failed to add transactions", {
         position: "top-center",
         autoClose: 5000,
         hideProgressBar: false,
@@ -115,7 +114,7 @@ const List = () => {
         theme: "light",
         transition: Bounce,
       });
-      console.error("Failed to delete expense ", expenseId, error);
+      console.error("Failed to delete expense ", transactionId, error);
     } finally {
       toast.success("Successfully deleted expense", {
         position: "top-center",
@@ -131,39 +130,12 @@ const List = () => {
     }
   };
 
-  const handleEditTransaction = async (expense: ExpenseInterface) => {
-    setEditData(expense);
-    setIsEditModalOpen(true);
+  const handleEditTransaction = async (transaction: TransactionInterface) => {
+    setEditData(transaction);
   };
 
   return (
     <>
-      <Dialog
-        modal={false}
-        open={isEditModalOpen}
-        onOpenChange={setIsEditModalOpen}
-      >
-        <DialogPortal>
-          <div className="fixed inset-0 bg-white/30 backdrop-blur-sm z-40" />
-          <DialogContent className="z-50">
-            <DialogHeader>
-              <DialogTitle>{editData ? "Update" : "Add"} Expense</DialogTitle>
-            </DialogHeader>
-            {editData ? (
-              <Form
-                addingNewExpense={false}
-                initialValues={{
-                  ...editData,
-                  date: new Date(editData.date),
-                }}
-                onFormSubmit={onFormEditExpense}
-              />
-            ) : (
-              <Form addingNewExpense={true} onFormSubmit={onFormNewExpense} />
-            )}
-          </DialogContent>
-        </DialogPortal>
-      </Dialog>
       <div className="mt-12 flex flex-col md:flex-row w-full justify-center items-center mb-4">
         <div className="flex justify-center gap-x-2">
           <h1 className="text-3xl font-semibold antialiased dark:text-white">
@@ -171,22 +143,48 @@ const List = () => {
           </h1>
           <div className="flex-1 flex md:justify-start justify-center">
             <div className="flex flex-row justify-center gap-x-2 fixed bottom-6 right-6">
-              <Button
-                variant="default"
-                onClick={() => setIsEditModalOpen(true)}
-                className="px-10 py-6 text-lg 
-                            rounded-full shadow-lg bg-white/20 backdrop-blur-lg 
-                            border border-white/30 hover:bg-white/30
-                            "
-              >
-                Add +
-              </Button>
+              <Dialog>
+                <DialogTrigger asChild>
+                  <Button
+                    variant="default"
+                    className="px-10 py-6 text-lg 
+                                rounded-full shadow-lg bg-white/20 backdrop-blur-lg 
+                                border border-white/30 hover:bg-white/30
+                                "
+                  >
+                    Add +
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="z-50"
+                  onInteractOutside={(e) => e.preventDefault()}
+                  onPointerDownOutside={(e) => e.preventDefault()}          
+                >
+                  <DialogHeader>
+                    <DialogTitle>{editData ? "Update" : "Add"} Transaction</DialogTitle>
+                  </DialogHeader>
+                  {editData ? (
+                    <Form
+                      addingNewTransaction={false}
+                      initialValues={{
+                        ...editData,
+                        date: new Date(editData.date),
+                      }}
+                      onFormSubmit={onFormEditTransaction}
+                    />
+                  ) : (
+                    <Form 
+                      addingNewTransaction={true} 
+                      onFormSubmit={onFormNewTransactions} 
+                    />
+                  )}
+                </DialogContent>
+              </Dialog>
               <CSVImport setImportedData={setImportedData} />
             </div>
           </div>
         </div>
       </div>
-      {expenseList && expenseList.length > 0 ? (
+      {transactionList && transactionList.length > 0 ? (
         <div
           className="
                       bg-white/10 dark:bg-white/5 
@@ -196,8 +194,8 @@ const List = () => {
                         "
         >
           <DataTable
-            data={expenseList}
-            onDelete={handleDeleteTransaction}
+            data={transactionList}
+            onDelete={handleDeleteTransactions}
             onEdit={handleEditTransaction}
           />
         </div>

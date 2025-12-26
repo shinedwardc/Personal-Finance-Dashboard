@@ -1,8 +1,8 @@
 import { useContext } from "react";
-import { ExpenseContext } from "../context/ExpenseContext";
+import { TransactionContext } from "../context/TransactionContext";
 
-export const useExpenseContext = () => {
-  const context = useContext(ExpenseContext);
+export const useTransactionContext = () => {
+  const context = useContext(TransactionContext);
   if (context === undefined) {
     throw new Error("useExpenseContext must be used within a DataProvider");
   }

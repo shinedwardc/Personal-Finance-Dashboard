@@ -5,11 +5,12 @@ from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
-# Expense model    
-class Expense(models.Model):
+# Transaction model    
+class Transaction(models.Model):
     id = models.AutoField(primary_key=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     name = models.CharField(max_length=150,default="placeholder")
+    type = models.CharField(max_length=15, choices=[("Expense", "Expense"), ("Income", "Income")])
     category = models.CharField(max_length=150, default=None, null=True, blank=True)
     amount = models.DecimalField(max_digits=10, decimal_places=2)
     CURRENCIES = {

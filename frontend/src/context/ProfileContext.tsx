@@ -11,7 +11,7 @@ import {
   getAuthStatus,
   fetchProfileSettings,
   updateBudgetLimit,
-} from "@/utils/api";
+} from "@/api/user";
 
 import { AuthState } from "@/interfaces/userAuth";
 import { Settings } from "@/interfaces/settings";

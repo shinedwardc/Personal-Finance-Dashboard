@@ -1,4 +1,4 @@
-from .models import Expense, Investment, EmailVerification, UserProfile
+from .models import Transaction, Investment, EmailVerification, UserProfile
 from django.utils import timezone
 from datetime import timedelta
 from django.contrib.auth import authenticate
@@ -7,7 +7,7 @@ from django.views.decorators.csrf import csrf_exempt
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework import status
-from expenseTracker.serializers import ExpenseSerializer, UserSerializer
+from expenseTracker.serializers import TransactionSerializer, UserSerializer
 from django.contrib.auth.models import User
 from django.contrib.auth.hashers import make_password
 from rest_framework.permissions import AllowAny
@@ -31,30 +31,30 @@ def authentication_status(request):
 
 @api_view(['GET','POST','DELETE','PATCH'])
 @check_authentication
-def expense_list(request,id=None):
+def transactions(request,id=None):
     if id and request.method == 'PATCH':
         try:
             print('id', id)
-            expense = Expense.objects.get(pk=id, user=request.user)
-            serializer = ExpenseSerializer(expense, data=request.data, partial=True)
+            transaction = Transaction.objects.get(pk=id, user=request.user)
+            serializer = TransactionSerializer(transaction, data=request.data, partial=True)
             if serializer.is_valid():
                 serializer.save()
                 return Response(serializer.data, status=status.HTTP_200_OK)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)                
-        except Expense.DoesNotExist:
+        except Transaction.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
     else:
         if request.method == 'GET':
             if request.query_params.get('month') and request.query_params.get('year'):
                 month = int(request.query_params.get('month'))
                 year = int(request.query_params.get('year'))
-                expenses = Expense.objects.filter(user=request.user, date__month=month, date__year=year).order_by('date','name','category')
+                transactions = Transaction.objects.filter(user=request.user, date__month=month, date__year=year).order_by('date','name','category')
             else:
-                expenses = Expense.objects.filter(user=request.user).order_by('date','name','category')
-            serializer = ExpenseSerializer(expenses, many=True)
+                transactions = Transaction.objects.filter(user=request.user).order_by('date','name','category')
+            serializer = TransactionSerializer(transactions, many=True)
             return Response({'expenses': serializer.data})
         elif request.method == 'POST':
-            serializer = ExpenseSerializer(data=request.data, many=isinstance(request.data,list), context={'request': request})
+            serializer = TransactionSerializer(data=request.data, many=isinstance(request.data,list), context={'request': request})
             if serializer.is_valid():
                 serializer.save()
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -63,16 +63,9 @@ def expense_list(request,id=None):
             ids = request.data.get('ids', [])
             if not isinstance(ids, list):
                 return Response({'error': 'Expected a list of IDs.'}, status=status.HTTP_400_BAD_REQUEST)
-            Expense.objects.filter(id__in=ids).delete()
+            Transaction.objects.filter(id__in=ids).delete()
             return Response({'Successfully deleted expense(s)'},status=status.HTTP_204_NO_CONTENT)
     
-
-@api_view(['GET'])
-@check_authentication
-def category_list(request):
-    categories = Expense.objects.filter(user=request.user).values_list('category', flat=True).distinct()
-    print(list(categories))
-    return Response({'categories': list(categories)})
 
 @api_view(['GET'])
 @check_authentication
@@ -184,7 +177,7 @@ def refresh_token(request):
             "access",
             str(new_access),
             httponly=True,
-            secure=True,
+            secure=False,     # True for production
             samesite="Lax"
         )
         return response

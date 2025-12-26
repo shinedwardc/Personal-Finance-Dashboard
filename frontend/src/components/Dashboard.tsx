@@ -12,7 +12,7 @@ import {
   TriangleAlert,
 } from "lucide-react";
 import { useProfileContext } from "@/hooks/useProfileContext";
-import { useMonthlyExpenses } from "@/hooks/useMonthlyExpenses";
+import { useMonthlyTransactions } from "@/hooks/useMonthlyTransactions";
 import Form from "./Form";
 import {
   Bar,
@@ -41,10 +41,10 @@ import {
 } from "@/components/ui/chart";
 import {
   Dialog,
-  DialogPortal,
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogTrigger,
 } from "@/components/ui/dialog";
 import {
   Tooltip,
@@ -52,20 +52,22 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { TransactionInterface } from "@/interfaces/Transactions";
 import { chartConfig } from "@/constants/chartConfig";
 import { expenseCategoryConfig } from "@/constants/expenseCategoryConfig";
+import { incomeCategoryConfig } from "@/constants/incomeCategoryConfig";
 
 const Dashboard = () => {
   const today = useMemo(() => new Date(), []);
   const { data: monthData, isLoading: isDataLoading } =
-    useMonthlyExpenses(today);
+    useMonthlyTransactions(today);
   const lastMonthDate = useMemo(() => {
     const d = new Date();
     d.setMonth(d.getMonth() - 1);
     return d;
   }, []);
   const { data: lastMonthData, isLoading: isLastMonthLoading } =
-    useMonthlyExpenses(lastMonthDate);
+    useMonthlyTransactions(lastMonthDate);
 
   const { profileSettings, isProfileLoading } = useProfileContext();
   const [monthlySpent, setMonthlySpent] = useState<number>(0);
@@ -77,7 +79,6 @@ const Dashboard = () => {
   const [spendingChangePct, setSpendingChangePct] = useState<number | null>(
     null,
   );
-  const [balance, setBalance] = useState<number>(0);
   const [topSpendingCategories, setTopSpendingCategories] = useState<string[]>(
     [],
   );
@@ -111,7 +112,7 @@ const Dashboard = () => {
       (acc, item) => {
         if (new Date(item.date) > today) return acc;
 
-        if (item.category === "Income") {
+        if (item.type === "Income") {
           acc.income.push(item);
         } else {
           acc.expenses.push(item);
@@ -119,7 +120,7 @@ const Dashboard = () => {
 
         return acc;
       },
-      { expenses: [], income: [] as typeof monthData },
+      { expenses: [] as TransactionInterface[], income: [] as TransactionInterface[] },
     );
 
     let expenseTotal = 0;
@@ -129,15 +130,22 @@ const Dashboard = () => {
     let discretionarySum = 0;
 
     const discretionaryCats = new Set([
+      "Restaurants",
+      "Coffee & Snacks",
+      "Alcohol & Bars",
+      "Shopping",
+      "Entertainment",
+      "Subscriptions",
+      "Flights",
+      "Hotels",
+      "Transportation Travel",
+      "Travel Activities",
+      "Gifts & Donations",
+      "Personal Care",
       "Other",
-      "Recreation",
-      "Shops",
-      "Travel",
     ]);
-
     for (const exp of expenses) {
       const amount = Number(exp.amount);
-      if (amount < 0) continue;
 
       expenseTotal += amount;
 
@@ -177,9 +185,9 @@ const Dashboard = () => {
     setGraphData(
       Object.keys(expenseTotals)
         .sort()
-        .map((cat) => ({
-          category: cat,
-          total: expenseTotals[cat],
+        .map((categoryName) => ({
+          category: categoryName,
+          total: expenseTotals[categoryName],
         })),
     );
 
@@ -217,16 +225,6 @@ const Dashboard = () => {
     }
   }, [lastMonthData, monthlySpent]);
 
-  /*useEffect(() => {
-    if (plaidBalance) {
-      let newBalance = 0;
-      for (const account of plaidBalance.accounts) {
-        newBalance += account.balances.available;
-      }
-      setBalance(newBalance);
-    }
-  }, [plaidBalance]);*/
-
   const isLoading = isDataLoading || isProfileLoading || isLastMonthLoading;
 
   // Get an actual computed color from a CSS variable
@@ -248,7 +246,6 @@ const Dashboard = () => {
     const brightness = (r * 299 + g * 587 + b * 114) / 1000;
     return brightness >= 128 ? "#000" : "#fff";
   };
-
   return (
     <>
       {!isLoading ? (
@@ -609,27 +606,28 @@ const Dashboard = () => {
                       </CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-3">
+                    {profileSettings.monthlyBudget !== null ? (
                       <TooltipProvider>
                         <Tooltip>
                           <TooltipTrigger>
                             <span className="text-lg font-semibold">
                               <span
-                                className={`
-                                ${
-                                  monthlySpent /
-                                    profileSettings.monthlyBudget /
-                                    timeProgressed >=
+                                className={`${
+                                  monthlySpent / profileSettings.monthlyBudget / timeProgressed >=
                                   1.2
                                     ? "text-red-500"
                                     : monthlySpent /
-                                          profileSettings.monthlyBudget /
-                                          timeProgressed >=
-                                        0.9
-                                      ? "text-yellow-400"
-                                      : "text-emerald-400"
+                                        profileSettings.monthlyBudget /
+                                        timeProgressed >=
+                                      0.9
+                                    ? "text-yellow-400"
+                                    : "text-emerald-400"
                                 }`}
                               >
-                                {`${((monthlySpent / profileSettings.monthlyBudget / timeProgressed) * 100).toFixed(1)}`}
+                                {`${(
+                                  (monthlySpent / profileSettings.monthlyBudget / timeProgressed) *
+                                  100
+                                ).toFixed(1)}`}
                                 %
                               </span>{" "}
                               overspending risk
@@ -642,6 +640,12 @@ const Dashboard = () => {
                           </TooltipContent>
                         </Tooltip>
                       </TooltipProvider>
+                    ) : (
+                      <p className="text-sm text-red-300">
+                        Add a monthly budget in profile settings to unlock
+                        overspending risk analysis.
+                      </p>
+                    )}
                       <p className="text-xs text-neutral-400">
                         Overspending Risk compares your actual spending with
                         your expected spending based on how far into the month
@@ -758,10 +762,10 @@ const Dashboard = () => {
                             {graphData.map((item, index) => (
                               <Cell
                                 key={index}
-                                fill={`var(--color-${item.category.replace(
+                                fill={`var(--color-${expenseCategoryConfig[item.category].group.replace(
                                   /\s+/g,
                                   "-",
-                                )})`}
+                                ).toLowerCase()})`}
                               />
                             ))}
                             <LabelList
@@ -823,7 +827,10 @@ const Dashboard = () => {
                                 cx + radius * Math.cos(-midAngle * RADIAN);
                               const y =
                                 cy + radius * Math.sin(-midAngle * RADIAN);
-                              const cssVar = `var(--color-${payload.category.replace(/\s+/g, "-")})`;
+                              const cssVar = `var(--color-${expenseCategoryConfig[payload.category].group.replace(
+                                /\s+/g,
+                                "-",
+                              ).toLowerCase()})`;
                               // Convert CSS variable → actual rgb → pick contrasting black or white
                               const actualColor = getCssVarColor(cssVar);
                               const contrastText =
@@ -846,10 +853,10 @@ const Dashboard = () => {
                             {graphData.map((item, index) => (
                               <Cell
                                 key={index}
-                                fill={`var(--color-${item.category.replace(
+                                fill={`var(--color-${expenseCategoryConfig[item.category].group.replace(
                                   /\s+/g,
                                   "-",
-                                )})`}
+                                ).toLowerCase()})`}
                               />
                             ))}
                           </Pie>
@@ -874,30 +881,28 @@ const Dashboard = () => {
                 see your overview.
               </p>
               <div className="mt-8 flex justify-center">
-                <button
-                  className="rounded-full bg-emerald-500/90 px-5 py-2 text-sm font-semibold text-white shadow-[0_18px_45px_rgba(16,185,129,0.55)] hover:bg-emerald-400 transition"
-                  onClick={() => setIsOpen(true)}
+              <Dialog open={modalIsOpen} onOpenChange={setIsOpen}>
+                <DialogTrigger asChild>
+                  <button
+                    className="rounded-full bg-emerald-500/90 px-5 py-2 text-sm font-semibold text-white shadow-[0_18px_45px_rgba(16,185,129,0.55)] hover:bg-emerald-400 transition
+                                "
+                  >
+                    Add transaction
+                  </button>
+                </DialogTrigger>
+                <DialogContent className="z-50"
+                  onInteractOutside={(e) => e.preventDefault()}
+                  onPointerDownOutside={(e) => e.preventDefault()}          
                 >
-                  Add new expense
-                </button>
-                <Dialog
-                  modal={false}
-                  open={modalIsOpen}
-                  onOpenChange={setIsOpen}
-                >
-                  <DialogPortal>
-                    <div className="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm" />
-                    <DialogContent className="z-50">
-                      <DialogHeader>
-                        <DialogTitle>Add Expense</DialogTitle>
-                      </DialogHeader>
-                      <Form
-                        addingNewExpense={true}
-                        onFormSubmit={() => setIsOpen(false)}
-                      />
-                    </DialogContent>
-                  </DialogPortal>
-                </Dialog>
+                  <DialogHeader>
+                    <DialogTitle>Add Transaction</DialogTitle>
+                  </DialogHeader>
+                  <Form 
+                    addingNewTransaction={true} 
+                    onFormSubmit={() => setIsOpen(false)} 
+                  />
+                </DialogContent>
+              </Dialog>
               </div>
             </div>
           )}

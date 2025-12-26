@@ -1,6 +1,7 @@
-export interface ExpenseInterface {
-  id: number;
+export interface TransactionInterface {
+  id?: number;
   name: string;
+  type: "Expense" | "Income";
   category: string;
   amount: number;
   currency?: string;

@@ -3,18 +3,20 @@ from . import views
 from .utils import plaid
 
 urlpatterns = [
-    path('expenses/', views.expense_list, name='expense_list'),
-    path('expenses/<int:id>/', views.expense_list, name='expense_list'),
+    path('transactions/', views.transactions, name='transactions'),
+    path('transactions/<int:id>/', views.transactions, name='transactions'),
+    
     path('signup/', views.user_post, name='user_post'),
     path('reset-password-email/', views.reset_password_email, name='reset_password_email'),
     path('code-verification/',views.code_verification, name='code_verification'),
     path('update_monthly_budget/', views.update_monthly_budget, name='update_monthly_budget'),
-    path('categories/', views.category_list, name='category_list'),
+
     path('auth-status/', views.authentication_status, name='authentication_status'),
-    path('api/auth/', views.login, name='login'),
-    path('api/auth/google/', views.google_login, name='google_login'),
-    path('api/auth/refresh/', views.refresh_token, name='refresh_token'),
-    path('api/logout/', views.logout, name='logout'),
+    path('auth/login', views.login, name='login'),
+    path('auth/google/', views.google_login, name='google_login'),
+    path('auth/refresh/', views.refresh_token, name='refresh_token'),
+    path('auth/logout/', views.logout, name='logout'),
+
     path('get-user/', views.get_user, name='get_user'),
     path('get-profile-settings/', views.get_profile_settings, name='get_profile_settings'),
     path('get-currency-exchange/<str:from_currency>/<str:to_currency>/', views.get_currency_exchange, name='get_currency_change'),

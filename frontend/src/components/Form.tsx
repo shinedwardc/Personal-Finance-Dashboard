@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { useExpenseContext } from "@/hooks/useExpenseContext";
+import { useTransactionContext } from "@/hooks/useTransactionContext";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { Input } from "./ui/input";
@@ -21,6 +21,7 @@ import {
   PopoverContent,
 } from "../components/ui/popover";
 import { expenseCategoryConfig } from "@/constants/expenseCategoryConfig";
+import { incomeCategoryConfig } from "@/constants/incomeCategoryConfig";
 import { LuCalendarDays } from "react-icons/lu";
 
 // Define validation schema
@@ -34,10 +35,10 @@ const formSchema = z
     date: z.date({ required_error: "Date is required" }),
   })
   .superRefine((data, ctx) => {
-    if (data.type === "Expense" && !data.category) {
+    if (!data.category) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message: "Category is required for expenses",
+        message: "Category is required",
         path: ["category"],
       });
     }
@@ -47,13 +48,13 @@ const formSchema = z
 type FormInputs = z.infer<typeof formSchema>;
 
 interface formProps {
-  addingNewExpense: boolean;
+  addingNewTransaction: boolean;
   initialValues?: FormInputs & { id?: number | undefined };
   onFormSubmit: () => void;
 }
 
 const Form = ({
-  addingNewExpense,
+  addingNewTransaction,
   initialValues = {
     name: "",
     amount: 0,
@@ -66,7 +67,7 @@ const Form = ({
 }: formProps) => {
   const [type, setType] = useState<string>(initialValues.type);
 
-  const { addExpenseMutate, editExpenseMutate } = useExpenseContext();
+  const { addTransactionMutate, editTransactionMutate } = useTransactionContext();
 
   const {
     register,
@@ -86,18 +87,20 @@ const Form = ({
   });
 
   const onSubmit = (data: FormInputs) => {
-    const expense = {
+    console.log("Form Data:", data);
+    const transaction = {
       name: data.name,
-      category: data.type === "Expense" ? data.category : "Income",
+      type: data.type,
+      category: data.category,
       amount: data.amount,
       currency: data.currency,
       date: format(data.date, "yyyy-MM-dd"),
       updated_at: new Date().toISOString(),
     };
-    if (addingNewExpense) {
-      addExpenseMutate(expense);
+    if (addingNewTransaction) {
+      addTransactionMutate(transaction);
     } else {
-      editExpenseMutate({ expenseId: Number(initialValues.id), data: expense });
+      editTransactionMutate({ transactionId: Number(initialValues.id), data: transaction });
     }
     onFormSubmit();
   };
@@ -143,8 +146,7 @@ const Form = ({
           )}
         />
       </div>
-      {type === "Expense" ? (
-        <div className="mt-2">
+      <div className="mt-2">
           <label htmlFor="category" className="mb-2 block dark:text-white">
             Category
           </label>
@@ -152,27 +154,33 @@ const Form = ({
             control={control}
             name="category"
             render={({ field }) => (
-              <Select onValueChange={field.onChange} value={field.value}>
+              <Select
+                modal={false}
+                value={field.value}
+                onValueChange={field.onChange}
+              >
                 <SelectTrigger>
                   <SelectValue placeholder="Select a category" />
                 </SelectTrigger>
+
                 <SelectContent>
-                  {Object.values(expenseCategoryConfig).map((category, index) => (
-                    <SelectItem key={index} value={category.label}>
-                      {category.label} {category.icon}
-                    </SelectItem>
-                  ))}
+                  {type === "Expense"
+                    ? Object.values(expenseCategoryConfig).map((category, index) => (
+                        <SelectItem key={index} value={category.label}>
+                          {category.label} {category.icon}
+                        </SelectItem>
+                      ))
+                    : Object.values(incomeCategoryConfig).map((category, index) => (
+                        <SelectItem key={index} value={category.label}>
+                          {category.label} {category.icon}
+                        </SelectItem>
+                      ))}
                 </SelectContent>
               </Select>
             )}
           />
-          {errors.category && (
-            <p className="text-red-500 text-sm">{errors.category.message}</p>
-          )}
-        </div>
-      ) : (
-        <></>
-      )}
+
+      </div>
       <div className="mt-2 mb-2">
         <div className="mb-2 dark:text-white">Amount</div>
         <div className="flex justify-row gap-x-1">
@@ -253,7 +261,7 @@ const Form = ({
       </div>
       <div>
         <button type="submit" className="btn btn-accent rounded mt-3">
-          {addingNewExpense ? "Add" : "Update"} Expense
+          {addingNewTransaction ? "Add" : "Update"} Transaction
         </button>
       </div>
     </form>

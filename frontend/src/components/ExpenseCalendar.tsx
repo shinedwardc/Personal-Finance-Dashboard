@@ -1,5 +1,5 @@
 import { useRef, useEffect, useState, useMemo } from "react";
-import { useMonthlyExpenses } from "@/hooks/useMonthlyExpenses";
+import { useMonthlyTransactions } from "@/hooks/useMonthlyTransactions";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import {
@@ -15,6 +15,7 @@ import { format } from "date-fns";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { useSpring, animated } from "@react-spring/web";
 import { expenseCategoryConfig } from "@/constants/expenseCategoryConfig";
+import { incomeCategoryConfig } from "@/constants/incomeCategoryConfig";
 //import { systemConfig } from "@/constants/expenseCategoryConfig";
 
 const ExpenseCalendar = () => {
@@ -24,7 +25,7 @@ const ExpenseCalendar = () => {
     { title: string; start: string; amount: number; category: string }[]
   >([]);
   const [eventsByDate, setEventsByDate] = useState<
-    Map<string, { title: string; category: string; amount: number }[]>
+    Map<string, { title: string; category: string; type: "Expense" | "Income"; amount: number }[]>
   >(new Map());
   const today = useMemo(() => new Date(), []);
   const [monthAndYear, setMonthAndYear] = useState<Date>(today);
@@ -32,7 +33,7 @@ const ExpenseCalendar = () => {
 
   const [selectedItem, setSelectedItem] = useState<string>("All");
 
-  const { data, isLoading: isDataLoading } = useMonthlyExpenses(monthAndYear);
+  const { data, isLoading: isDataLoading } = useMonthlyTransactions(monthAndYear);
 
   useEffect(() => {
     if (calendarRef.current) {
@@ -51,78 +52,49 @@ const ExpenseCalendar = () => {
     if (data) {
       console.log("data: ", data);
       const totalAmount = data.reduce((sum, event) => {
-        if (event.amount >= 0) {
+        if (event.type === "Expense") {
           return sum + event.amount;
         }
         return sum;
       }, 0);
       setMonthlySpent(totalAmount);
-      const formattedTransactions = data.map((expense) => ({
-        title: expense.name,
-        start: expense.date,
-        amount: expense.amount,
-        category: expense.category,
+      const formattedTransactions = data.map((transaction) => ({
+        title: transaction.name,
+        start: transaction.date,
+        amount: transaction.amount,
+        type: transaction.type,
+        category: transaction.category,
       }));
       setEvents(formattedTransactions);
       const eventsByDate = new Map<
         string,
         { title: string; category: string; amount: number }[]
       >();
-      formattedTransactions.map((event) => {
-        if (eventsByDate.has(event.start)) {
-          eventsByDate.get(event.start)?.push({
-            title: event.title,
-            category: event.category,
-            amount: event.amount,
+      formattedTransactions.map((transaction) => {
+        if (eventsByDate.has(transaction.start)) {
+          eventsByDate.get(transaction.start)?.push({
+            title: transaction.title,
+            category: transaction.category,
+            type: transaction.type,
+            amount: transaction.amount,
           });
         } else {
-          eventsByDate.set(event.start, [
+          eventsByDate.set(transaction.start, [
             {
-              title: event.title,
-              category: event.category,
-              amount: event.amount,
+              title: transaction.title,
+              category: transaction.category,
+              type: transaction.type,
+              amount: transaction.amount,
             },
           ]);
         }
       });
       setEventsByDate(eventsByDate);
-      console.log("eventsByDate: ", eventsByDate);
     } else {
       setMonthlySpent(0);
       setEvents([]);
     }
   }, [monthAndYear, data]);
-
-  /*useEffect(() => {
-    console.log("events: ", events);
-    if (events.length > 0 && calendarRef.current) {
-      const calendarApi = calendarRef.current.getApi();
-      const currentMonth = calendarApi.getDate().getMonth();
-      const currentYear = calendarApi.getDate().getFullYear();
-      const filteredEvents = events.filter((event) => {
-        const eventDate = new Date(event.start);
-        return (
-          eventDate.getMonth() === currentMonth &&
-          eventDate.getFullYear() === currentYear &&
-          event.amount >= 0
-        );
-      });
-      const totalAmount = filteredEvents.reduce(
-        (sum, event) => sum + event.amount,
-        0,
-      );
-  }, [events, getCurrentMonth]);*/
-
-  /*const {
-    calendarRef,
-    events,
-    chosenEvents,
-    getCurrentMonth,
-    monthAndYear,
-    monthlySpent,
-    date,
-    setDate,
-  } = useCalendarContext();*/
 
   const handleDateChange = (arg: { start: Date }) => {
     const newDate = new Date(arg.start);
@@ -186,12 +158,10 @@ const ExpenseCalendar = () => {
           }}
           buttonText={{ today: "Today" }}
           eventContent={(info) => {
-            const category = info.event.extendedProps.category;
+            const type = info.event.extendedProps.type;
             const amount = info.event.extendedProps.amount;
-
-            const config = expenseCategoryConfig[category];
-            const label = config.label.replace(/ /g, "-").toLowerCase();
-
+            const category = info.event.extendedProps.category;
+            const config = type === "Expense" ? expenseCategoryConfig[category] : incomeCategoryConfig[category];
             return (
               <div
                 className="
@@ -200,25 +170,25 @@ const ExpenseCalendar = () => {
                   text-[11px] font-medium
                 "
                 style={{
-                  backgroundColor: `color-mix(in srgb, var(--color-${label}) 35%, transparent)`,
+                  backgroundColor: `color-mix(in srgb, ${config.color} 75%, transparent)`,
                   color: "white",
                 }}
               >
                 <span className="truncate w-full">{info.event.title}</span>
 
                 <span className="text-[10px] font-semibold ml-auto">
-                  {label !== "income" ? "-" + amount : "+" + amount}$
+                  {type === "Expense" ? "-" + amount : "+" + amount}$
                 </span>
               </div>
             );
           }}
           height={750}
         ></FullCalendar>
-        <div className="flex flex-row justify-items-start gap-1">
+        {/*<div className="flex flex-row justify-items-start gap-1">
           <p>* </p>
           <div className="inline-block bg-red-500 text-red-500">*****</div>
           <p>: Upcoming recurring bill</p>
-        </div>
+        </div>*/}
       </div>
       {/*<div className="dark:text-white">
         <Calendar
@@ -252,13 +222,14 @@ const ExpenseCalendar = () => {
         </div>
         <div className="space-y-6">
           {[...eventsByDate].map(([date, events]) => {
+            console.log(events);
             const filtered =
               selectedItem === "All"
                 ? events
                 : events.filter((event) =>
                     selectedItem === "Expense"
-                      ? event.amount > 0
-                      : event.amount < 0,
+                      ? event.category === "Expense"
+                      : event.category === "Income",
                   );
 
             if (filtered.length === 0) return null;
@@ -274,25 +245,19 @@ const ExpenseCalendar = () => {
                 <div className="space-y-2">
                   {filtered.map((event, idx) => {
                     console.log(event);
-                    const config = expenseCategoryConfig[event.category]
-
+                    const config = event.type === "Expense" ? expenseCategoryConfig[event.category] : incomeCategoryConfig[event.category];
                     console.log(config);
-
-                    const slug = config.label.replace(/ /g, "-").toLowerCase();
 
                     return (
                       <div
                         key={idx}
                         className="flex items-center justify-between px-3 py-2 rounded-xl bg-white/5 backdrop-blur-md border border-white/10 shadow-sm"
-                        style={{
-                          borderLeft: `4px solid var(--color-${slug})`,
-                        }}
                       >
                         <div className="flex items-center gap-3">
                           <div
                             className="w-7 h-7 rounded-full flex items-center justify-center text-lg"
                             style={{
-                              backgroundColor: `color-mix(in srgb, var(--color-${slug}) 40%, transparent)`,
+                              backgroundColor: `color-mix(in srgb, ${config.color} 40%, transparent)`,
                             }}
                           >
                             {config.icon}
@@ -306,15 +271,9 @@ const ExpenseCalendar = () => {
                             </span>
                           </div>
                         </div>
-                        <div
-                          className={`text-sm font-semibold ${
-                            event.amount > 0
-                              ? "text-red-400"
-                              : "text-emerald-400"
-                          }`}
-                        >
-                          {event.amount > 0 ? "-" : "+"}$
-                          {Math.abs(event.amount)}
+                        <div>
+                          {event.type === "Expense" ? "-" : "+"}
+                          {Math.abs(event.amount)}$
                         </div>
                       </div>
                     );
