@@ -101,7 +101,6 @@ const Form = ({
   }, []);
 
   const onSubmit = (data: FormInputs) => {
-    console.log("Form Data:", data);
     const transaction = {
       name: data.name,
       type: data.type,

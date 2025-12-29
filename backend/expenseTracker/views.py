@@ -199,9 +199,9 @@ def user_post(request):
     user.save()
 
     # Save user profile settings (monthly budget)
-    user_profile, created = UserSettings.objects.get_or_create(user=user)
-    user_profile.monthly_budget = monthly_budget
-    user_profile.save()
+    user_settings, created = UserSettings.objects.get_or_create(user=user)
+    user_settings.monthly_budget = monthly_budget
+    user_settings.save()
 
     return Response({'message': 'User created successfully.'}, status=status.HTTP_201_CREATED)
 
@@ -283,15 +283,16 @@ def get_user_settings(request):
 def update_budget_settings(request):
     try:
         user = request.user
-        [monthly_budget, category_budget_limits, over_spending_threshold] = request.data
-        user_profile = UserSettings.objects.get(user=user)
+        monthly_budget = request.data.get('monthly_budget')
+        over_spending_threshold = request.data.get('over_spending_threshold')
+        user_settings = UserSettings.objects.get(user=user)
         if monthly_budget is not None:
-            user_profile.monthly_budget = monthly_budget
-        if category_budget_limits is not None:
-            user_profile.category_budget_limits = category_budget_limits
+            user_settings.monthly_budget = monthly_budget
+        #if category_budget_limits is not None:
+        #    user_settings.category_budget_limits = category_budget_limits
         if over_spending_threshold is not None:
-            user_profile.over_spending_threshold = over_spending_threshold
-        user_profile.save()
+            user_settings.over_spending_threshold = over_spending_threshold
+        user_settings.save()
     except Exception as e:
         return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
     return Response({'message': 'Monthly budget updated successfully.'}, status=status.HTTP_200_OK)
@@ -301,21 +302,23 @@ def update_budget_settings(request):
 def update_display_settings(request):
     try:
         user = request.user
-        [display_currency, display_timezone, display_date_format, display_dashboard_range, notifications_enabled, income_affects_budget] = request.data
-        user_profile = UserSettings.objects.get(user=user)
+        display_currency = request.data.get('display_currency')
+        display_date_format = request.data.get('display_date_format')
+        display_dashboard_range = request.data.get('display_dashboard_range')
+        notifications_enabled = request.data.get('notifications_enabled')
+        income_affects_budget = request.data.get('income_affects_budget')
+        user_settings = UserSettings.objects.get(user=user)
         if display_currency is not None:
-            user_profile.display_currency = display_currency
-        if display_timezone is not None:
-            user_profile.display_timezone = display_timezone
+            user_settings.display_currency = display_currency
         if display_date_format is not None:
-            user_profile.display_date_format = display_date_format
+            user_settings.display_date_format = display_date_format
         if display_dashboard_range is not None:
-            user_profile.display_dashboard_range = display_dashboard_range
+            user_settings.display_dashboard_range = display_dashboard_range
         if notifications_enabled is not None:
-            user_profile.notifications_enabled = notifications_enabled
+            user_settings.notifications_enabled = notifications_enabled
         if income_affects_budget is not None:
-            user_profile.income_affects_budget = income_affects_budget
-        user_profile.save()
+            user_settings.income_affects_budget = income_affects_budget
+        user_settings.save()
     except Exception as e:
         return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
     return Response({'message': 'Display settings updated successfully.'}, status=status.HTTP_200_OK)

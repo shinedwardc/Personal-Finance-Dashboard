@@ -1,14 +1,14 @@
 export interface BudgetSettings {
-  monthlyBudget?: number;
-  categoryLimits?: Record<string, number>[];
-  overSpendingThreshold?: number;
+  monthly_budget?: number;
+  category_budget_limits?: Record<string, number>[];
+  over_spending_threshold?: number;
 }
 
 export interface DisplaySettings {
-  displayCurrency?: string;
-  timeZone?: string;
-  dateFormat?: string;
-  defaultDashboardRange?: "month" | "quarter" | "year" | "all";
-  notificationsEnabled?: boolean;
-  incomeAffectsBudget?: boolean;
+  display_currency?: string;
+  display_timezone?: string;
+  display_date_format?: string;
+  default_dashboard_range?: "Current Month" | "30 days" | "Quarter" | "Year" | "All";
+  notifications_enabled?: boolean;
+  income_affects_budget?: boolean;
 }

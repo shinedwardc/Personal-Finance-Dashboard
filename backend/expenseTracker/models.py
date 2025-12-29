@@ -62,11 +62,10 @@ class UserSettings(models.Model):
     
     # User display preferences
     display_currency = models.CharField(max_length=3)
-    display_timezone = models.CharField(max_length=50, blank=True, null=True)
     display_date_format = models.CharField(max_length=20, blank=True, null=True)
-    display_dashboard_range = models.CharField(max_length=10, choices=[
-        ("month", "month"), ("quarter", "quarter"), ("year", "year"), ("all", "all")
-    ], default="month")
+    display_dashboard_range = models.CharField(max_length=20, choices=[
+        ("Current Month", "Current Month"),("30 Days", "30 Days"), ("Quarter", "Quarter"), ("Year", "Year"), ("All", "All")
+    ], default="Current Month")
     notifications_enabled = models.BooleanField(default=False)
     income_affects_budget = models.BooleanField(default=False)
 

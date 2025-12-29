@@ -143,8 +143,10 @@ export const fetchUserSettings = async () => {
 export const updateBudgetSettings = async (data: BudgetSettings) => {
   try {
     console.log(data);
-    const response = await api.post("/user/settings/budget/", data);
-    console.log(response.data);
+    const response = await api.post("/user/settings/budget/", {
+      monthly_budget: data.monthly_budget,
+      over_spending_threshold: data.over_spending_threshold,
+    });
     return response.data;
   } catch (error) {
     console.error("Error updating budget limit:", error);

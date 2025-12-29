@@ -54,7 +54,7 @@ import {
 import { TransactionInterface } from "@/interfaces/Transactions";
 import { chartConfig } from "@/constants/chartConfig";
 import { expenseCategoryConfig } from "@/constants/expenseCategoryConfig";
-import { incomeCategoryConfig } from "@/constants/incomeCategoryConfig";
+//import { incomeCategoryConfig } from "@/constants/incomeCategoryConfig";
 
 const Dashboard = () => {
   const today = useMemo(() => new Date(), []);
