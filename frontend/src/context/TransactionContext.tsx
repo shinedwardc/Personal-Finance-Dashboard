@@ -1,14 +1,14 @@
 import { useEffect, useState, createContext, ReactNode } from "react";
-import { useProfileContext } from "@/hooks/useProfileContext";
+import { useSettingsContext } from "@/hooks/useSettingsContext";
 import { TransactionInterface } from "../interfaces/Transactions";
-import { Settings } from "../interfaces/settings";
+import { BudgetSettings } from "../interfaces/settings";
 import {
   getTransactions,
   addTransactions,
   deleteTransactions,
   editTransaction,
 } from "../api/transactions";
-import { updateBudgetLimit } from "../api/user";
+import { updateBudgetSettings, updateDisplaySettings } from "../api/user";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 
 export const TransactionContext = createContext<
@@ -27,7 +27,7 @@ export const TransactionContext = createContext<
         transactionId: number;
         data: any;
       }) => void;
-      settingsData: Settings;
+      settingsData: BudgetSettings;
       handleSettingsForm: (data: Settings) => void;
       settingsLoading: boolean;
     }
@@ -36,7 +36,7 @@ export const TransactionContext = createContext<
 
 export const TransactionProvider = ({ children }: { children: ReactNode }) => {
   const queryClient = useQueryClient();
-  const { authState, isProfileLoading } = useProfileContext();
+  const { authState, isProfileLoading } = useSettingsContext();
 
   const [data, setData] = useState<TransactionInterface[]>([]);
 
@@ -86,23 +86,6 @@ export const TransactionProvider = ({ children }: { children: ReactNode }) => {
       },
     });
 
-  const { mutate: settingsMutate, isLoading: settingsMutateLoading } =
-    useMutation({
-      mutationFn: (data: Settings) => {
-        return updateBudgetLimit(data);
-      },
-      onSuccess: () => {
-        queryClient.invalidateQueries({
-          queryKey: ["settings", authState.isLoggedIn],
-        });
-      },
-    });
-
-  const handleSettingsForm = (data: Settings): void => {
-    //updateBudgetLimit(data);
-    settingsMutate(data);
-  };
-
   useEffect(() => {
     if (transactionData) {
       setData(transactionData);
@@ -122,7 +105,6 @@ export const TransactionProvider = ({ children }: { children: ReactNode }) => {
         addTransactionMutate,
         deleteTransactionMutate,
         editTransactionMutate,
-        handleSettingsForm,
         isDataLoading,
       }}
     >

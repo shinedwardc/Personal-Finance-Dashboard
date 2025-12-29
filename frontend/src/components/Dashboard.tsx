@@ -5,13 +5,12 @@ import {
   PieChart,
   Banknote,
   Gauge,
-  TrendingUp,
   Calendars,
   CalendarClock,
   PiggyBank,
   TriangleAlert,
 } from "lucide-react";
-import { useProfileContext } from "@/hooks/useProfileContext";
+import { useSettingsContext } from "@/hooks/useSettingsContext";
 import { useMonthlyTransactions } from "@/hooks/useMonthlyTransactions";
 import Form from "./Form";
 import {
@@ -69,7 +68,7 @@ const Dashboard = () => {
   const { data: lastMonthData, isLoading: isLastMonthLoading } =
     useMonthlyTransactions(lastMonthDate);
 
-  const { profileSettings, isProfileLoading } = useProfileContext();
+  const { userSettings, isUserSettingsLoading } = useSettingsContext();
   const [monthlySpent, setMonthlySpent] = useState<number>(0);
   const [monthlyIncome, setMonthlyIncome] = useState<number>(0);
   const [timeProgressed, setTimeProgressed] = useState<number>(0);
@@ -225,7 +224,7 @@ const Dashboard = () => {
     }
   }, [lastMonthData, monthlySpent]);
 
-  const isLoading = isDataLoading || isProfileLoading || isLastMonthLoading;
+  const isLoading = isDataLoading || isUserSettingsLoading || isLastMonthLoading;
 
   // Get an actual computed color from a CSS variable
   const getCssVarColor = (variable: string): string => {
@@ -351,51 +350,49 @@ const Dashboard = () => {
                       <Gauge className="w-5 h-5 text-rose-300" />
                     </CardHeader>
                     <CardContent>
-                      {profileSettings.monthlyBudget !== null ? (
+                      {userSettings.monthlyBudget ? (
                         <>
                           <p className="text-sm font-semibold text-neutral-100">
                             {formatCurrency(monthlySpent)}{" "}
                             <span className="text-neutral-400 text-xs">
-                              / {formatCurrency(profileSettings.monthlyBudget)}
+                              / {formatCurrency(userSettings.monthlyBudget)}
                             </span>
                           </p>
                           <p
                             className={`mt-1 text-xs ${
-                              profileSettings.monthlyBudget -
+                              userSettings.monthlyBudget -
                                 Number(monthlySpent.toFixed(2)) <
                               0
                                 ? "text-red-300"
                                 : "text-emerald-300"
                             }`}
                           >
-                            {profileSettings.monthlyBudget -
+                            {userSettings.monthlyBudget -
                               Number(monthlySpent.toFixed(2)) <
                             0
                               ? `Over budget by ${formatCurrency(
                                   Math.abs(
-                                    profileSettings.monthlyBudget -
+                                    userSettings.monthlyBudget -
                                       Number(monthlySpent.toFixed(2)),
                                   ),
                                 )}`
                               : `You have ${formatCurrency(
-                                  profileSettings.monthlyBudget -
+                                  userSettings.monthlyBudget -
                                     Number(monthlySpent.toFixed(2)),
                                 )} left this month.`}
                           </p>
                           <div className="mt-3 h-2 w-full overflow-hidden rounded-full bg-white/10">
-                            {profileSettings.monthlyBudget > 0 && (
+                            {userSettings?.monthlyBudget > 0 && (
                               <div
                                 className={`h-full rounded-full ${
-                                  monthlySpent > profileSettings.monthlyBudget
+                                  monthlySpent > userSettings.monthlyBudget
                                     ? "bg-red-400"
                                     : "bg-emerald-400"
                                 }`}
                                 style={{
                                   width: `${Math.min(
-                                    (monthlySpent /
-                                      profileSettings.monthlyBudget) *
-                                      100,
-                                    110,
+                                    (monthlySpent / userSettings.monthlyBudget) * 100,
+                                    110
                                   )}%`,
                                 }}
                               />
@@ -457,17 +454,17 @@ const Dashboard = () => {
                             : "0 - 100"
                           : 0}
                       </p>
-                      {profileSettings.monthlyBudget !== null && (
+                      {userSettings.monthlyBudget && (
                         <p className="mt-2 text-xs text-neutral-400">
                           This is{" "}
                           <span
                             className={
-                              projectedSpending > profileSettings.monthlyBudget
+                              projectedSpending > userSettings.monthlyBudget
                                 ? "text-red-300 font-semibold"
                                 : "text-emerald-300 font-semibold"
                             }
                           >
-                            {projectedSpending > profileSettings.monthlyBudget
+                            {projectedSpending > userSettings.monthlyBudget
                               ? "above"
                               : "within"}
                           </span>{" "}
@@ -606,18 +603,18 @@ const Dashboard = () => {
                       </CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-3">
-                    {profileSettings.monthlyBudget !== null ? (
+                    {userSettings.monthlyBudget ? (
                       <TooltipProvider>
                         <Tooltip>
                           <TooltipTrigger>
                             <span className="text-lg font-semibold">
                               <span
                                 className={`${
-                                  monthlySpent / profileSettings.monthlyBudget / timeProgressed >=
+                                  monthlySpent / userSettings.monthlyBudget / timeProgressed >=
                                   1.2
                                     ? "text-red-500"
                                     : monthlySpent /
-                                        profileSettings.monthlyBudget /
+                                        userSettings.monthlyBudget /
                                         timeProgressed >=
                                       0.9
                                     ? "text-yellow-400"
@@ -625,7 +622,7 @@ const Dashboard = () => {
                                 }`}
                               >
                                 {`${(
-                                  (monthlySpent / profileSettings.monthlyBudget / timeProgressed) *
+                                  (monthlySpent / userSettings.monthlyBudget / timeProgressed) *
                                   100
                                 ).toFixed(1)}`}
                                 %

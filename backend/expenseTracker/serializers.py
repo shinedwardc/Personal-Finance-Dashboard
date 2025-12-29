@@ -1,6 +1,6 @@
 # expenseTracker/serializers.py
 from rest_framework import serializers
-from .models import Transaction,User,Investment
+from .models import Transaction,User, UserSettings, Investment
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -24,6 +24,11 @@ class TransactionSerializer(serializers.ModelSerializer):
         )
         return transaction
     
+class UserSettingsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserSettings
+        fields = "__all__"
+
 class InvestmentSerializer(serializers.ModelSerializer):
     user = UserSerializer(read_only=True)  # Make user read-only since it will be set in the create method
 

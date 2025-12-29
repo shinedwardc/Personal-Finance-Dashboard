@@ -1,6 +1,6 @@
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
-import { useProfileContext } from "@/hooks/useProfileContext";
+import { useSettingsContext } from "@/hooks/useSettingsContext";
 import {
   LayoutDashboard,
   ScrollText,
@@ -12,7 +12,7 @@ import {
 const Navbar = () => {
   const navigate = useNavigate();
 
-  const { authState, setAuthState } = useProfileContext();
+  const { authState, setAuthState } = useSettingsContext();
 
   const handleLogout = async () => {
     try {
@@ -72,9 +72,9 @@ const Navbar = () => {
                     </Link>
                   </li>
                   <li className="p-4 flex items-center">
-                    <Link to="/profile" className="flex flex-row gap-x-1">
+                    <Link to="/settings" className="flex flex-row gap-x-1">
                       <UserRoundPen />
-                      Profile
+                      Settings
                     </Link>
                   </li>
                 </ul>

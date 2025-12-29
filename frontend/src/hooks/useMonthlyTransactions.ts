@@ -1,11 +1,11 @@
 //import { useState } from 'react';
 //import { useExpenseContext } from './useExpenseContext';
-import { useProfileContext } from "./useProfileContext";
+import { useSettingsContext } from "./useSettingsContext";
 import { getTransactionsByMonth } from "../api/transactions";
 import { useQuery } from "@tanstack/react-query";
 
 export const useMonthlyTransactions = (monthAndYear: Date | null) => {
-  const { authState } = useProfileContext();
+  const { authState } = useSettingsContext();
 
   const { data, isLoading } = useQuery({
     queryKey: [

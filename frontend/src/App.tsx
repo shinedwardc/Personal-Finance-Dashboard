@@ -11,7 +11,7 @@ import List from "./components/List";
 import Calendar from "./components/ExpenseCalendar";
 import Graph from "./components/Graph";
 import Investments from "./components/Investments";
-import Profile from "./components/Profile";
+import Settings from "./components/Settings";
 import PrivateRoute from "./components/privateRoute";
 import Login from "./components/Login";
 import Signup from "./components/Signup";
@@ -83,10 +83,10 @@ function App() {
                   }
                 />
                 <Route
-                  path="/profile"
+                  path="/settings"
                   element={
                     <PrivateRoute>
-                      <Profile />
+                      <Settings />
                     </PrivateRoute>
                   }
                 />

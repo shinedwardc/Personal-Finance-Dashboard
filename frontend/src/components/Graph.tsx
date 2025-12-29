@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { useMonthlyTransactions } from "@/hooks/useMonthlyTransactions";
-import { useProfileContext } from "@/hooks/useProfileContext";
+import { useSettingsContext } from "@/hooks/useSettingsContext";
 import { Area, AreaChart, CartesianGrid, XAxis, YAxis, Legend } from "recharts";
 import {
   ChartConfig,
@@ -15,7 +15,7 @@ const Stats = () => {
   const today = useMemo(() => new Date(), []);
   const [viewDate, setViewDate] = useState<Date>(today);
 
-  const { profileSettings } = useProfileContext();
+  const { userSettings } = useSettingsContext();
 
   // Fetch monthly data from current view date
   const { data, isLoading } = useMonthlyTransactions(viewDate);
@@ -166,13 +166,13 @@ const Stats = () => {
       {!isLoading ? (
         <div className="flex justify-center flex-col">
           {rightArrow ? (
-            profileSettings.monthlyBudget !== null ? (
+            userSettings.monthlyBudget ? (
               <div className="flex flex-col justify-center items-center m-5">
                 <h3 className="font-bold text-2xl">
-                  {profileSettings.monthlyBudget - monthlySpent}$ left
+                  {userSettings.monthlyBudget - monthlySpent}$ left
                 </h3>
                 <p className="font-thin italic text-md">
-                  Out of {profileSettings.monthlyBudget}$ budgeted
+                  Out of {userSettings.monthlyBudget}$ budgeted
                 </p>
               </div>
             ) : (
@@ -181,7 +181,7 @@ const Stats = () => {
                 {monthlySpent}$ Spent
               </h3>
               <p className="font-thin italic text-md">
-                Set a monthly budget in Profile Settings to track your spending
+                Set a monthly budget in settings to track your spending
               </p>
             </div>              
             )

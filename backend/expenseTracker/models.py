@@ -53,15 +53,26 @@ class Investment(models.Model):
     current_price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     purchase_date = models.DateField()
 
-class UserProfile(models.Model):
+class UserSettings(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
+    # Budget settings
     monthly_budget = models.IntegerField(blank=True, null=True)
+    category_budget_limits = models.JSONField(default=dict, blank=True)
+    over_spending_threshold = models.DecimalField(max_digits=5, decimal_places=2, default=0.8)
+    
+    # User display preferences
+    display_currency = models.CharField(max_length=3)
+    display_timezone = models.CharField(max_length=50, blank=True, null=True)
+    display_date_format = models.CharField(max_length=20, blank=True, null=True)
+    display_dashboard_range = models.CharField(max_length=10, choices=[
+        ("month", "month"), ("quarter", "quarter"), ("year", "year"), ("all", "all")
+    ], default="month")
+    notifications_enabled = models.BooleanField(default=False)
+    income_affects_budget = models.BooleanField(default=False)
 
-    def __str__(self) -> str:
-        return f"{self.user.username} has a budget limit of {self.monthly_budget}"
     
 @receiver(post_save, sender=User)
-def create_or_update_user_profile(sender, instance, created, **kwargs):
+def create_or_update_user_settings(sender, instance, created, **kwargs):
     if created:
-        UserProfile.objects.create(user=instance)
-    instance.userprofile.save()
+        UserSettings.objects.create(user=instance)
+    instance.usersettings.save()

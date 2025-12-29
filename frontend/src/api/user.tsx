@@ -1,5 +1,5 @@
-import axios, { AxiosInstance } from "axios";
-import { Settings } from "../interfaces/settings";
+import axios, { AxiosInstance, AxiosRequestConfig, AxiosError } from "axios";
+import { BudgetSettings, DisplaySettings } from "../interfaces/settings";
 
 axios.defaults.withCredentials = true;
 
@@ -7,6 +7,72 @@ const api: AxiosInstance = axios.create({
   baseURL: "http://localhost:8000",
   withCredentials: true,
 });
+
+const authApi: AxiosInstance = axios.create({
+  baseURL: "http://localhost:8000",
+  withCredentials: true,
+});
+
+type RetryAxiosRequestConfig = AxiosRequestConfig & { _retry?: boolean };
+
+let refreshPromise: Promise<void> | null = null;
+
+api.interceptors.response.use(
+  (response) => response,
+  async (err: AxiosError) => {
+    const error = err as AxiosError & { config: RetryAxiosRequestConfig };
+    const original = error.config;
+
+    const status = error.response?.status;
+    const url = original?.url ?? "";
+
+    // If no config, or not 401 → just reject
+    if (!original || status !== 401) {
+      return Promise.reject(error);
+    }
+
+    // Don't refresh when already calling auth endpoints
+    const isAuthEndpoint =
+      url.includes("/auth/refresh") ||
+      url.includes("/auth/logout") ||
+      url.includes("/auth/login");
+
+    if (isAuthEndpoint) {
+      return Promise.reject(error);
+    }
+
+    // Retry once per request
+    if (original._retry) {
+      return Promise.reject(error);
+    }
+    original._retry = true;
+
+    try {
+      if (!refreshPromise) {
+        refreshPromise = authApi
+          .post("/auth/refresh/", {})
+          .then(() => {})
+          .finally(() => {
+            refreshPromise = null;
+          });
+      }
+
+      await refreshPromise;
+      return api(original);
+
+    } catch (refreshError) {
+      // If refresh fails, logout the user
+      try {
+        await authApi.post("/auth/logout/", {});
+      } catch {
+        // ignore
+      }
+      window.location.href = "/login";
+      return Promise.reject(refreshError);
+    }
+  },
+);
+
 
 export const loginUser = async (username: string, password: string) => {
   try {
@@ -23,7 +89,6 @@ export const loginUser = async (username: string, password: string) => {
 
 export const googleLogin = async (token: string) => {
   try {
-    console.log(token);
     const response = await api.post("/auth/google/", {
       token,
     });
@@ -36,7 +101,7 @@ export const googleLogin = async (token: string) => {
 
 export const getUserName = async () => {
   try {
-    const response = await api.get("/get-user/");
+    const response = await api.get("/user/");
     const username = response.data.username;
     return username;
   } catch (error) {
@@ -47,8 +112,7 @@ export const getUserName = async () => {
 
 export const getAuthStatus = async () => {
   try {
-    const response = await api.get("/auth-status/");
-    console.log("response: ", response);
+    const response = await api.get("/auth/status/");
 
     // Handle the case where authenticated is explicitly set to false
     if (response.status === 200) {
@@ -67,26 +131,33 @@ export const getAuthStatus = async () => {
   }
 };
 
-export const fetchProfileSettings = async () => {
+export const fetchUserSettings = async () => {
   try {
-    console.log("fetching profile settings");
-    const response = await api.get("/get-profile-settings/");
-    console.log(response.data);
+    const response = await api.get("/user/settings/");
     return response.data;
   } catch (error) {
     console.error(error);
   }
 };
 
-export const updateBudgetLimit = async (data: Settings) => {
+export const updateBudgetSettings = async (data: BudgetSettings) => {
   try {
     console.log(data);
-    const response = await api.post("/update_monthly_budget/", {
-      monthlyBudget: data.monthlyBudget,
-    });
+    const response = await api.post("/user/settings/budget/", data);
     console.log(response.data);
     return response.data;
   } catch (error) {
     console.error("Error updating budget limit:", error);
+  }
+};
+
+export const updateDisplaySettings = async (data: DisplaySettings) => {
+  try {
+    console.log(data);
+    const response = await api.post("/user/settings/display/", data);
+    console.log(response.data);
+    return response.data;
+  } catch (error) {
+    console.error("Error updating display settings:", error);
   }
 };

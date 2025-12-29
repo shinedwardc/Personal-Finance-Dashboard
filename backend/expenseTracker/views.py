@@ -1,4 +1,4 @@
-from .models import Transaction, Investment, EmailVerification, UserProfile
+from .models import Transaction, Investment, EmailVerification, UserSettings
 from django.utils import timezone
 from datetime import timedelta
 from django.contrib.auth import authenticate
@@ -7,7 +7,7 @@ from django.views.decorators.csrf import csrf_exempt
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework import status
-from expenseTracker.serializers import TransactionSerializer, UserSerializer
+from expenseTracker.serializers import TransactionSerializer, UserSerializer, UserSettingsSerializer
 from django.contrib.auth.models import User
 from django.contrib.auth.hashers import make_password
 from rest_framework.permissions import AllowAny
@@ -65,14 +65,6 @@ def transactions(request,id=None):
                 return Response({'error': 'Expected a list of IDs.'}, status=status.HTTP_400_BAD_REQUEST)
             Transaction.objects.filter(id__in=ids).delete()
             return Response({'Successfully deleted expense(s)'},status=status.HTTP_204_NO_CONTENT)
-    
-
-@api_view(['GET'])
-@check_authentication
-def get_user(request):
-    user = request.user
-    serializer = UserSerializer(user)
-    return Response(serializer.data)
 
 @api_view(['POST'])
 @csrf_exempt
@@ -136,6 +128,10 @@ def google_login(request):
             defaults={"username": google_id}
         )
         user.save()
+        
+        userSettings, created = UserSettings.objects.get_or_create(user=user)
+        userSettings.save()
+
         refresh = RefreshToken.for_user(user)
 
         response = Response({"detail": "Login successful"}, status=200)
@@ -203,7 +199,7 @@ def user_post(request):
     user.save()
 
     # Save user profile settings (monthly budget)
-    user_profile, created = UserProfile.objects.get_or_create(user=user)
+    user_profile, created = UserSettings.objects.get_or_create(user=user)
     user_profile.monthly_budget = monthly_budget
     user_profile.save()
 
@@ -265,27 +261,64 @@ def code_verification(request):
     except:
         if verification_object:
             verification_object.delete()
-        return Response({"Error: user email not found"},status=status.HTTP_400_BAD_REQUEST)
+        return Response({"Error: user email not found"},status=status.HTTP_400_BAD_REQUEST)\
+        
+@api_view(['GET'])
+@check_authentication
+def get_user(request):
+    user = request.user
+    serializer = UserSerializer(user)
+    return Response(serializer.data)
 
 @api_view(['GET'])
 @check_authentication
-def get_profile_settings(request):
+def get_user_settings(request):
     user = request.user
-    user_profile = UserProfile.objects.get(user=user)
-    return Response({'monthlyBudget': user_profile.monthly_budget}, status=status.HTTP_200_OK)
+    user_settings, created = UserSettings.objects.get_or_create(user=user)
+    serializer = UserSettingsSerializer(user_settings)
+    return Response(serializer.data)
 
 @api_view(['POST'])
 @check_authentication
-def update_monthly_budget(request):
-    user = request.user
-    monthly_budget = request.data.get('monthlyBudget')
-    user_profile = UserProfile.objects.get(user=user)
-    print(user_profile)
-    if not monthly_budget:
-        return Response({'error': 'Monthly budget is required.'}, status=status.HTTP_400_BAD_REQUEST)
-    user_profile.monthly_budget = monthly_budget
-    user_profile.save()
+def update_budget_settings(request):
+    try:
+        user = request.user
+        [monthly_budget, category_budget_limits, over_spending_threshold] = request.data
+        user_profile = UserSettings.objects.get(user=user)
+        if monthly_budget is not None:
+            user_profile.monthly_budget = monthly_budget
+        if category_budget_limits is not None:
+            user_profile.category_budget_limits = category_budget_limits
+        if over_spending_threshold is not None:
+            user_profile.over_spending_threshold = over_spending_threshold
+        user_profile.save()
+    except Exception as e:
+        return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
     return Response({'message': 'Monthly budget updated successfully.'}, status=status.HTTP_200_OK)
+
+@api_view(['POST'])
+@check_authentication
+def update_display_settings(request):
+    try:
+        user = request.user
+        [display_currency, display_timezone, display_date_format, display_dashboard_range, notifications_enabled, income_affects_budget] = request.data
+        user_profile = UserSettings.objects.get(user=user)
+        if display_currency is not None:
+            user_profile.display_currency = display_currency
+        if display_timezone is not None:
+            user_profile.display_timezone = display_timezone
+        if display_date_format is not None:
+            user_profile.display_date_format = display_date_format
+        if display_dashboard_range is not None:
+            user_profile.display_dashboard_range = display_dashboard_range
+        if notifications_enabled is not None:
+            user_profile.notifications_enabled = notifications_enabled
+        if income_affects_budget is not None:
+            user_profile.income_affects_budget = income_affects_budget
+        user_profile.save()
+    except Exception as e:
+        return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+    return Response({'message': 'Display settings updated successfully.'}, status=status.HTTP_200_OK)
 
 @api_view(['GET'])
 def get_currency_exchange(request,from_currency, to_currency):
@@ -298,17 +331,3 @@ def get_currency_exchange(request,from_currency, to_currency):
     if response.status_code == 200:
         return JsonResponse({'rate': response.json()['conversion_rates'][to_currency.upper()]}, status=200)
     return JsonResponse({'error': 'Currency not found'}, status=400)
-
-#@api_view(['POST'])
-#def recurring_expense(request):
-#    if request.method == 'POST':
-
-
-
-#def index(request):
-#    latest_question_list = Question.objects.order_by("-pub_date")[:5]
-#    template = loader.get_template("polls/index.html")
-#    context = {
-#        "latest_question_list": latest_question_list,
-#    }
-#    return HttpResponse(template.render(context, request))

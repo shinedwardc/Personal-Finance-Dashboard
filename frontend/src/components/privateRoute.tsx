@@ -1,8 +1,8 @@
 import { Navigate } from "react-router-dom";
-import { useProfileContext } from "@/hooks/useProfileContext";
+import { useSettingsContext } from "@/hooks/useSettingsContext";
 
 const PrivateRoute = ({ children }: { children: React.ReactNode }) => {
-  const { authState } = useProfileContext();
+  const { authState } = useSettingsContext();
 
   if (authState.isLoading) {
     return (
