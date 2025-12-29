@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -9,7 +9,9 @@ import { Input } from "./ui/input";
 import {
   Select,
   SelectContent,
+  SelectGroup,
   SelectItem,
+  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from "./ui/select";
@@ -66,6 +68,7 @@ const Form = ({
   onFormSubmit,
 }: formProps) => {
   const [type, setType] = useState<string>(initialValues.type);
+  const [categoryGroups, setCategoryGroups] = useState<Record<string, string[]>>({});
 
   const { addTransactionMutate, editTransactionMutate } = useTransactionContext();
 
@@ -85,6 +88,17 @@ const Form = ({
       date: new Date(initialValues.date),
     },
   });
+
+  useEffect(() => {
+    const groups: Record<string, string[]> = {};
+    Object.values(expenseCategoryConfig).forEach((category) => {
+      if (!groups[category.group]) {
+        groups[category.group] = [];
+      }
+      groups[category.group].push(category.label);
+    });
+    setCategoryGroups(groups);
+  }, []);
 
   const onSubmit = (data: FormInputs) => {
     console.log("Form Data:", data);
@@ -135,7 +149,7 @@ const Form = ({
               }}
               value={field.value}
             >
-              <SelectTrigger>
+              <SelectTrigger className="dark:hover:bg-neutral-800">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -155,21 +169,26 @@ const Form = ({
             name="category"
             render={({ field }) => (
               <Select
-                modal={false}
                 value={field.value}
                 onValueChange={field.onChange}
               >
-                <SelectTrigger>
+                <SelectTrigger className="dark:hover:bg-neutral-800">
                   <SelectValue placeholder="Select a category" />
                 </SelectTrigger>
-
-                <SelectContent>
+                <SelectContent className="text-start">
                   {type === "Expense"
-                    ? Object.values(expenseCategoryConfig).map((category, index) => (
-                        <SelectItem key={index} value={category.label}>
-                          {category.label} {category.icon}
-                        </SelectItem>
-                      ))
+                    ? Object.entries(categoryGroups).map(([group, categories]) => {
+                      return (
+                        <SelectGroup key={group}>
+                          <SelectLabel className="text-slate-500 text-sm italic">{group}</SelectLabel>
+                          {categories.map((categoryLabel, index) => (
+                            <SelectItem key={index} value={categoryLabel}>
+                              {categoryLabel}
+                            </SelectItem>
+                          ))}
+                        </SelectGroup>
+                      );
+                    })
                     : Object.values(incomeCategoryConfig).map((category, index) => (
                         <SelectItem key={index} value={category.label}>
                           {category.label} {category.icon}
@@ -179,11 +198,10 @@ const Form = ({
               </Select>
             )}
           />
-
       </div>
-      <div className="mt-2 mb-2">
+      <div className="mt-2 mb-4">
         <div className="mb-2 dark:text-white">Amount</div>
-        <div className="flex justify-row gap-x-1">
+        <div className="flex justify-between gap-x-2">
           <Controller
             control={control}
             name="amount"
@@ -192,7 +210,7 @@ const Form = ({
                 type="number"
                 {...field}
                 value={field.value || ""}
-                className="w-[340px]"
+                className="w-3/4"
                 onChange={(e) => field.onChange(Number(e.target.value))}
               />
             )}
@@ -202,7 +220,7 @@ const Form = ({
             name="currency"
             render={({ field }) => (
               <Select onValueChange={field.onChange} value={field.value}>
-                <SelectTrigger className="w-[100px]">
+                <SelectTrigger className="w-1/4">
                   <SelectValue placeholder="USD $" />
                 </SelectTrigger>
                 <SelectContent>
@@ -225,7 +243,7 @@ const Form = ({
           <p className="text-red-500 text-sm">{errors.currency.message}</p>
         )}
       </div>
-      <div className="mb-2 dark:text-white">
+      <div className="my-2 dark:text-white">
         Date
         <Controller
           control={control}

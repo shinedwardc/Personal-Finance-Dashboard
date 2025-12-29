@@ -156,8 +156,7 @@ const List = () => {
                   </Button>
                 </DialogTrigger>
                 <DialogContent className="z-50"
-                  onInteractOutside={(e) => e.preventDefault()}
-                  onPointerDownOutside={(e) => e.preventDefault()}          
+                  onInteractOutside={(e) => e.preventDefault()}         
                 >
                   <DialogHeader>
                     <DialogTitle>{editData ? "Update" : "Add"} Transaction</DialogTitle>

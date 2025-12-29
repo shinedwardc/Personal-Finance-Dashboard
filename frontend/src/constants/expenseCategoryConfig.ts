@@ -298,6 +298,9 @@ export const expenseCategoryConfig: Record<expenseCategoryKey, expenseCategoryCo
   },
 };
 
+
+
+
 /*export type SystemKey = "Income";
 
 export type SystemConfig = {
