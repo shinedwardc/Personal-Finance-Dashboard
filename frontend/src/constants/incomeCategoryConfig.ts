@@ -10,7 +10,7 @@ export interface incomeCategoryConfig {
 export const incomeCategoryConfig: Record<incomeCategoryKey, incomeCategoryConfig> = {
   Salary: {
     label: "Salary",
-    color: "green",
+    color: "#88e788",
     icon: "💰",
   },
 };

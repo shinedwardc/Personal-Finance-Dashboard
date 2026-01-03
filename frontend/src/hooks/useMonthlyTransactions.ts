@@ -25,5 +25,5 @@ export const useMonthlyTransactions = (monthAndYear: Date | null) => {
     refetchOnWindowFocus: false,
     placeholderData: (previousData) => previousData,
   });
-  return { data, isLoading };
+  return { data, isLoading  };
 };

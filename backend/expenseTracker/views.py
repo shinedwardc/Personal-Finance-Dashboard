@@ -10,7 +10,7 @@ from rest_framework import status
 from expenseTracker.serializers import TransactionSerializer, UserSerializer, UserSettingsSerializer
 from django.contrib.auth.models import User
 from django.contrib.auth.hashers import make_password
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from django.core.mail import send_mail
 import secrets
 from google.auth.transport.requests import Request
@@ -30,8 +30,9 @@ def authentication_status(request):
     return Response({'authenticated': False})
 
 @api_view(['GET','POST','DELETE','PATCH'])
-@check_authentication
+@permission_classes([IsAuthenticated])
 def transactions(request,id=None):
+    print('Transaction request method:', request.method)
     if id and request.method == 'PATCH':
         try:
             print('id', id)
@@ -61,6 +62,7 @@ def transactions(request,id=None):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         elif request.method == 'DELETE':          
             ids = request.data.get('ids', [])
+            print(ids)
             if not isinstance(ids, list):
                 return Response({'error': 'Expected a list of IDs.'}, status=status.HTTP_400_BAD_REQUEST)
             Transaction.objects.filter(id__in=ids).delete()
@@ -264,14 +266,14 @@ def code_verification(request):
         return Response({"Error: user email not found"},status=status.HTTP_400_BAD_REQUEST)\
         
 @api_view(['GET'])
-@check_authentication
+@permission_classes([IsAuthenticated])
 def get_user(request):
     user = request.user
     serializer = UserSerializer(user)
     return Response(serializer.data)
 
 @api_view(['GET'])
-@check_authentication
+@permission_classes([IsAuthenticated])
 def get_user_settings(request):
     user = request.user
     user_settings, created = UserSettings.objects.get_or_create(user=user)
@@ -279,7 +281,7 @@ def get_user_settings(request):
     return Response(serializer.data)
 
 @api_view(['POST'])
-@check_authentication
+@permission_classes([IsAuthenticated])
 def update_budget_settings(request):
     try:
         user = request.user
@@ -298,7 +300,7 @@ def update_budget_settings(request):
     return Response({'message': 'Monthly budget updated successfully.'}, status=status.HTTP_200_OK)
 
 @api_view(['POST'])
-@check_authentication
+@permission_classes([IsAuthenticated])
 def update_display_settings(request):
     try:
         user = request.user

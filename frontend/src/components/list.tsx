@@ -16,7 +16,6 @@ import MonthPicker from "./ui/month-picker";
 import { toast, Bounce } from "react-toastify";
 import { TransactionInterface } from "@/interfaces/Transactions";
 
-//https://flowbite.com/docs/components/spinner/#progress-spinner
 
 const List = () => {
   const today = useMemo(() => new Date(), []);
@@ -40,7 +39,6 @@ const List = () => {
   }, [importedData, addTransactionMutate]);
 
   const onFormNewTransactions = async () => {
-    //setIsEditModalOpen(false);
     try {
       toast.success("Succesfully added transactions", {
         position: "top-center",
@@ -101,6 +99,7 @@ const List = () => {
 
   const handleDeleteTransactions = async (transactionId: number[]) => {
     try {
+      console.log(transactionId);
       deleteTransactionMutate(transactionId);
     } catch (error) {
       toast.error("Failed to add transactions", {

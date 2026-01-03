@@ -115,7 +115,7 @@ const ExpenseCalendar = () => {
           <CardTitle className="text-sm">Monthly spent</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="flex justify-row justify-between items-center space-y-0">
+          <div className="flex justify-row justify-between items-center space-x-2">
             <animated.div className="text-center text-2xl">
               {spentSpring.spent.to(
                 (val) => `$${Math.floor(val).toLocaleString()}`,
@@ -136,7 +136,7 @@ const ExpenseCalendar = () => {
               />
             </svg>
           </div>
-          <p className="text-xs text-slate-400">
+          <p className="text-sm text-center text-slate-400">
             {format(monthAndYear, "MMMM yyyy")}
           </p>
         </CardContent>
@@ -222,7 +222,6 @@ const ExpenseCalendar = () => {
         </div>
         <div className="space-y-6">
           {[...eventsByDate].map(([date, events]) => {
-            console.log(events);
             const filtered =
               selectedItem === "All"
                 ? events
@@ -244,10 +243,7 @@ const ExpenseCalendar = () => {
                 </div>
                 <div className="space-y-2">
                   {filtered.map((event, idx) => {
-                    console.log(event);
                     const config = event.type === "Expense" ? expenseCategoryConfig[event.category] : incomeCategoryConfig[event.category];
-                    console.log(config);
-
                     return (
                       <div
                         key={idx}

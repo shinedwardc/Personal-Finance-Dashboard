@@ -1,4 +1,4 @@
-import { useEffect, useState, createContext, ReactNode } from "react";
+import { useState, createContext, ReactNode } from "react";
 import { useSettingsContext } from "@/hooks/useSettingsContext";
 import { TransactionInterface } from "../interfaces/Transactions";
 import { BudgetSettings } from "../interfaces/settings";
@@ -52,6 +52,7 @@ export const TransactionProvider = ({ children }: { children: ReactNode }) => {
         addTransactions(newTransaction),
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: ["transactions"] });
+        queryClient.invalidateQueries({ queryKey: ["monthlyTransactions"] });
       },
       onError: (error) => {
         console.error("Error adding transaction:", error);
@@ -63,6 +64,7 @@ export const TransactionProvider = ({ children }: { children: ReactNode }) => {
       mutationFn: (transactionId: number[]) => deleteTransactions(transactionId),
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: ["transactions"] });
+        queryClient.invalidateQueries({ queryKey: ["monthlyTransactions"] });
       },
       onError: (error) => {
         console.error("Error deleting transactions:", error);
@@ -80,17 +82,12 @@ export const TransactionProvider = ({ children }: { children: ReactNode }) => {
       }) => editTransaction(transactionId, data),
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: ["transactions"] });
+        queryClient.invalidateQueries({ queryKey: ["monthlyTransactions"] });
       },
       onError: (error) => {
         console.error("Error editing transaction:", error);
       },
     });
-
-  useEffect(() => {
-    if (transactionData) {
-      setData(transactionData);
-    }
-  }, [transactionData]);
 
   const isDataLoading =
     authState.isLoading ||

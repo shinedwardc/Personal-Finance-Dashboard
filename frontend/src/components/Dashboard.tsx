@@ -155,15 +155,15 @@ const Dashboard = () => {
         essentialSum += amount;
       }
 
-      // Category totals
-      expenseTotals[exp.category] = (expenseTotals[exp.category] || 0) + amount;
+      // Expense group category totals
+      expenseTotals[expenseCategoryConfig[exp.category].group] = (expenseTotals[expenseCategoryConfig[exp.category].group] || 0) + amount;
     }
 
     // Income total
     let incomeTotal = 0;
 
-    for (const inc of income) {
-      const amount = Number(inc.amount);
+    for (const transaction of income) {
+      const amount = Number(transaction.amount);
       incomeTotal += amount;
     }
 
@@ -172,14 +172,13 @@ const Dashboard = () => {
     setEssentials(essentialSum);
     setDiscretionals(discretionarySum);
 
-    // Calculate top spending categories
+    // Calculate top 3 spending categories
     const sortedTotals = Object.entries(expenseTotals).sort(
       (a, b) => b[1] - a[1],
     );
     const topValues = sortedTotals.slice(0, 3);
 
     setTopSpendingCategories(topValues.map(([name, _]) => name));
-
     // Graph data
     setGraphData(
       Object.keys(expenseTotals)
@@ -189,6 +188,16 @@ const Dashboard = () => {
           total: expenseTotals[categoryName],
         })),
     );
+    console.log('graphData: ', 
+      Object.keys(expenseTotals)
+        .sort()
+        .map((categoryName) => ({
+          category: categoryName,
+          total: expenseTotals[categoryName],
+        
+        })),
+    )
+    console.log(chartConfig);
 
     const todayDate = today.getDate();
     const daysInMonth = new Date(
@@ -350,48 +359,48 @@ const Dashboard = () => {
                       <Gauge className="w-5 h-5 text-rose-300" />
                     </CardHeader>
                     <CardContent>
-                      {userSettings.monthlyBudget ? (
+                      {userSettings.monthly_budget ? (
                         <>
                           <p className="text-sm font-semibold text-neutral-100">
                             {formatCurrency(monthlySpent)}{" "}
                             <span className="text-neutral-400 text-xs">
-                              / {formatCurrency(userSettings.monthlyBudget)}
+                              / {formatCurrency(userSettings.monthly_budget)}
                             </span>
                           </p>
                           <p
                             className={`mt-1 text-xs ${
-                              userSettings.monthlyBudget -
+                              userSettings.monthly_budget -
                                 Number(monthlySpent.toFixed(2)) <
                               0
                                 ? "text-red-300"
                                 : "text-emerald-300"
                             }`}
                           >
-                            {userSettings.monthlyBudget -
+                            {userSettings.monthly_budget -
                               Number(monthlySpent.toFixed(2)) <
                             0
                               ? `Over budget by ${formatCurrency(
                                   Math.abs(
-                                    userSettings.monthlyBudget -
+                                    userSettings.monthly_budget -
                                       Number(monthlySpent.toFixed(2)),
                                   ),
                                 )}`
                               : `You have ${formatCurrency(
-                                  userSettings.monthlyBudget -
+                                  userSettings.monthly_budget -
                                     Number(monthlySpent.toFixed(2)),
                                 )} left this month.`}
                           </p>
                           <div className="mt-3 h-2 w-full overflow-hidden rounded-full bg-white/10">
-                            {userSettings?.monthlyBudget > 0 && (
+                            {userSettings.monthly_budget > 0 && (
                               <div
                                 className={`h-full rounded-full ${
-                                  monthlySpent > userSettings.monthlyBudget
+                                  monthlySpent > userSettings.monthly_budget
                                     ? "bg-red-400"
                                     : "bg-emerald-400"
                                 }`}
                                 style={{
                                   width: `${Math.min(
-                                    (monthlySpent / userSettings.monthlyBudget) * 100,
+                                    (monthlySpent / userSettings.monthly_budget) * 100,
                                     110
                                   )}%`,
                                 }}
@@ -569,9 +578,9 @@ const Dashboard = () => {
                               essentials / (essentials + discretionals) < 0.5
                                 ? essentials / (essentials + discretionals) <
                                   0.35
-                                  ? "text-red-400"
+                                  ? "text-emerald-400"
                                   : "text-yellow-300"
-                                : "text-emerald-400"
+                                : "text-red-400"
                             }`}
                         >
                           {`${((essentials / (essentials + discretionals)) * 100).toFixed(1)}`}
@@ -603,18 +612,18 @@ const Dashboard = () => {
                       </CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-3">
-                    {userSettings.monthlyBudget ? (
+                    {userSettings.monthly_budget ? (
                       <TooltipProvider>
                         <Tooltip>
                           <TooltipTrigger>
                             <span className="text-lg font-semibold">
                               <span
                                 className={`${
-                                  monthlySpent / userSettings.monthlyBudget / timeProgressed >=
+                                  monthlySpent / userSettings.monthly_budget / timeProgressed >=
                                   1.2
                                     ? "text-red-500"
                                     : monthlySpent /
-                                        userSettings.monthlyBudget /
+                                        userSettings.monthly_budget /
                                         timeProgressed >=
                                       0.9
                                     ? "text-yellow-400"
@@ -622,7 +631,7 @@ const Dashboard = () => {
                                 }`}
                               >
                                 {`${(
-                                  (monthlySpent / userSettings.monthlyBudget / timeProgressed) *
+                                  (monthlySpent / userSettings.monthly_budget / timeProgressed) *
                                   100
                                 ).toFixed(1)}`}
                                 %
@@ -666,10 +675,9 @@ const Dashboard = () => {
                       {topSpendingCategories.length > 0 ? (
                         <div className="flex flex-col gap-1 w-full justify-center ">
                           {topSpendingCategories.map((category, index) => {
-                            /*const categoryKey = category
+                            const categoryKey = category
                               .replace(/[^a-zA-Z0-9]/g, "-")
-                              .toLowerCase();*/
-                            console.log(category);
+                              .toLowerCase();
                             return (
                               <div
                                 key={category}
@@ -681,11 +689,11 @@ const Dashboard = () => {
                                 <span
                                   className="w-5/6 rounded-full px-2 py-1 text-center font-medium border"
                                   style={{
-                                    backgroundColor: `color-mix(in srgb, ${expenseCategoryConfig[category].color} 70%, transparent)`,
-                                    borderColor: expenseCategoryConfig[category].color,
+                                    backgroundColor: `color-mix(in srgb, var(--color-${categoryKey}) 70%, transparent)`,
+                                    borderColor: `var(--color-${categoryKey})`,
                                   }}
                                 >
-                                  {category} {expenseCategoryConfig[category].icon}
+                                  {category}
                                 </span>
                               </div>
                             );
@@ -734,7 +742,9 @@ const Dashboard = () => {
                           margin={{ top: 20, bottom: 5, left: 0, right: 0 }}
                         >
                           <XAxis
-                            dataKey={(entry) => expenseCategoryConfig[entry.category].group}
+                            dataKey={(entry) => {
+                              return (entry.category);
+                            }}
                             tickLine={false}
                             tickMargin={10}
                             axisLine={false}
@@ -759,7 +769,7 @@ const Dashboard = () => {
                             {graphData.map((item, index) => (
                               <Cell
                                 key={index}
-                                fill={`var(--color-${expenseCategoryConfig[item.category].group.replace(
+                                fill={`var(--color-${item.category.replace(
                                   /\s+/g,
                                   "-",
                                 ).toLowerCase()})`}
@@ -824,7 +834,7 @@ const Dashboard = () => {
                                 cx + radius * Math.cos(-midAngle * RADIAN);
                               const y =
                                 cy + radius * Math.sin(-midAngle * RADIAN);
-                              const cssVar = `var(--color-${expenseCategoryConfig[payload.category].group.replace(
+                              const cssVar = `var(--color-${payload.category.replace(
                                 /\s+/g,
                                 "-",
                               ).toLowerCase()})`;
@@ -850,7 +860,7 @@ const Dashboard = () => {
                             {graphData.map((item, index) => (
                               <Cell
                                 key={index}
-                                fill={`var(--color-${expenseCategoryConfig[item.category].group.replace(
+                                fill={`var(--color-${item.category.replace(
                                   /\s+/g,
                                   "-",
                                 ).toLowerCase()})`}

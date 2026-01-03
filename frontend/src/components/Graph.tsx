@@ -9,16 +9,17 @@ import {
   ChartTooltipContent,
 } from "@/components/ui/chart";
 import { Button } from "./ui/button";
+import { Skeleton } from "./ui/skeleton";
 import { SquareChevronLeft, SquareChevronRight } from "lucide-react";
 
 const Stats = () => {
   const today = useMemo(() => new Date(), []);
   const [viewDate, setViewDate] = useState<Date>(today);
 
-  const { userSettings } = useSettingsContext();
+  const { userSettings, isUserSettingsLoading } = useSettingsContext();
 
   // Fetch monthly data from current view date
-  const { data, isLoading } = useMonthlyTransactions(viewDate);
+  const { data, isDataLoading } = useMonthlyTransactions(viewDate);
 
   const [rightArrow, setRightArrow] = useState<boolean>(true);
 
@@ -139,119 +140,126 @@ const Stats = () => {
     });
   };
 
+  const isLoading = isDataLoading || isUserSettingsLoading;
+
   return (
-    <div className="mt-12 w-full max-w-lg mx-auto sm:max-w-xl md:max-w-2xl">
-      <div className="flex flex-row justify-start gap-1">
-        <Button
-          size="icon"
-          variant="ghost"
-          id="leftArrow"
-          onClick={handleArrow}
-        >
-          <SquareChevronLeft />
-        </Button>
-        <p className="flex items-center w-[80px] justify-center">
-          {viewDate.toISOString().split("T")[0].slice(0, 7)}
-        </p>
-        <Button
-          size="icon"
-          variant="ghost"
-          id="rightArrow"
-          onClick={handleArrow}
-          disabled={rightArrow}
-        >
-          <SquareChevronRight />
-        </Button>
-      </div>
-      {!isLoading ? (
-        <div className="flex justify-center flex-col">
-          {rightArrow ? (
-            userSettings.monthlyBudget ? (
-              <div className="flex flex-col justify-center items-center m-5">
-                <h3 className="font-bold text-2xl">
-                  {userSettings.monthlyBudget - monthlySpent}$ left
-                </h3>
-                <p className="font-thin italic text-md">
-                  Out of {userSettings.monthlyBudget}$ budgeted
-                </p>
-              </div>
-            ) : (
-            <div className="flex flex-col justify-center items-center m-5">
-              <h3 className="font-bold text-2xl">
-                {monthlySpent}$ Spent
-              </h3>
-              <p className="font-thin italic text-md">
-                Set a monthly budget in settings to track your spending
-              </p>
-            </div>              
-            )
-          ) : (
-            <div className="flex flex-col justify-center items-center m-5">
-              <h3 className="font-bold text-2xl mb-[24px]">
-                {monthlySpent}$ Spent
-              </h3>
-            </div>
-          )}
-          {/*<ul>
-          {
-            expenseMap.size > 0 && 
-            Array.from(expenseMap).map(([date,amount]) => (
-              <li key={date}>
-                {date}: {amount}$
-              </li>
-            ))
-          }
-        </ul>*/}
-          <div className="w-full">
-            <ChartContainer
-              config={chartConfig}
-              className="min-h-[200px] w-full"
-            >
-              <AreaChart
-                accessibilityLayer
-                data={chartData}
-                margin={{
-                  left: 12,
-                  right: 12,
-                }}
-              >
-                <CartesianGrid vertical={false} strokeDasharray="3 3" />
-                <XAxis
-                  dataKey="date"
-                  tickLine={false}
-                  axisLine={false}
-                  tickMargin={8}
-                  tickFormatter={(value) => value.slice(0, 2)}
-                />
-                <YAxis
-                  tickLine={false}
-                  axisLine={false}
-                  tickMargin={8}
-                  tickCount={5}
-                  tickFormatter={(value) => value.toString() + "$"}
-                />
-                <ChartTooltip
-                  cursor={false}
-                  content={<ChartTooltipContent nameKey="date" hideIndicator />}
-                />
-                <Legend />
-                <Area
-                  dataKey="amount"
-                  type="monotone"
-                  dot={{ stroke: "red", strokeWidth: 2 }}
-                  fill="var(--color-date)"
-                  fillOpacity={0.4}
-                  stroke="var(--color-date)"
-                  name="Expense total trend"
-                />
-              </AreaChart>
-            </ChartContainer>
-          </div>
+    <>
+    {!isLoading ? (
+      <div className="mt-12 w-full max-w-lg mx-auto sm:max-w-xl md:max-w-2xl">
+        <div className="flex flex-row justify-start gap-1">
+          <Button
+            size="icon"
+            variant="ghost"
+            id="leftArrow"
+            onClick={handleArrow}
+          >
+            <SquareChevronLeft />
+          </Button>
+          <p className="flex items-center w-[80px] justify-center">
+            {viewDate.toISOString().split("T")[0].slice(0, 7)}
+          </p>
+          <Button
+            size="icon"
+            variant="ghost"
+            id="rightArrow"
+            onClick={handleArrow}
+            disabled={rightArrow}
+          >
+            <SquareChevronRight />
+          </Button>
         </div>
-      ) : (
-        <></>
-      )}
-    </div>
+        <div className="flex justify-center flex-col">
+            {rightArrow ? (
+              userSettings.monthly_budget ? (
+                <div className="flex flex-col justify-center items-center m-5">
+                  <h3 className="font-bold text-2xl">
+                    {userSettings.monthly_budget - monthlySpent}$ left
+                  </h3>
+                  <p className="font-thin italic text-md">
+                    Out of {userSettings.monthly_budget}$ budgeted
+                  </p>
+                </div>
+              ) : (
+                <div className="flex flex-col justify-center items-center m-5">
+                  <h3 className="font-bold text-2xl">
+                    {monthlySpent}$ Spent
+                  </h3>
+                  <p className="font-thin italic text-md">
+                    Set a monthly budget in settings to track your spending
+                  </p>
+                </div>              
+              )
+            ) : (
+              <div className="flex flex-col justify-center items-center m-5">
+                <h3 className="font-bold text-2xl mb-[24px]">
+                  {monthlySpent}$ Spent
+                </h3>
+              </div>
+            )}
+            {/*<ul>
+            {
+              expenseMap.size > 0 && 
+              Array.from(expenseMap).map(([date,amount]) => (
+                <li key={date}>
+                  {date}: {amount}$
+                </li>
+              ))
+            }
+          </ul>*/}
+            <div className="w-full">
+              <ChartContainer
+                config={chartConfig}
+                className="min-h-[200px] w-full"
+              >
+                <AreaChart
+                  accessibilityLayer
+                  data={chartData}
+                  margin={{
+                    left: 12,
+                    right: 12,
+                  }}
+                >
+                  <CartesianGrid vertical={false} strokeDasharray="3 3" />
+                  <XAxis
+                    dataKey="date"
+                    tickLine={false}
+                    axisLine={false}
+                    tickMargin={8}
+                    tickFormatter={(value) => value.slice(0, 2)}
+                  />
+                  <YAxis
+                    tickLine={false}
+                    axisLine={false}
+                    tickMargin={8}
+                    tickCount={5}
+                    tickFormatter={(value) => value.toString() + "$"}
+                  />
+                  <ChartTooltip
+                    cursor={false}
+                    content={<ChartTooltipContent nameKey="date" hideIndicator />}
+                  />
+                  <Legend />
+                  <Area
+                    dataKey="amount"
+                    type="monotone"
+                    dot={{ stroke: "red", strokeWidth: 2 }}
+                    fill="var(--color-date)"
+                    fillOpacity={0.4}
+                    stroke="var(--color-date)"
+                    name="Expense total trend"
+                  />
+                </AreaChart>
+              </ChartContainer>
+            </div>
+          </div>
+      </div>
+    ) : (
+        <div className="mt-12 w-full max-w-lg mx-auto sm:max-w-xl md:max-w-2xl">
+          <Skeleton className="mb-6 h-[48px] w-[175px]" />
+          <Skeleton className="mb-6 h-[474px] w-full" />
+        </div>
+    )}  
+    </>
   );
 };
 

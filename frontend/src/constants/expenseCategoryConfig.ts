@@ -1,10 +1,12 @@
 
 export type expenseCategoryKey =
-  // Everyday Spending
-  | "Groceries"
+  // Food and Drink
   | "Restaurants"
   | "Coffee & Snacks"
   | "Alcohol & Bars"
+
+  // Everyday Spending
+  | "Groceries"
   | "Shopping"
   | "Entertainment"
   | "Subscriptions"
@@ -62,19 +64,19 @@ export const expenseCategoryConfig: Record<expenseCategoryKey, expenseCategoryCo
   // Food and drink
   Restaurants: {
     label: "Restaurants",
-    color: "#facc15",
+    color: "#ffff00",
     icon: "🍽️",
     group: "Food and Drink",
   },
   "Coffee & Snacks": {
     label: "Coffee & Snacks",
-    color: "#facc15",
+    color: "#ffff00",
     icon: "☕",
     group: "Food and Drink",
   },
   "Alcohol & Bars": {
     label: "Alcohol & Bars",
-    color: "#facc15",
+    color: "#ffff00",
     icon: "🍺",
     group: "Food and Drink",
   },
@@ -108,31 +110,31 @@ export const expenseCategoryConfig: Record<expenseCategoryKey, expenseCategoryCo
   // Transportation
   "Public Transit": {
     label: "Public Transit",
-    color: "#10b981",
+    color: "#93c5fd",
     icon: "🚌",
     group: "Transportation",
   },
   "Taxi & Ride Share": {
     label: "Taxi & Ride Share",
-    color: "#10b981",
+    color: "#93c5fd",
     icon: "🚗",
     group: "Transportation",
   },
   Fuel: {
     label: "Fuel",
-    color: "#10b981",
+    color: "#93c5fd",
     icon: "⛽",
     group: "Transportation",
   },
   Parking: {
     label: "Parking",
-    color: "#10b981",
+    color: "#93c5fd",
     icon: "🅿️",
     group: "Transportation",
   },
   "Auto Maintenance": {
     label: "Auto Maintenance",
-    color: "#10b981",
+    color: "#93c5fd",
     icon: "🛠️",
     group: "Transportation",
   },
@@ -140,81 +142,81 @@ export const expenseCategoryConfig: Record<expenseCategoryKey, expenseCategoryCo
   // Housing & Utilities
   Rent: {
     label: "Rent",
-    color: "#fbbf24",
+    color: "#ffbf00",
     icon: "🏠",
-    group: "Housing & Utilities",
+    group: "Housing and Utilities",
   },
   Mortgage: {
     label: "Mortgage",
-    color: "#fbbf24",
+    color: "#ffbf00",
     icon: "🏠",
-    group: "Housing & Utilities",
+    group: "Housing and Utilities",
   },
   "Home Supplies": {
     label: "Home Supplies",
-    color: "#fbbf24",
+    color: "#ffbf00",
     icon: "🏠",
-    group: "Housing & Utilities",
+    group: "Housing and Utilities",
   },
   Electricity: {
     label: "Electricity",
-    color: "#fbbf24",
+    color: "#ffbf00",
     icon: "💡",
-    group: "Housing & Utilities",
+    group: "Housing and Utilities",
   },
   Water: {
     label: "Water",
-    color: "#fbbf24",
+    color: "#ffbf00",
     icon: "💧",
-    group: "Housing & Utilities",
+    group: "Housing and Utilities",
   },
   Internet: {
     label: "Internet",
-    color: "#fbbf24",
+    color: "#ffbf00",
     icon: "🌐",
-    group: "Housing & Utilities",
+    group: "Housing and Utilities",
   },
   Phone: {
     label: "Phone",
-    color: "#fbbf24",
+    color: "#ffbf00",
     icon: "📞",
-    group: "Housing & Utilities",
+    group: "Housing and Utilities",
   },
   "Maintenance & Repairs": {
     label: "Maintenance & Repairs",
-    color: "#fbbf24",
+    color: "#ffbf00",
     icon: "🛠️",
-    group: "Housing & Utilities",
+    group: "Housing and Utilities",
   },
 
   // Financial
   "Bank Fees": {
     label: "Bank Fees",
-    color: "#fde68a",
+    color: "#000080",
     icon: "🏦",
     group: "Financial",
   },
   Interest: {
     label: "Interest",
-    color: "#fde68a",
+    color: "#000080",
     icon: "📈",
     group: "Financial",
   },
   "Loan Payments": {
     label: "Loan Payments",
-    color: "#fde68a",
+    color: "#000080",
     icon: "💰",
     group: "Financial",
   },
   Tax: {
     label: "Tax",
-    color: "#fde68a",
+    color: "#000080",
     icon: "🧾",
     group: "Financial",
   },
   Insurance: {
     label: "Insurance",
-    color: "#fde68a",
+    color: "#000080",
     icon: "🛡️",
     group: "Financial",
   },
@@ -242,25 +244,25 @@ export const expenseCategoryConfig: Record<expenseCategoryKey, expenseCategoryCo
   // Travel
   Flights: {
     label: "Flights",
-    color: "#34d399",
+    color: "#40e0d0",
     icon: "✈️",
     group: "Travel",
   },
   Hotels: {
     label: "Hotels",
-    color: "#34d399",
+    color: "#40e0d0",
     icon: "🏨",
     group: "Travel",
   },
   "Transportation Travel": {
     label: "Transportation",
-    color: "#34d399",
+    color: "#40e0d0",
     icon: "🗺️",
     group: "Travel",
   },
   "Travel Activities": {
     label: "Travel Activities",
-    color: "#34d399",
+    color: "#40e0d0",
     icon: "🎯",
     group: "Travel",
   },
@@ -268,51 +270,32 @@ export const expenseCategoryConfig: Record<expenseCategoryKey, expenseCategoryCo
   // Personal & Other
   "Gifts & Donations": {
     label: "Gifts & Donations",
-    color: "#e5e7eb",
+    color: "#f472b6",
     icon: "🎁",
     group: "Personal",
   },
   Education: {
     label: "Education",
-    color: "#e5e7eb",
+    color: "#f472b6",
     icon: "🎓",
     group: "Personal",
   },
   "Personal Care": {
     label: "Personal Care",
-    color: "#e5e7eb",
+    color: "#f472b6",
     icon: "💗",
     group: "Personal",
   },
   Pets: {
     label: "Pets",
-    color: "#e5e7eb",
+    color: "#f472b6",
     icon: "🐾",
     group: "Personal",
   },
   Other: {
     label: "Other",
-    color: "#e5e7eb",
+    color: "#f472b6",
     icon: "🧾",
     group: "Personal",
   },
 };
-
-
-
-
-/*export type SystemKey = "Income";
-
-export type SystemConfig = {
-  [key in SystemKey]: {
-    label: string;
-    color: string;
-  };
-};
-
-export const systemConfig: SystemConfig = {
-  Income: {
-    label: "Income",
-    color: "green",
-  },
-};*/

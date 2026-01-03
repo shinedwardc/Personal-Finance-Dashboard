@@ -10,16 +10,17 @@ export const chartConfig: Record<
   "total" | expenseCategoryKey,
   ChartCategoryInfo
 > = {
-  "total": {
+  total: {
     label: "Spent on category",
   },
-  ...Object.fromEntries(
-    Object.entries(expenseCategoryConfig).map(([key, config]) => [
-      key,
-      {
-        label: config.group,
-        color: config.color,
-      } satisfies ChartCategoryInfo,
-    ])
-  ),
+  // Use reduce to create unique entries for each "group"
+  ...Object.values(expenseCategoryConfig).reduce((acc, curr) => {
+    if (!acc[curr.group]) {
+      acc[curr.group] = {
+        label: curr.group,
+        color: curr.color, 
+      };
+    }
+    return acc;
+  }, {} as Record<string, ChartCategoryInfo>),
 } satisfies ChartConfig;
