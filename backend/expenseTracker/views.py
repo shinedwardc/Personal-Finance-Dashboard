@@ -309,6 +309,7 @@ def update_display_settings(request):
         display_dashboard_range = request.data.get('display_dashboard_range')
         notifications_enabled = request.data.get('notifications_enabled')
         income_affects_budget = request.data.get('income_affects_budget')
+        income_ratio_for_budget = request.data.get('income_ratio_for_budget')
         user_settings = UserSettings.objects.get(user=user)
         if display_currency is not None:
             user_settings.display_currency = display_currency
@@ -320,6 +321,8 @@ def update_display_settings(request):
             user_settings.notifications_enabled = notifications_enabled
         if income_affects_budget is not None:
             user_settings.income_affects_budget = income_affects_budget
+        if income_ratio_for_budget is not None:
+            user_settings.income_ratio_for_budget = income_ratio_for_budget
         user_settings.save()
     except Exception as e:
         return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)

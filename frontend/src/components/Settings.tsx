@@ -1,20 +1,17 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useSettingsContext } from "@/hooks/useSettingsContext";
 import { useForm, Controller, SubmitHandler } from "react-hook-form";
-import * as z from "zod";
 import { 
   Select,
   SelectContent, 
   SelectItem,
-  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from "./ui/select";
 import { Checkbox } from "./ui/checkbox";
+import { Slider } from "./ui/slider";
 import { BudgetSettings, DisplaySettings } from "../interfaces/settings";
-import Connections from "./Connections";
 import { ChevronRight } from "lucide-react";
-import { on } from "events";
 
 const Settings = () => {
   const { handleSettingsForm, userSettings } = useSettingsContext();
@@ -35,8 +32,11 @@ const Settings = () => {
       default_dashboard_range: userSettings.default_dashboard_range ?? "Current Month",
       notifications_enabled: userSettings.notifications_enabled ?? false,
       income_affects_budget: userSettings.income_affects_budget ?? false,
+      income_ratio_for_budget: userSettings.income_ratio_for_budget ?? 50,
     }
   });
+
+  const incomeAffectsBudget = displayForm.watch("income_affects_budget");
 
   const onSubmitBudget: SubmitHandler<BudgetSettings> = (data) => {
     handleSettingsForm({ kind: "budget", ...data });
@@ -66,12 +66,6 @@ const Settings = () => {
                 {view === "Budget" && <ChevronRight size={16} />}
               </span>
               <button onClick={() => setView("Budget")} className="hover:underline hover:underline-offset-2">Budget and spending controls</button>
-            </li>
-            <li className="mb-2 flex items-center">
-              <span className="w-4 mr-1 flex justify-center">
-                {view === "Connections" && <ChevronRight size={16} />}
-              </span>
-              <button onClick={() => setView("Connections")} className="hover:underline hover:underline-offset-2">Connections</button>
             </li>
           </ul>
           <div className="w-2/3">
@@ -146,7 +140,7 @@ const Settings = () => {
                       )}
                     />                       
                   </div>
-                  <div className="flex flex-col w-1/2 gap-y-1">
+                  {/*<div className="flex flex-col w-1/2 gap-y-1">
                     <label className="my-4 text-sm font-medium leading-none">
                       Dashboard analyctics date range
                     </label>
@@ -177,27 +171,6 @@ const Settings = () => {
                         </Select>
                       )}
                     />                       
-                  </div>
-                  {/*<div className="flex flex-col w-1/2 my-4 gap-x-2">                    
-                    <Controller
-                      control={displayForm.control}
-                      name="notifications_enabled"
-                      render={({ field }) => (
-                        <div className="flex items-center space-x-2">
-                          <Checkbox
-                            id="notifactions_enabled"
-                            checked={field.value}
-                            onCheckedChange={field.onChange}
-                          />
-                          <label
-                            htmlFor="notifactions_enabled"
-                            className="text-sm font-medium leading-none"
-                          >
-                            Notifaction enabled
-                          </label>
-                        </div>
-                      )}
-                    />
                   </div>*/}
                   <div className="flex items-center w-1/2 my-4 gap-x-2">
                     <Controller
@@ -213,10 +186,44 @@ const Settings = () => {
                     />
                     <label 
                       htmlFor="income_affects_budget"
-                      className="text-sm font-medium leading-none">
-                      Auto set budget based on income
+                      className="text-sm font-medium leading-none flex flex-col">
+                      Auto-adjust budget based on this month’s income
+                      <span className="text-muted-foreground text-xs">
+                        Your limit will change based on the month's income amount
+                      </span>
                     </label>                       
-                  </div>                                 
+                  </div>   
+                  <div className="relative w-1/2 mt-2 h-12">
+                    {incomeAffectsBudget && (
+                      <div className="flex flex-col mb-4 w-full gap-y-2">
+                        <label
+                          htmlFor="income_ratio_for_budget"
+                          className="w-full text-sm font-medium leading-none"
+                        >
+                          Set budget to % of income
+                        </label>
+                        <Controller
+                          control={displayForm.control}
+                          name="income_ratio_for_budget"
+                          render={({ field }) => (
+                            <div className="flex flex-col gap-1 flex-1">
+                              <Slider
+                                className="w-4/5"
+                                min={0}
+                                max={100}
+                                step={1}
+                                value={[field.value ?? 0]}
+                                onValueChange={(value) => field.onChange(value[0])}
+                              />
+                              <span className="text-sm text-muted-foreground">
+                                {field.value ?? 0}%
+                              </span>
+                            </div>
+                          )}
+                        />
+                      </div>
+                    )}  
+                  </div>                            
                   <div className="flex flex-col mt-4 w-1/2">
                     <input
                       className="w-1/2 btn btn-accent"
@@ -277,13 +284,13 @@ const Settings = () => {
                 </form>
               </div>
             )}
-            {view === "Connections" && (
+            {/*view === "Connections" && (
               <>
                 <div className="my-2">
                   <Connections />
                 </div>
               </>
-            )}
+            )*/}
           </div>
           </div>
       </div>

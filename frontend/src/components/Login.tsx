@@ -1,5 +1,4 @@
 import { useState } from "react";
-import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import LoginForm from "./LoginForm";
 import { useSettingsContext } from "@/hooks/useSettingsContext";

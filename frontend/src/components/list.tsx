@@ -22,6 +22,8 @@ const List = () => {
   const [monthAndYear, setMonthAndYear] = useState<Date>(today);
   const { addTransactionMutate, deleteTransactionMutate } = useTransactionContext();
 
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+
   const [editData, setEditData] = useState<TransactionInterface | null>(null);
   //const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
@@ -39,6 +41,7 @@ const List = () => {
   }, [importedData, addTransactionMutate]);
 
   const onFormNewTransactions = async () => {
+    setIsDialogOpen(false);
     try {
       toast.success("Succesfully added transactions", {
         position: "top-center",
@@ -69,6 +72,7 @@ const List = () => {
 
   const onFormEditTransaction = async () => {
     setEditData(null); // Clear edit data
+    setIsDialogOpen(false);
     try {
       toast.success("Successfully updated transaction", {
         position: "top-center",
@@ -131,6 +135,7 @@ const List = () => {
 
   const handleEditTransaction = async (transaction: TransactionInterface) => {
     setEditData(transaction);
+    setIsDialogOpen(true);
   };
 
   return (
@@ -142,7 +147,10 @@ const List = () => {
           </h1>
           <div className="flex-1 flex md:justify-start justify-center">
             <div className="flex flex-row justify-center gap-x-2 fixed bottom-6 right-6">
-              <Dialog>
+                <Dialog open={isDialogOpen} onOpenChange={(open) => {
+                  setIsDialogOpen(open);
+                  if (!open) setEditData(null);
+                }}>
                 <DialogTrigger asChild>
                   <Button
                     variant="default"
@@ -158,7 +166,7 @@ const List = () => {
                   onInteractOutside={(e) => e.preventDefault()}         
                 >
                   <DialogHeader>
-                    <DialogTitle>{editData ? "Update" : "Add"} Transaction</DialogTitle>
+                    <DialogTitle>{editData ? "Edit" : "Add"} Transaction</DialogTitle>
                   </DialogHeader>
                   {editData ? (
                     <Form

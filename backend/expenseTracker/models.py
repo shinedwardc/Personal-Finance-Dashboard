@@ -1,5 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.utils import timezone
+from django.db.models import Sum
 
 # Create or update the profile when a user is created or saved
 from django.db.models.signals import post_save
@@ -37,7 +39,7 @@ class Transaction(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self) -> str:
-        return f"User {self.user}, spent {self.amount}, category is {self.category}, transaction date is {self.date}. This was created at {self.created_at}"
+        return f"Id: {self.id}, User {self.user}, spent {self.amount}, category is {self.category}, transaction date is {self.date}. This was created at {self.created_at}"
     
 class EmailVerification(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
@@ -68,6 +70,28 @@ class UserSettings(models.Model):
     ], default="Current Month")
     notifications_enabled = models.BooleanField(default=False)
     income_affects_budget = models.BooleanField(default=False)
+    income_ratio_for_budget = models.DecimalField(max_digits=20, decimal_places=2, null=True)
+
+    @property
+    def get_income_based_budget(self):
+        # Returns the budget including income if the setting is enabled.
+        if not self.income_affects_budget:
+            return None
+        if self.income_ratio_for_budget is None:
+            return self.monthly_budget
+        total_income = Transaction.objects.filter(
+            user = self.user,
+            type = 'Income',
+            date__month = timezone.now().month,
+            date__year = timezone.now().year,
+        ).aggregate(total=Sum('amount'))['total'] or 0
+        income_based_budget = total_income * (self.income_ratio_for_budget / 100); 
+        return income_based_budget
+    
+    def save(self, *args, **kwargs):
+        if not self.income_affects_budget:
+            self.income_ratio_for_budget = None
+        super().save(*args, **kwargs)
 
     
 @receiver(post_save, sender=User)

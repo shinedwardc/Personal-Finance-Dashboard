@@ -25,9 +25,15 @@ class TransactionSerializer(serializers.ModelSerializer):
         return transaction
     
 class UserSettingsSerializer(serializers.ModelSerializer):
+    # Income based budget
+    income_based_budget = serializers.SerializerMethodField()
+
     class Meta:
         model = UserSettings
         fields = "__all__"
+    
+    def get_income_based_budget(self, obj):
+        return obj.get_income_based_budget
 
 class InvestmentSerializer(serializers.ModelSerializer):
     user = UserSerializer(read_only=True)  # Make user read-only since it will be set in the create method

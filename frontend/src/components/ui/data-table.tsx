@@ -138,8 +138,6 @@ export function DataTable({
       id: "actions",
       cell: ({ row }) => {
         const transaction = row.original;
-        //console.log(transaction);
-
         return (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -188,18 +186,19 @@ export function DataTable({
 
   return (
     <>
-      <div className="flex flex-row gap-2 items-center py-4">
+      <div className="flex flex-row items-center pb-4">
         <Input
           placeholder="Filter by transaction name..."
           value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
           onChange={(event) =>
             table.getColumn("name")?.setFilterValue(event.target.value)
           }
-          className="max-w-sm"
+          className="w-1/2"
         />
         {Object.keys(table.getState().rowSelection).length > 0 && (
-          <div className="w-full flex justify-center">
+          <div className="w-1/2 flex justify-center">
             <Button
+              className="w-2/3"
               variant="destructive"
               onClick={() => {
                 onDelete(

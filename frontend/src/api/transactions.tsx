@@ -60,7 +60,7 @@ export const addTransactions = async (
 
 export const deleteTransactions = async (ids: number[]) => {
   try {
-    const response = await axios.delete("/transactions/", {
+    const response = await api.delete("/transactions/", {
       data: { ids },
     });
     return response;
@@ -75,7 +75,8 @@ export const editTransaction = async (
   data: TransactionInterface,
 ) => {
   try {
-    const response = await axios.patch(
+    console.log(expenseId);
+    const response = await api.patch(
       `/transactions/${expenseId}/`,
       data,
     );

@@ -35,7 +35,8 @@ api.interceptors.response.use(
     const isAuthEndpoint =
       url.includes("/auth/refresh") ||
       url.includes("/auth/logout") ||
-      url.includes("/auth/login");
+      url.includes("/auth/login") ||
+      url.includes("/auth/status");
 
     if (isAuthEndpoint) {
       return Promise.reject(error);
@@ -142,7 +143,6 @@ export const fetchUserSettings = async () => {
 
 export const updateBudgetSettings = async (data: BudgetSettings) => {
   try {
-    console.log(data);
     const response = await api.post("/user/settings/budget/", {
       monthly_budget: data.monthly_budget,
       over_spending_threshold: data.over_spending_threshold,
@@ -156,7 +156,12 @@ export const updateBudgetSettings = async (data: BudgetSettings) => {
 export const updateDisplaySettings = async (data: DisplaySettings) => {
   try {
     console.log(data);
-    const response = await api.post("/user/settings/display/", data);
+    const response = await api.post("/user/settings/display/", {
+      ...data,
+      ...(data.income_affects_budget && {
+        income_ratio_for_budget: data.income_ratio_for_budget,
+      }),
+    });
     console.log(response.data);
     return response.data;
   } catch (error) {

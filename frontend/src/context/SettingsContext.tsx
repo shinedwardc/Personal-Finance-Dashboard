@@ -38,6 +38,7 @@ interface DisplaySettingsUpdate extends BaseSettingsUpdate {
   defaultDashboardRange?: "month" | "quarter" | "year" | "all";
   notifactionsEnabled?: boolean;
   incomeAffectsBudget?: boolean;
+  incomeRatioForBudget?: number;
 }
 
 type SettingsUpdate =
@@ -83,6 +84,12 @@ export const SettingsProvider = ({ children }: { children: ReactNode }) => {
     queryFn: fetchUserSettings,
     enabled: authState.isLoggedIn,
   });
+
+  useEffect(() => {
+    if (userSettings){
+      console.log(userSettings);
+    }
+  },[userSettings])
 
   const mutation = useMutation({
     mutationFn: (data: SettingsUpdate) => {
