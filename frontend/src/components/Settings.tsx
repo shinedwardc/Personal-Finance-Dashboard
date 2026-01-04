@@ -75,7 +75,7 @@ const Settings = () => {
             {view === "Display" && (
               <div className="my-2">
                 <form onSubmit={displayForm.handleSubmit(onSubmitDisplay)}>
-                  <div className="flex flex-col w-1/2 gap-y-1">
+                  {/*<div className="flex flex-col w-1/2 gap-y-1">
                     <label className="my-4 text-sm font-medium leading-none">
                       Default display currency
                     </label>
@@ -109,7 +109,7 @@ const Settings = () => {
                         </Select>
                       )}
                     />
-                  </div>
+                  </div>*/}
                   <div className="flex flex-col w-1/2 gap-y-1">
                     <label className="my-4 text-sm font-medium leading-none">
                       Date format

@@ -50,16 +50,35 @@ const columnHelper = createColumnHelper<TransactionInterface>();
 
 export function DataTable({
   data,
+  dateFormat,
   onDelete,
   onEdit,
 }: {
   data: TransactionInterface[];
+  dateFormat: string;
   onDelete: (id: number[]) => void;
   onEdit: (data: TransactionInterface) => void;
 }) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [rowSelection, setRowSelection] = useState({});
+
+  const formatDate = (date: string) => {;
+    const d = new Date(date);
+    const day = String(d.getDate()).padStart(2, '0');
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const year = d.getFullYear();
+
+    switch (dateFormat) {
+      case "YYYY/MM/DD":
+        return `${year}-${month}-${day}`;
+      case "DD/MM/YYYY":
+        return `${day}-${month}-${year}`;
+      case "MM/DD/YYYY":
+      default:
+        return `${month}-${day}-${year}`;
+    }
+  };
 
   const columns = [
     columnHelper.accessor("id", {
@@ -290,27 +309,27 @@ export function DataTable({
                                 </div>
                               )
                             })()
-                          : cell.column.id === "date" && isFuture
-                            ? (() => {
-                                return (
-                                  <div className="flex flex-col gap-y-1 justify-center items-center">
-                                    {cell.getValue() as string}
-                                    <span
-                                      className="
-                                        rounded-full text-xs 
-                                      bg-blue-200 text-blue-800 
-                                      dark:bg-blue-900/40 dark:text-blue-200
-                                      "
-                                    >
-                                      Upcoming
-                                    </span>
-                                  </div>
-                                );
-                              })()
-                            : flexRender(
-                                cell.column.columnDef.cell,
-                                cell.getContext(),
-                              )}
+                      : cell.column.id === "date"
+                        ? isFuture 
+                          ? (() => {
+                              return (
+                                <div className="flex flex-col gap-y-1 justify-center items-center">
+                                  {formatDate(cell.getValue() as string)}
+                                  <span className="rounded-full px-2 text-xs bg-blue-200 text-blue-800 dark:bg-blue-900/40 dark:text-blue-200">
+                                    Upcoming
+                                  </span>
+                                </div>
+                              )
+                          })() 
+                          : (() => {
+                            return (
+                              formatDate(cell.getValue() as string)
+                            )
+                          })()
+                        : flexRender(
+                            cell.column.columnDef.cell,
+                            cell.getContext(),
+                          )}
                       </TableCell>
                     ))}
                   </TableRow>

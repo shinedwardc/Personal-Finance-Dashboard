@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { useTransactionContext } from "@/hooks/useTransactionContext";
 import { useMonthlyTransactions } from "@/hooks/useMonthlyTransactions";
+import { useSettingsContext } from "@/hooks/useSettingsContext";
 import Form from "@/components/Form";
 import CSVImport from "./CSVImport";
 import { DataTable } from "./ui/data-table";
@@ -13,6 +14,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "./ui/button";
 import MonthPicker from "./ui/month-picker";
+import { Skeleton } from "./ui/skeleton";
 import { toast, Bounce } from "react-toastify";
 import { TransactionInterface } from "@/interfaces/Transactions";
 
@@ -29,6 +31,8 @@ const List = () => {
 
   const { data: transactionList, isLoading: isMonthlyTransactionsLoading } =
     useMonthlyTransactions(monthAndYear);
+  
+  const { userSettings, isUserSettingsLoading } = useSettingsContext();
 
   const [importedData, setImportedData] = useState<TransactionInterface[] | null>(
     null,
@@ -138,92 +142,96 @@ const List = () => {
     setIsDialogOpen(true);
   };
 
-  return (
+return (
     <>
-      <div className="mt-12 flex flex-col md:flex-row w-full justify-center items-center mb-4">
-        <div className="flex justify-center gap-x-2">
-          <h1 className="text-3xl font-semibold antialiased dark:text-white">
-            Transactions
-          </h1>
-          <div className="flex-1 flex md:justify-start justify-center">
-            <div className="flex flex-row justify-center gap-x-2 fixed bottom-6 right-6">
-                <Dialog open={isDialogOpen} onOpenChange={(open) => {
-                  setIsDialogOpen(open);
-                  if (!open) setEditData(null);
-                }}>
-                <DialogTrigger asChild>
-                  <Button
-                    variant="default"
-                    className="px-10 py-6 text-lg 
-                                rounded-full shadow-lg bg-white/20 backdrop-blur-lg 
-                                border border-white/30 hover:bg-white/30
-                                "
+      {!isMonthlyTransactionsLoading && !isUserSettingsLoading ? (
+        <>
+          <div className="mt-12 flex flex-col md:flex-row w-full justify-center items-center mb-4">
+            <div className="flex justify-center gap-x-2">
+              <h1 className="text-3xl font-semibold antialiased dark:text-white">
+                Transactions
+              </h1>
+              <div className="flex-1 flex md:justify-start justify-center">
+                <div className="flex flex-row justify-center gap-x-2 fixed bottom-6 right-6">
+                  <Dialog 
+                    open={isDialogOpen} 
+                    onOpenChange={(open) => {
+                      setIsDialogOpen(open);
+                      if (!open) setEditData(null);
+                    }}
                   >
-                    Add +
-                  </Button>
-                </DialogTrigger>
-                <DialogContent className="z-50"
-                  onInteractOutside={(e) => e.preventDefault()}         
-                >
-                  <DialogHeader>
-                    <DialogTitle>{editData ? "Edit" : "Add"} Transaction</DialogTitle>
-                  </DialogHeader>
-                  {editData ? (
-                    <Form
-                      addingNewTransaction={false}
-                      initialValues={{
-                        ...editData,
-                        date: new Date(editData.date),
-                      }}
-                      onFormSubmit={onFormEditTransaction}
-                    />
-                  ) : (
-                    <Form 
-                      addingNewTransaction={true} 
-                      onFormSubmit={onFormNewTransactions} 
-                    />
-                  )}
-                </DialogContent>
-              </Dialog>
-              <CSVImport setImportedData={setImportedData} />
+                    <DialogTrigger asChild>
+                      <Button
+                        variant="default"
+                        className="px-10 py-6 text-lg rounded-full shadow-lg bg-white/20 backdrop-blur-lg border border-white/30 hover:bg-white/30"
+                      >
+                        Add +
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent 
+                      className="z-50"
+                      onInteractOutside={(e) => e.preventDefault()}         
+                    >
+                      <DialogHeader>
+                        <DialogTitle>{editData ? "Edit" : "Add"} Transaction</DialogTitle>
+                      </DialogHeader>
+                      {editData ? (
+                        <Form
+                          addingNewTransaction={false}
+                          initialValues={{
+                            ...editData,
+                            date: new Date(editData.date),
+                          }}
+                          onFormSubmit={onFormEditTransaction}
+                        />
+                      ) : (
+                        <Form 
+                          addingNewTransaction={true} 
+                          onFormSubmit={onFormNewTransactions} 
+                        />
+                      )}
+                    </DialogContent>
+                  </Dialog>
+                  <CSVImport setImportedData={setImportedData} />
+                </div>
+              </div>
             </div>
           </div>
-        </div>
-      </div>
-      {transactionList && transactionList.length > 0 ? (
-        <div
-          className="
-                      bg-white/10 dark:bg-white/5 
-                        backdrop-blur-xl 
-                        rounded-xl border border-white/10 
-                        p-4 shadow-lg          
-                        "
-        >
-          <DataTable
-            data={transactionList}
-            onDelete={handleDeleteTransactions}
-            onEdit={handleEditTransaction}
-          />
-        </div>
-      ) : (
-        <div className="mt-8 flex flex-col items-center">
-          <div>
-            <p>No expenses recorded for this month</p>
+          {transactionList && transactionList.length > 0 ? (
+            <div className="bg-white/10 dark:bg-white/5 backdrop-blur-xl rounded-xl border border-white/10 p-4 shadow-lg">
+              <DataTable
+                data={transactionList}
+                dateFormat={userSettings.display_date_format}
+                onDelete={handleDeleteTransactions}
+                onEdit={handleEditTransaction}
+              />
+            </div>
+          ) : (
+            <div className="mt-8 flex flex-col items-center">
+              <p className="dark:text-white">No expenses recorded for this month</p>
+            </div>
+          )}
+
+          <div className="mt-4">
+            <MonthPicker
+              currentMonth={new Date(monthAndYear)}
+              onMonthChange={(newDate) => {
+                setMonthAndYear(newDate);
+              }}
+            />
           </div>
+        </>
+      ) : (
+        <div className="mt-10 ml-2">
+          <Skeleton className="mt-4 h-[500px] w-[615px] rounded-3xl" />
         </div>
       )}
-      <div>
-        <MonthPicker
-          currentMonth={new Date(monthAndYear)}
-          onMonthChange={(newDate) => {
-            setMonthAndYear(newDate);
-          }}
-        />
-      </div>
-      {/*<div className="mt-4 dark:text-slate-200">--- OR ---</div>
-        <div className="my-4 p-4 border border-green-800 dark:text-white">
-          <Recurring onFormSubmit={onNewExpense} />
-        </div>*/}
+
+      {/* <div className="mt-4 dark:text-slate-200">--- OR ---</div>
+      <div className="my-4 p-4 border border-green-800 dark:text-white">
+        <Recurring onFormSubmit={onNewExpense} />
+      </div> 
+      */}
     </>
   );
 };
