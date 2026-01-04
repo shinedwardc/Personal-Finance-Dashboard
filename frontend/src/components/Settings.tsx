@@ -242,10 +242,14 @@ const Settings = () => {
                       Monthly limit ({userSettings.display_currency?.toUpperCase()})
                     </span>
                     <input
-                      className="w-1/2 p-2"
+                      className="w-1/2 p-2 border rounded-md transition-colors
+                              disabled:bg-slate-100 disabled:text-slate-500 
+                                disabled:cursor-not-allowed disabled:opacity-70 
+                              disabled:border-slate-200"
                       {...budgetForm.register("monthly_budget", { valueAsNumber: true })}
                       type="number"
                       placeholder="Enter number"
+                      disabled={userSettings.income_affects_budget}
                     />                        
                   </div>
                   <div className="flex flex-col mt-4 w-1/2">

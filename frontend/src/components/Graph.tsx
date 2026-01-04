@@ -125,6 +125,7 @@ const Stats = () => {
           amount: cumulative,
         });
       }
+      console.log(chartDataArray);
 
       setChartData(chartDataArray);
     }
@@ -170,7 +171,16 @@ const Stats = () => {
         </div>
         <div className="flex justify-center flex-col">
             {rightArrow ? (
-              userSettings.monthly_budget ? (
+              userSettings.income_affects_budget && userSettings.income_based_budget ? (
+                <div className="flex flex-col justify-center items-center m-5">
+                  <h3 className="font-bold text-2xl">
+                    {userSettings.income_based_budget - monthlySpent}$ left
+                  </h3>
+                  <p className="font-thin italic text-md">
+                    Out of {userSettings.income_based_budget}$ budgeted
+                  </p>
+                </div>
+              ) : userSettings.monthly_budget ? (
                 <div className="flex flex-col justify-center items-center m-5">
                   <h3 className="font-bold text-2xl">
                     {userSettings.monthly_budget - monthlySpent}$ left
@@ -236,7 +246,15 @@ const Stats = () => {
                   />
                   <ChartTooltip
                     cursor={false}
-                    content={<ChartTooltipContent nameKey="date" hideIndicator />}
+                    content={<ChartTooltipContent    
+                      labelFormatter={(value) => {
+                        const monthName = viewDate.toLocaleDateString("en-US", { month: "long" });
+                        return `${monthName} ${value}`;
+                      }}                                   
+                      nameKey="date" 
+                      hideIndicator 
+                      />
+                    }
                   />
                   <Legend />
                   <Area

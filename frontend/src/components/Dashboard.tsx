@@ -89,11 +89,16 @@ const Dashboard = () => {
 
   const [modalIsOpen, setIsOpen] = useState<boolean>(false);
 
-  const formatCurrency = (value: number) =>
-    `$${value.toLocaleString(undefined, {
+  const formatCurrency = (value: number) => {
+    const currency = userSettings?.display_currency || 'USD';
+
+    return new Intl.NumberFormat(undefined, {
+      style: 'currency',
+      currency: currency,
       minimumFractionDigits: 0,
       maximumFractionDigits: 0,
-    })}`;
+    }).format(value);
+  };
 
   const currentMonthLabel = today.toLocaleDateString(undefined, {
     month: "long",
@@ -409,48 +414,48 @@ const Dashboard = () => {
                             )}
                           </div>
                         </>
-                      ) : userSettings.income_affects_budget && userSettings.income_based_budget ? (
+                      ) : userSettings.income_affects_budget && userSettings.monthly_budget ? (
                         <>
                           <p className="text-sm font-semibold text-neutral-100">
                             {formatCurrency(monthlySpent)}{" "}
                             <span className="text-neutral-400 text-xs">
-                              / {formatCurrency(userSettings.income_based_budget)}
+                              / {userSettings.income_based_budget ? formatCurrency(userSettings.income_based_budget) : formatCurrency(userSettings.monthly_budget)}
                             </span>
                           </p>
                           <p
                             className={`mt-1 text-xs ${
-                              userSettings.income_based_budget -
+                              userSettings.income_based_budget ? userSettings.income_based_budget : userSettings.monthly_budget -
                                 Number(monthlySpent.toFixed(2)) <
                               0
                                 ? "text-red-300"
                                 : "text-emerald-300"
                             }`}
                           >
-                            {userSettings.income_based_budget -
+                            {userSettings.income_based_budget ? userSettings.income_based_budget : userSettings.monthly_budget -
                               Number(monthlySpent.toFixed(2)) <
                             0
                               ? `Over budget by ${formatCurrency(
                                   Math.abs(
-                                    userSettings.income_based_budget -
+                                    userSettings.income_based_budget ? userSettings.income_based_budget : userSettings.monthly_budget -
                                       Number(monthlySpent.toFixed(2)),
                                   ),
                                 )}`
                               : `You have ${formatCurrency(
-                                  userSettings.income_based_budget -
+                                  userSettings.income_based_budget ? userSettings.income_based_budget : userSettings.monthly_budget -
                                     Number(monthlySpent.toFixed(2)),
                                 )} left this month.`}
                           </p>
                           <div className="mt-3 h-2 w-full overflow-hidden rounded-full bg-white/10">
-                            {userSettings.income_based_budget > 0 && (
+                            {userSettings.income_based_budget ? userSettings.income_based_budget : userSettings.monthly_budget > 0 && (
                               <div
                                 className={`h-full rounded-full ${
-                                  monthlySpent > userSettings.income_based_budget
+                                  monthlySpent > (userSettings.income_based_budget ? userSettings.income_based_budget : userSettings.monthly_budget)
                                     ? "bg-red-400"
                                     : "bg-emerald-400"
                                 }`}
                                 style={{
                                   width: `${Math.min(
-                                    (monthlySpent / userSettings.income_based_budget) * 100,
+                                    (monthlySpent / (userSettings.income_based_budget ? userSettings.income_based_budget : userSettings.monthly_budget) * 100),
                                     110
                                   )}%`,
                                 }}
@@ -460,7 +465,7 @@ const Dashboard = () => {
                         </>
                       ) : (
                         <p className="text-sm text-red-300">
-                          Add a monthly budget in profile settings to unlock
+                          Add a monthly budget in profile settings or add income to unlock
                           budget tracking.
                         </p>
                       )}

@@ -20,7 +20,7 @@ import {
 } from "@/components/ui/table";
 
 import { MoreHorizontal } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
   DropdownMenu,
@@ -30,6 +30,17 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
 import { ArrowUpDown, ArrowUpIcon, ArrowDownIcon } from "lucide-react";
 import { TransactionInterface } from "@/interfaces/Transactions";
 import { expenseCategoryConfig } from "@/constants/expenseCategoryConfig";
@@ -197,20 +208,40 @@ export function DataTable({
         />
         {Object.keys(table.getState().rowSelection).length > 0 && (
           <div className="w-1/2 flex justify-center">
-            <Button
-              className="w-2/3"
-              variant="destructive"
-              onClick={() => {
-                onDelete(
-                  table
-                    .getSelectedRowModel()
-                    .rows.map((row) => row.original.id),
-                );
-                setRowSelection({});
-              }}
-            >
-              Delete selected
-            </Button>
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button               
+                  className="w-2/3"
+                  variant="destructive"
+                >
+                  Delete selected
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    This action cannot be undone. This will permanently delete your
+                    selected transactions.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction
+                    onClick={() => {
+                      onDelete(
+                        table
+                          .getSelectedRowModel()
+                          .rows.map((row) => row.original.id)
+                      );
+                      table.resetRowSelection(); // Cleaner way to reset selection
+                    }}                  
+                  >
+                    Continue
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
           </div>
         )}
       </div>
