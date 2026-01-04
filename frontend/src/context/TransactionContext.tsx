@@ -8,6 +8,7 @@ import {
   deleteTransactions,
   editTransaction,
 } from "../api/transactions";
+import { DateTime } from "luxon";
 import { updateBudgetSettings, updateDisplaySettings } from "../api/user";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 
@@ -41,7 +42,7 @@ export const TransactionProvider = ({ children }: { children: ReactNode }) => {
   const [data, setData] = useState<TransactionInterface[]>([]);
 
   const { data: transactionData, isLoading: transactionLoading } = useQuery({
-    queryKey: ["transactions", authState.isLoggedIn],
+    queryKey: ["transactions"],
     queryFn: getTransactions,
     enabled: authState.isLoggedIn,
   });
@@ -50,9 +51,10 @@ export const TransactionProvider = ({ children }: { children: ReactNode }) => {
     useMutation({
       mutationFn: (newTransaction: TransactionInterface | TransactionInterface[]) =>
         addTransactions(newTransaction),
-      onSuccess: () => {
+      onSuccess: (data,variables) => {
+        const dateTime = DateTime.fromISO(variables.date);
         queryClient.invalidateQueries({ queryKey: ["transactions"] });
-        queryClient.invalidateQueries({ queryKey: ["monthlyTransactions"] });
+        queryClient.invalidateQueries({ queryKey: ["monthlyTransactions", dateTime.year, dateTime.month - 1]});
       },
       onError: (error) => {
         console.error("Error adding transaction:", error);
@@ -62,9 +64,10 @@ export const TransactionProvider = ({ children }: { children: ReactNode }) => {
   const { mutate: deleteTransactionMutate, isLoading: deleteTransactionLoading } =
     useMutation({
       mutationFn: (transactionId: number[]) => deleteTransactions(transactionId),
-      onSuccess: () => {
+      onSuccess: (data, variables) => {
+        const dateTime = DateTime.fromISO(variables.date);
         queryClient.invalidateQueries({ queryKey: ["transactions"] });
-        queryClient.invalidateQueries({ queryKey: ["monthlyTransactions"] });
+        queryClient.invalidateQueries({ queryKey: ["monthlyTransactions", dateTime.year, dateTime.month - 1] });
       },
       onError: (error) => {
         console.error("Error deleting transactions:", error);
@@ -80,9 +83,10 @@ export const TransactionProvider = ({ children }: { children: ReactNode }) => {
         transactionId: number;
         data: TransactionInterface;
       }) => editTransaction(transactionId, data),
-      onSuccess: () => {
+      onSuccess: (data, variables) => {
+        const dateTime = DateTime.fromISO(variables.date);
         queryClient.invalidateQueries({ queryKey: ["transactions"] });
-        queryClient.invalidateQueries({ queryKey: ["monthlyTransactions"] });
+        queryClient.invalidateQueries({ queryKey: ["monthlyTransactions", dateTime.year, dateTime.month - 1] });
       },
       onError: (error) => {
         console.error("Error editing transaction:", error);

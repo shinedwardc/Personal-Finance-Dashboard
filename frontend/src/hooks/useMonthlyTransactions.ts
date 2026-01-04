@@ -10,7 +10,6 @@ export const useMonthlyTransactions = (monthAndYear: Date | null) => {
   const { data, isLoading } = useQuery({
     queryKey: [
       "monthlyTransactions",
-      authState.isLoggedIn,
       monthAndYear?.getMonth(),
       monthAndYear?.getFullYear(),
     ],

@@ -80,7 +80,7 @@ export const SettingsProvider = ({ children }: { children: ReactNode }) => {
 
 
   const { data: userSettings, isLoading: isUserSettingsLoading } = useQuery({
-    queryKey: ["userSettings", authState.isLoggedIn],
+    queryKey: ["userSettings"],
     queryFn: fetchUserSettings,
     enabled: authState.isLoggedIn,
   });
@@ -104,7 +104,7 @@ export const SettingsProvider = ({ children }: { children: ReactNode }) => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: ["userSettings", authState.isLoggedIn],
+        queryKey: ["userSettings"],
       });
     },
   });

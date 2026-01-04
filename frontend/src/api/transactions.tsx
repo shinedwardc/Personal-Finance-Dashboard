@@ -26,7 +26,6 @@ export const getTransactionsByMonth = async (
     const response = await api.get("/transactions/", {
       params: { month, year },
     });
-    console.log(response.data.expenses);
     return response.data.expenses;
   } catch (error) {
     console.error(error);
