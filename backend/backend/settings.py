@@ -41,7 +41,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'expenseTracker',
+    'personalFinanceDashboard',
     'rest_framework',
     'corsheaders',
     'rest_framework_simplejwt',
@@ -54,7 +54,7 @@ REST_FRAMEWORK = {
     ],
     'DEFAULT_AUTHENTICATION_CLASSES': (
         #'rest_framework_simplejwt.authentication.JWTAuthentication',
-        'expenseTracker.authentication.CookieJWTAuthentication',
+        'personalFinanceDashboard.authentication.CookieJWTAuthentication',
     ),
     'COERCE_DECIMAL_TO_STRING': False,
 }

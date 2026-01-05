@@ -27,8 +27,8 @@ const Settings = () => {
 
   const displayForm = useForm<DisplaySettings>({
     defaultValues: {
-      display_currency: userSettings.display_currency ?? "usd",
-      display_date_format: userSettings.display_date_format ?? "US Format MM/DD/YYYY",
+      display_currency: userSettings.display_currency ?? "USD",
+      display_date_format: userSettings.display_date_format ?? "MM/DD/YYYY",
       default_dashboard_range: userSettings.default_dashboard_range ?? "Current Month",
       notifications_enabled: userSettings.notifications_enabled ?? false,
       income_affects_budget: userSettings.income_affects_budget ?? false,
@@ -239,7 +239,7 @@ const Settings = () => {
                 <form className="" onSubmit={budgetForm.handleSubmit(onSubmitBudget)}>
                   <div className="flex flex-col w-1/2 gap-y-1">
                     <span className="label-text text-base">
-                      Monthly limit ({userSettings.display_currency?.toUpperCase()})
+                      Monthly limit ({userSettings.display_currency?.toUpperCase() || "USD"})
                     </span>
                     <input
                       className="w-1/2 p-2 border rounded-md transition-colors

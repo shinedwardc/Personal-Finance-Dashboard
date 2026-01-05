@@ -18,8 +18,12 @@ import { Skeleton } from "./ui/skeleton";
 import { toast, Bounce } from "react-toastify";
 import { TransactionInterface } from "@/interfaces/Transactions";
 
+import { useQueryClient } from "@tanstack/react-query";
 
 const List = () => {
+
+  const queryClient = useQueryClient();
+
   const today = useMemo(() => new Date(), []);
   const [monthAndYear, setMonthAndYear] = useState<Date>(today);
   const { addTransactionMutate, deleteTransactionMutate } = useTransactionContext();
@@ -34,7 +38,7 @@ const List = () => {
   
   const { userSettings, isUserSettingsLoading } = useSettingsContext();
 
-  const [importedData, setImportedData] = useState<TransactionInterface[] | null>(
+  /*const [importedData, setImportedData] = useState<TransactionInterface[] | null>(
     null,
   );
 
@@ -42,7 +46,7 @@ const List = () => {
     if (importedData) {
       addTransactionMutate(importedData);
     }
-  }, [importedData, addTransactionMutate]);
+  }, [importedData, addTransactionMutate]);*/
 
   const onFormNewTransactions = async () => {
     setIsDialogOpen(false);
@@ -107,7 +111,6 @@ const List = () => {
 
   const handleDeleteTransactions = async (transactionId: number[]) => {
     try {
-      console.log(transactionId);
       deleteTransactionMutate(transactionId);
     } catch (error) {
       toast.error("Failed to add transactions", {
@@ -192,7 +195,7 @@ return (
                       )}
                     </DialogContent>
                   </Dialog>
-                  <CSVImport setImportedData={setImportedData} />
+                  {/*<CSVImport setImportedData={setImportedData} />*/}
                 </div>
               </div>
             </div>
