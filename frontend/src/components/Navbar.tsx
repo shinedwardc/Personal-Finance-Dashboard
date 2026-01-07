@@ -8,6 +8,7 @@ import {
   ChartLine,
   UserRoundPen,
 } from "lucide-react";
+import { logout } from "@/api/user";
 
 const Navbar = () => {
   const navigate = useNavigate();
@@ -16,13 +17,7 @@ const Navbar = () => {
 
   const handleLogout = async () => {
     try {
-      await axios.post(
-        "http://localhost:8000/api/logout/",
-        {},
-        {
-          withCredentials: true,
-        },
-      );
+      await logout();
       setAuthState({
         isLoggedIn: false,
         isPlaidConnected: authState.isPlaidConnected,
@@ -41,7 +36,7 @@ const Navbar = () => {
           <div
             className={`${authState.isLoggedIn ? "min-w-max" : "w-1/2 text-center mt-5"}`}
           >
-            <h1 className="text-4xl font-bold">Expense Tracker</h1>
+            <h1 className="text-2xl font-bold">Personal Finance Dashboard</h1>
           </div>
           {authState.isLoggedIn ? (
             <>

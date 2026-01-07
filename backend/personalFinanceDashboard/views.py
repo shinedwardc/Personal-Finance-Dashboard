@@ -1,4 +1,5 @@
 from .models import Transaction, Investment, EmailVerification, UserSettings
+from django.db.models import Q
 from django.utils import timezone
 from datetime import timedelta
 from django.contrib.auth import authenticate
@@ -183,15 +184,20 @@ def refresh_token(request):
     
 
 @api_view(['POST'])
+@permission_classes([AllowAny])
 def user_post(request):
     # Check user input data from request
     username = request.data.get('username')
     password = request.data.get('password')
     email = request.data.get('email')
     monthly_budget = request.data.get('monthlyBudget')
+    print(username, password, email, monthly_budget)
     # Check if username already exists, prevents duplicate usernames
-    if User.objects.filter(username=username).exists():
-        return Response({'error': 'Username already exists.'}, status=status.HTTP_400_BAD_REQUEST)
+    if User.objects.filter(Q(username=username) | Q(email=email)).exists():
+        return Response(
+            {"error": "Username or Email already exists"}, 
+            status=status.HTTP_400_BAD_REQUEST
+        )
     user = User(
         username=username,
         password=make_password(password),

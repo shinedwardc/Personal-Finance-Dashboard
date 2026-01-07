@@ -5,10 +5,6 @@ from .utils import plaid
 urlpatterns = [
     path('transactions/', views.transactions, name='transactions'),
     path('transactions/<int:id>/', views.transactions, name='transactions'),
-    
-    path('signup/', views.user_post, name='user_post'),
-    path('reset-password-email/', views.reset_password_email, name='reset_password_email'),
-    path('code-verification/',views.code_verification, name='code_verification'),
 
     path('auth/status/', views.authentication_status, name='authentication_status'),
     path('auth/login/', views.login, name='login'),
@@ -20,6 +16,10 @@ urlpatterns = [
     path('user/settings/', views.get_user_settings, name='get_user_settings'),
     path('user/settings/budget/', views.update_budget_settings, name='update_budget_settings'),
     path('user/settings/display/', views.update_display_settings, name='update_display_settings'),
+
+    path('signup/', views.user_post, name='user_post'),
+    path('reset-password-email/', views.reset_password_email, name='reset_password_email'),
+    path('code-verification/',views.code_verification, name='code_verification'),
 
     path('get-currency-exchange/<str:from_currency>/', views.get_currency_exchange, name='get_currency_change'),
 

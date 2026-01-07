@@ -77,7 +77,7 @@ api.interceptors.response.use(
 
 export const loginUser = async (username: string, password: string) => {
   try {
-    const response = await api.post("/auth/", {
+    const response = await api.post("/auth/login/", {
       username,
       password,
     });
@@ -94,6 +94,36 @@ export const googleLogin = async (token: string) => {
       token,
     });
     return response.data;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+}
+
+export const logout = async () => {
+  try {
+    const response = await api.post("/auth/logout/");
+    return response.data;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+}
+
+export const signup = async (
+  username: string,
+  password: string,
+  email: string,
+  monthlyBudget: number | null
+) => {
+  try {
+    const response = await api.post("/signup/", {
+      username: username,
+      password: password,
+      email: email,
+      monthlyBudget: monthlyBudget
+    });
+    return response;
   } catch (error) {
     console.error(error);
     throw error;
